@@ -1,0 +1,65 @@
+# Build artifacts
+bin/
+obj/
+*.nupkg
+*.snupkg
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+*.vcxproj.filters
+
+# .NET
+**/obj/
+**/bin/
+*.dll
+*.pdb
+*.exe
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+.pnpm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Package files
+packages/
+dist/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+
+# Database
+*.mdf
+*.ldf
+
+# Azure
+.azure/
+
+# Temporary files
+temp/
+tmp/
