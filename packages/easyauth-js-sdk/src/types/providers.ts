@@ -49,12 +49,14 @@ export interface ProviderUserInfo {
   name?: string;
   givenName?: string;
   familyName?: string;
+  profilePictureUrl?: string;
   picture?: string;
   locale?: string;
   phone?: string;
   phoneVerified?: boolean;
   birthdate?: string;
   gender?: string;
+  provider: string;
   address?: ProviderAddress;
   customClaims?: Record<string, unknown>;
 }
@@ -70,10 +72,12 @@ export interface ProviderAddress {
 
 // Provider health check
 export interface ProviderHealthCheck {
+  provider: string;
   isHealthy: boolean;
   responseTime: number;
-  lastChecked: Date;
-  endpoints: Record<string, EndpointHealth>;
+  status: string;
+  lastChecked?: Date;
+  endpoints?: Record<string, EndpointHealth>;
   error?: string;
 }
 
@@ -101,6 +105,16 @@ export interface GoogleTokenInfo {
   email?: string;
   email_verified?: string;
   access_type?: string;
+}
+
+// Google-specific configuration
+export interface GoogleConfig {
+  clientId: string;
+  clientSecret?: string;
+  redirectUri: string;
+  scopes?: string[];
+  enabled?: boolean;
+  hostedDomain?: string;
 }
 
 // Apple-specific types

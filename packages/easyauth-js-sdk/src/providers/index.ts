@@ -1,13 +1,17 @@
 /**
- * Provider implementations (placeholder)
- * To be implemented in future iterations
+ * Provider implementations
+ * OAuth 2.0 providers for various identity platforms
  */
 
-// TODO: Implement specific provider classes
-// export { GoogleAuthProvider } from './GoogleAuthProvider';
+// Export implemented providers
+export { GoogleAuthProvider } from './GoogleAuthProvider';
+
+// TODO: Implement remaining provider classes
 // export { AppleAuthProvider } from './AppleAuthProvider';
 // export { FacebookAuthProvider } from './FacebookAuthProvider';
 // export { AzureB2CAuthProvider } from './AzureB2CAuthProvider';
 
-// For now, export empty object to satisfy imports
-export const providers = {};
+// Export providers collection
+export const providers = {
+  GoogleAuthProvider,
+};
