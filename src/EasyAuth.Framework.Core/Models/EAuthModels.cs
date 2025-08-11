@@ -96,6 +96,117 @@ namespace EasyAuth.Framework.Core.Models
         public bool IsEnabled { get; set; }
         public string LoginUrl { get; set; } = string.Empty;
         public string IconUrl { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string[] SupportedScopes { get; set; } = Array.Empty<string>();
+        public ProviderCapabilities Capabilities { get; set; } = new();
         public Dictionary<string, object> Metadata { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Provider capabilities and features
+    /// </summary>
+    public class ProviderCapabilities
+    {
+        /// <summary>
+        /// Supports password reset functionality
+        /// </summary>
+        public bool SupportsPasswordReset { get; set; }
+
+        /// <summary>
+        /// Supports profile editing
+        /// </summary>
+        public bool SupportsProfileEditing { get; set; }
+
+        /// <summary>
+        /// Supports account linking
+        /// </summary>
+        public bool SupportsAccountLinking { get; set; }
+
+        /// <summary>
+        /// Supports refresh tokens
+        /// </summary>
+        public bool SupportsRefreshTokens { get; set; }
+
+        /// <summary>
+        /// Supports logout URL
+        /// </summary>
+        public bool SupportsLogout { get; set; }
+
+        /// <summary>
+        /// Supported authentication methods
+        /// </summary>
+        public string[] SupportedMethods { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Supported OAuth scopes
+        /// </summary>
+        public string[] SupportedScopes { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Maximum session duration in minutes
+        /// </summary>
+        public int MaxSessionDurationMinutes { get; set; } = 1440; // 24 hours default
+    }
+
+    /// <summary>
+    /// Provider health status
+    /// </summary>
+    public class ProviderHealth
+    {
+        /// <summary>
+        /// Provider name
+        /// </summary>
+        public string ProviderName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Whether the provider is healthy
+        /// </summary>
+        public bool IsHealthy { get; set; }
+
+        /// <summary>
+        /// Last health check timestamp
+        /// </summary>
+        public DateTimeOffset LastChecked { get; set; } = DateTimeOffset.UtcNow;
+
+        /// <summary>
+        /// Response time in milliseconds
+        /// </summary>
+        public long ResponseTimeMs { get; set; }
+
+        /// <summary>
+        /// Health check error message (if any)
+        /// </summary>
+        public string? ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Additional health metrics
+        /// </summary>
+        public Dictionary<string, object> Metrics { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Provider validation result
+    /// </summary>
+    public class ProviderValidationResult
+    {
+        /// <summary>
+        /// Whether all providers are valid
+        /// </summary>
+        public bool IsValid { get; set; }
+
+        /// <summary>
+        /// Validation error messages
+        /// </summary>
+        public List<string> ValidationErrors { get; set; } = new();
+
+        /// <summary>
+        /// Provider-specific validation results
+        /// </summary>
+        public Dictionary<string, bool> ProviderResults { get; set; } = new();
+
+        /// <summary>
+        /// Validation timestamp
+        /// </summary>
+        public DateTimeOffset ValidatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }
