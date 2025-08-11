@@ -147,10 +147,21 @@ describe('EasyAuthClient', () => {
 
   describe('handleCallback', () => {
     it('should handle successful callback', async () => {
+      // First initiate login to get a valid state
+      const loginRequest = {
+        provider: 'google' as AuthProvider,
+        returnUrl: 'https://app.example.com/callback'
+      };
+      
+      const loginResult = await client.initiateLogin(loginRequest);
+      expect(loginResult.success).toBe(true);
+      expect(loginResult.state).toBeDefined();
+      
+      // Now handle callback with the valid state
       const callbackData = {
         code: 'auth_code_123',
-        state: 'csrf_state_456',
-        provider: 'google'
+        state: loginResult.state!,
+        provider: 'google' as AuthProvider
       };
       
       const result = await client.handleCallback(callbackData);
@@ -191,11 +202,20 @@ describe('EasyAuthClient', () => {
 
   describe('getCurrentSession', () => {
     it('should return current session if valid', async () => {
-      // First login to create session
+      // First initiate login to get a valid state
+      const loginRequest = {
+        provider: 'google' as AuthProvider,
+        returnUrl: 'https://app.example.com/callback'
+      };
+      
+      const loginResult = await client.initiateLogin(loginRequest);
+      expect(loginResult.success).toBe(true);
+      
+      // Handle callback to create session
       await client.handleCallback({
         code: 'auth_code_123',
-        state: 'valid_state',
-        provider: 'google'
+        state: loginResult.state!,
+        provider: 'google' as AuthProvider
       });
       
       const session = await client.getCurrentSession();
@@ -229,11 +249,20 @@ describe('EasyAuthClient', () => {
 
   describe('signOut', () => {
     it('should sign out current user', async () => {
-      // First login to create session
+      // First initiate login to get a valid state
+      const loginRequest = {
+        provider: 'google' as AuthProvider,
+        returnUrl: 'https://app.example.com/callback'
+      };
+      
+      const loginResult = await client.initiateLogin(loginRequest);
+      expect(loginResult.success).toBe(true);
+      
+      // Handle callback to create session
       await client.handleCallback({
         code: 'auth_code_123',
-        state: 'valid_state',
-        provider: 'google'
+        state: loginResult.state!,
+        provider: 'google' as AuthProvider
       });
       
       const result = await client.signOut();
@@ -252,17 +281,26 @@ describe('EasyAuthClient', () => {
 
   describe('refreshSession', () => {
     it('should refresh valid session', async () => {
-      // Setup session with refresh token
-      const sessionWithRefresh = {
-        sessionId: 'test-session',
-        user: { id: '1', email: 'test@example.com' },
-        isValid: true,
-        refreshToken: 'refresh-token-123',
-        expiresAt: new Date(Date.now() + 3600000)
+      // First create a valid session through proper flow
+      const loginRequest = {
+        provider: 'google' as AuthProvider,
+        returnUrl: 'https://app.example.com/callback'
       };
       
-      (client as any).currentSession = sessionWithRefresh;
+      const loginResult = await client.initiateLogin(loginRequest);
+      expect(loginResult.success).toBe(true);
       
+      // Handle callback to create session with refresh token
+      const callbackResult = await client.handleCallback({
+        code: 'auth_code_123',
+        state: loginResult.state!,
+        provider: 'google' as AuthProvider
+      });
+      
+      expect(callbackResult.success).toBe(true);
+      expect(callbackResult.session?.refreshToken).toBeDefined();
+      
+      // Now refresh the session
       const result = await client.refreshSession();
       
       expect(result.success).toBe(true);
