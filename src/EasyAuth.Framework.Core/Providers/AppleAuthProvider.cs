@@ -1,13 +1,13 @@
-using EasyAuth.Framework.Core.Configuration;
-using EasyAuth.Framework.Core.Models;
-using EasyAuth.Framework.Core.Services;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using EasyAuth.Framework.Core.Configuration;
+using EasyAuth.Framework.Core.Models;
+using EasyAuth.Framework.Core.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace EasyAuth.Framework.Core.Providers
 {
@@ -188,7 +188,7 @@ namespace EasyAuth.Framework.Core.Providers
         {
             // Generate a mock JWT for testing purposes
             var handler = new JwtSecurityTokenHandler();
-            
+
             var claims = new[]
             {
                 new Claim("sub", "001234.567890abcdef.1234"),
@@ -202,7 +202,7 @@ namespace EasyAuth.Framework.Core.Providers
 
             var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes("dummy_secret_key_for_testing_only"));
-            
+
             var creds = new Microsoft.IdentityModel.Tokens.SigningCredentials(
                 key, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256);
 

@@ -127,10 +127,10 @@ namespace EasyAuth.Framework.Core.Configuration
         /// </summary>
         public string GetAuthorityUrl()
         {
-            var domain = !string.IsNullOrEmpty(CustomDomain) 
-                ? CustomDomain 
+            var domain = !string.IsNullOrEmpty(CustomDomain)
+                ? CustomDomain
                 : $"{GetTenantName()}.b2clogin.com";
-                
+
             return $"https://{domain}/{TenantId}";
         }
 

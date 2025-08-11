@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using EasyAuth.Framework.Core.Configuration;
 using EasyAuth.Framework.Core.Providers;
 using EasyAuth.Framework.Core.Services;
@@ -5,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
 
 namespace EasyAuth.Framework.Core.Extensions
 {
@@ -24,10 +24,10 @@ namespace EasyAuth.Framework.Core.Extensions
         public static IServiceCollection AddEasyAuth(this IServiceCollection services, IConfiguration configuration)
         {
             // TDD GREEN Phase: Register all required services
-            
+
             // Configure options
             services.Configure<EAuthOptions>(configuration.GetSection(EAuthOptions.ConfigurationSection));
-            
+
             // Validate configuration
             var eauthOptions = new EAuthOptions();
             configuration.GetSection(EAuthOptions.ConfigurationSection).Bind(eauthOptions);
@@ -61,7 +61,7 @@ namespace EasyAuth.Framework.Core.Extensions
         {
             // TDD GREEN Phase: Support action-based configuration
             services.Configure(configureOptions);
-            
+
             // Build options to validate
             var serviceProvider = services.BuildServiceProvider();
             var options = serviceProvider.GetRequiredService<IOptions<EAuthOptions>>().Value;
@@ -92,8 +92,8 @@ namespace EasyAuth.Framework.Core.Extensions
         /// <param name="configuration">Configuration</param>
         /// <param name="configureServices">Custom service configuration</param>
         /// <returns>Service collection for chaining</returns>
-        public static IServiceCollection AddEasyAuth(this IServiceCollection services, 
-            IConfiguration configuration, 
+        public static IServiceCollection AddEasyAuth(this IServiceCollection services,
+            IConfiguration configuration,
             Action<EAuthServiceOptions> configureServices)
         {
             // TDD GREEN Phase: Support custom service configuration
@@ -116,7 +116,7 @@ namespace EasyAuth.Framework.Core.Extensions
             // TDD GREEN Phase: Register only providers
             var eauthOptions = new EAuthOptions();
             configuration.GetSection(EAuthOptions.ConfigurationSection).Bind(eauthOptions);
-            
+
             return AddEasyAuthProviders(services, eauthOptions);
         }
 
@@ -166,7 +166,7 @@ namespace EasyAuth.Framework.Core.Extensions
             // TDD GREEN Phase: Register only database services
             var eauthOptions = new EAuthOptions();
             configuration.GetSection(EAuthOptions.ConfigurationSection).Bind(eauthOptions);
-            
+
             return AddEasyAuthDatabase(services, eauthOptions);
         }
 
@@ -178,7 +178,7 @@ namespace EasyAuth.Framework.Core.Extensions
         /// <returns>Service collection for chaining</returns>
         public static IServiceCollection AddEasyAuthDatabase(this IServiceCollection services, EAuthOptions options)
         {
-            services.AddScoped<IEAuthDatabaseService>(provider => 
+            services.AddScoped<IEAuthDatabaseService>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<EAuthDatabaseService>>();
                 return new EAuthDatabaseService(options.ConnectionString, logger);
@@ -315,7 +315,7 @@ namespace EasyAuth.Framework.Core.Extensions
         {
             var serviceType = typeof(T);
             var existingService = _services.FirstOrDefault(s => s.ServiceType == serviceType);
-            
+
             if (existingService != null)
             {
                 _services.Remove(existingService);
@@ -359,7 +359,7 @@ namespace EasyAuth.Framework.Core.Extensions
                 {
                     // Perform periodic maintenance tasks
                     await PerformMaintenanceAsync();
-                    
+
                     // Wait for next cycle
                     await Task.Delay(TimeSpan.FromMinutes(60), stoppingToken);
                 }
@@ -382,7 +382,7 @@ namespace EasyAuth.Framework.Core.Extensions
         {
             // TDD GREEN Phase: Basic maintenance tasks
             using var scope = _serviceProvider.CreateScope();
-            
+
             try
             {
                 // Clean up expired sessions
@@ -402,3 +402,4 @@ namespace EasyAuth.Framework.Core.Extensions
         }
     }
 }
+

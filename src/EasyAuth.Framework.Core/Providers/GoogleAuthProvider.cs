@@ -1,9 +1,9 @@
+using System.Text;
 using EasyAuth.Framework.Core.Configuration;
 using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text;
 
 namespace EasyAuth.Framework.Core.Providers
 {
@@ -38,7 +38,7 @@ namespace EasyAuth.Framework.Core.Providers
         public async Task<TokenResponse> ExchangeCodeForTokenAsync(string code, string? state = null)
         {
             var googleTokens = await ExchangeCodeForTokensAsync(code);
-            
+
             if (googleTokens == null)
             {
                 throw new InvalidOperationException("Failed to exchange code for tokens");
@@ -56,7 +56,7 @@ namespace EasyAuth.Framework.Core.Providers
         public async Task<UserInfo> GetUserInfoAsync(TokenResponse tokens)
         {
             var userInfo = await GetUserInfoAsync(tokens.AccessToken);
-            
+
             if (userInfo == null)
             {
                 throw new InvalidOperationException("Failed to retrieve user information");
@@ -97,7 +97,7 @@ namespace EasyAuth.Framework.Core.Providers
                     }
                 }
 
-                var queryString = string.Join("&", 
+                var queryString = string.Join("&",
                     queryParams.Select(kvp => $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"));
 
                 var authUrl = $"https://accounts.google.com/o/oauth2/v2/auth?{queryString}";
@@ -244,7 +244,7 @@ namespace EasyAuth.Framework.Core.Providers
             try
             {
                 var userInfoEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
-                
+
                 using var request = new HttpRequestMessage(HttpMethod.Get, userInfoEndpoint);
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
@@ -300,7 +300,7 @@ namespace EasyAuth.Framework.Core.Providers
             public string? refresh_token { get; set; }
             public int expires_in { get; set; }
             public string token_type { get; set; } = string.Empty;
-            
+
             public string AccessToken => access_token;
         }
 
@@ -326,3 +326,4 @@ namespace EasyAuth.Framework.Core.Providers
         }
     }
 }
+

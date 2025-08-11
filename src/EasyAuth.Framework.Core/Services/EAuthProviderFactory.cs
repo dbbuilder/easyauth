@@ -1,10 +1,10 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using EasyAuth.Framework.Core.Configuration;
 using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Providers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace EasyAuth.Framework.Core.Services
 {

@@ -1,8 +1,8 @@
+using System.Reflection;
 using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace EasyAuth.Framework.Core.Services
 {

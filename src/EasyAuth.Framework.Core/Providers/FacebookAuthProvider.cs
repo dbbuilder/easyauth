@@ -1,10 +1,10 @@
+using System.Text;
+using System.Text.Json;
 using EasyAuth.Framework.Core.Configuration;
 using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text;
-using System.Text.Json;
 
 namespace EasyAuth.Framework.Core.Providers
 {
@@ -201,7 +201,7 @@ namespace EasyAuth.Framework.Core.Providers
             try
             {
                 using var httpClient = _httpClientFactory.CreateClient();
-                
+
                 var tokenEndpoint = "https://graph.facebook.com/v18.0/oauth/access_token";
                 var parameters = new Dictionary<string, string>
                 {
@@ -235,11 +235,11 @@ namespace EasyAuth.Framework.Core.Providers
             try
             {
                 using var httpClient = _httpClientFactory.CreateClient();
-                
+
                 // Facebook Graph API requires explicit field requests
                 var fields = "id,email,first_name,last_name,name,picture.type(large)";
                 var userInfoEndpoint = $"https://graph.facebook.com/v18.0/me?fields={fields}&access_token={accessToken}";
-                
+
                 var response = await httpClient.GetAsync(userInfoEndpoint);
 
                 if (response.IsSuccessStatusCode)

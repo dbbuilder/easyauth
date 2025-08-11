@@ -1,12 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using EasyAuth.Framework.Core.Configuration;
 using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace EasyAuth.Framework.Core.Providers
 {
@@ -140,7 +140,7 @@ namespace EasyAuth.Framework.Core.Providers
         public async Task<string> GetLogoutUrlAsync(string? returnUrl = null)
         {
             await Task.CompletedTask;
-            
+
             // Azure B2C logout endpoint
             var logoutUrl = $"{_options.GetAuthorityUrl()}/oauth2/v2.0/logout" +
                 $"?p={_options.SignUpSignInPolicyId}" +
@@ -349,7 +349,7 @@ namespace EasyAuth.Framework.Core.Providers
             try
             {
                 using var httpClient = _httpClientFactory.CreateClient();
-                
+
                 var tokenEndpoint = _options.GetTokenEndpoint();
                 var parameters = new Dictionary<string, string>
                 {
@@ -391,14 +391,14 @@ namespace EasyAuth.Framework.Core.Providers
                 }
 
                 var jwt = _jwtHandler.ReadJwtToken(idToken);
-                
+
                 // Validate issuer if configured
                 if (_options.ValidateIssuer)
                 {
                     var expectedIssuer = $"https://{_options.GetTenantName()}.b2clogin.com/{_options.TenantId}/v2.0/";
                     if (!jwt.Issuer.Equals(expectedIssuer, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogError("JWT issuer validation failed. Expected: {Expected}, Actual: {Actual}", 
+                        _logger.LogError("JWT issuer validation failed. Expected: {Expected}, Actual: {Actual}",
                             expectedIssuer, jwt.Issuer);
                         return null;
                     }
@@ -406,7 +406,7 @@ namespace EasyAuth.Framework.Core.Providers
 
                 // Extract user claims
                 var claimsDict = jwt.Claims.ToDictionary(c => c.Type, c => c.Value);
-                
+
                 return new UserInfo
                 {
                     UserId = GetClaimValueFromStringDict(claimsDict, "oid") ?? GetClaimValueFromStringDict(claimsDict, ClaimTypes.NameIdentifier) ?? "unknown",
