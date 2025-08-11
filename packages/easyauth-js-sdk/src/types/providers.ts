@@ -129,7 +129,7 @@ export interface AppleTokenResponse {
 }
 
 // Facebook-specific types
-export interface FacebookUserInfo extends ProviderUserInfo {
+export interface FacebookUserInfo extends Omit<ProviderUserInfo, 'picture'> {
   id: string;
   name?: string;
   email?: string;
