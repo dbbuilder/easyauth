@@ -109,6 +109,56 @@ namespace EasyAuth.Framework.Core.Configuration
         public string CallbackPath { get; set; } = "/auth/azureb2c-signin";
         public string SignedOutCallbackPath { get; set; } = "/auth/azureb2c-signout";
         public string[] Scopes { get; set; } = { "openid", "profile", "offline_access" };
+
+        // Additional properties for enhanced B2C support
+        public string? CustomDomain { get; set; }
+        public bool ValidateIssuer { get; set; } = true;
+        public bool ValidateAudience { get; set; } = true;
+        public int ClockSkewSeconds { get; set; } = 300;
+        public string[] AdditionalClaims { get; set; } = Array.Empty<string>();
+
+        // Convenience properties for backward compatibility
+        public string SignInPolicy => SignUpSignInPolicyId;
+        public string? ResetPasswordPolicy => ResetPasswordPolicyId;
+        public string? EditProfilePolicy => EditProfilePolicyId;
+
+        /// <summary>
+        /// Gets the B2C authority URL based on tenant and custom domain settings
+        /// </summary>
+        public string GetAuthorityUrl()
+        {
+            var domain = !string.IsNullOrEmpty(CustomDomain) 
+                ? CustomDomain 
+                : $"{GetTenantName()}.b2clogin.com";
+                
+            return $"https://{domain}/{TenantId}";
+        }
+
+        /// <summary>
+        /// Gets the B2C authorization endpoint for the specified policy
+        /// </summary>
+        public string GetAuthorizationEndpoint(string? policy = null)
+        {
+            var policyName = policy ?? SignUpSignInPolicyId;
+            return $"{GetAuthorityUrl()}/oauth2/v2.0/authorize?p={policyName}";
+        }
+
+        /// <summary>
+        /// Gets the B2C token endpoint for the specified policy
+        /// </summary>
+        public string GetTokenEndpoint(string? policy = null)
+        {
+            var policyName = policy ?? SignUpSignInPolicyId;
+            return $"{GetAuthorityUrl()}/oauth2/v2.0/token?p={policyName}";
+        }
+
+        /// <summary>
+        /// Gets the tenant name from TenantId (removes .onmicrosoft.com if present)
+        /// </summary>
+        public string GetTenantName()
+        {
+            return TenantId.Replace(".onmicrosoft.com", "");
+        }
     }
 
     public class GoogleOptions
