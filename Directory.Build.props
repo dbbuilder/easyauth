@@ -20,7 +20,7 @@
     <RepositoryUrl>https://github.com/dbbuilder/easyauth</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>authentication;oauth;azure;google;apple;facebook;framework;enterprise</PackageTags>
-    <PackageIcon>icon.png</PackageIcon>
+    <!-- <PackageIcon>icon.png</PackageIcon> -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
     
     <!-- Code Analysis -->
@@ -70,24 +70,30 @@
   <!-- Additional package references for test projects -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all" />
+    <PackageReference Include="xunit" Version="2.6.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Moq" Version="4.20.69" />
-    <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="coverlet.msbuild" Version="6.0.0" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Performance Test Specific Packages -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('.Performance.Tests'))">
-    <PackageReference Include="NBomber" Version="5.2.3" />
+    <PackageReference Include="NBomber" Version="5.3.0" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
   </ItemGroup>
 
   <!-- Security Test Specific Packages -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('.Security.Tests'))">
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
-    <PackageReference Include="AngleSharp" Version="0.18.0" />
+    <PackageReference Include="AngleSharp" Version="1.0.0" />
   </ItemGroup>
 
   <!-- Global Analysis Rules -->
@@ -117,6 +123,11 @@
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Linq" />
     <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+
+  <!-- Include README.md in packages -->
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <!-- Test-specific global usings -->

@@ -1,0 +1,666 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EasyAuth.Framework.Core</name>
+    </assembly>
+    <members>
+        <member name="T:EasyAuth.Framework.Core.Configuration.EAuthOptions">
+            <summary>
+            Main configuration options for the EasyAuth Framework
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.EAuthOptions.ConnectionString">
+            <summary>
+            Database connection string - can be direct value or Key Vault reference
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.EAuthOptions.KeyVault">
+            <summary>
+            Azure Key Vault configuration (optional)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.EAuthOptions.Providers">
+            <summary>
+            Authentication providers configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.EAuthOptions.Framework">
+            <summary>
+            Framework behavior settings
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.EAuthOptions.Session">
+            <summary>
+            Session configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.EAuthOptions.Cors">
+            <summary>
+            CORS configuration for frontend applications
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AuthProvidersOptions.AzureB2C">
+            <summary>
+            Azure AD B2C provider configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AuthProvidersOptions.Google">
+            <summary>
+            Google OAuth provider configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AuthProvidersOptions.Facebook">
+            <summary>
+            Facebook OAuth provider configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AuthProvidersOptions.Apple">
+            <summary>
+            Apple Sign-In provider configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AuthProvidersOptions.DefaultProvider">
+            <summary>
+            Default provider to use for new registrations
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AuthProvidersOptions.AllowAccountLinking">
+            <summary>
+            Allow account linking across providers
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.AzureB2COptions.GetAuthorityUrl">
+            <summary>
+            Gets the B2C authority URL based on tenant and custom domain settings
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.AzureB2COptions.GetAuthorizationEndpoint(System.String)">
+            <summary>
+            Gets the B2C authorization endpoint for the specified policy
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.AzureB2COptions.GetTokenEndpoint(System.String)">
+            <summary>
+            Gets the B2C token endpoint for the specified policy
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.AzureB2COptions.GetTenantName">
+            <summary>
+            Gets the tenant name from TenantId (removes .onmicrosoft.com if present)
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Controllers.EAuthController">
+            <summary>
+            EasyAuth authentication controller for handling user authentication flows
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.GetProviders">
+            <summary>
+            Get all available authentication providers
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.Login(EasyAuth.Framework.Core.Models.LoginRequest)">
+            <summary>
+            Initiate login with specified provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.AuthCallback(System.String,System.String,System.String)">
+            <summary>
+            Handle authentication callback from provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.Logout">
+            <summary>
+            Sign out current user
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.GetCurrentUser">
+            <summary>
+            Get current user information
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.ValidateSession(System.String)">
+            <summary>
+            Validate current session
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.LinkAccount(System.String,EasyAuth.Framework.Core.Controllers.LinkAccountRequest)">
+            <summary>
+            Link account from another provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.UnlinkAccount(System.String)">
+            <summary>
+            Unlink account from provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.ResetPassword(EasyAuth.Framework.Core.Models.PasswordResetRequest)">
+            <summary>
+            Initiate password reset
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Controllers.LinkAccountRequest">
+            <summary>
+            Request model for linking accounts
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for configuring EasyAuth services in DI container
+            Follows TDD methodology - minimal implementation to make tests pass
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds EasyAuth framework services to the DI container
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configuration">Configuration containing EasyAuth settings</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{EasyAuth.Framework.Core.Configuration.EAuthOptions})">
+            <summary>
+            Adds EasyAuth framework services with action-based configuration
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configureOptions">Configuration action</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.Action{EasyAuth.Framework.Core.Extensions.EAuthServiceOptions})">
+            <summary>
+            Adds EasyAuth with custom service configuration
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configuration">Configuration</param>
+            <param name="configureServices">Custom service configuration</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuthProviders(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds only the authentication providers (without core services)
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configuration">Configuration</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuthProviders(Microsoft.Extensions.DependencyInjection.IServiceCollection,EasyAuth.Framework.Core.Configuration.EAuthOptions)">
+            <summary>
+            Adds only the authentication providers with options
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="options">EasyAuth options</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuthDatabase(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds only the database services
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configuration">Configuration</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuthDatabase(Microsoft.Extensions.DependencyInjection.IServiceCollection,EasyAuth.Framework.Core.Configuration.EAuthOptions)">
+            <summary>
+            Adds only the database services with options
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="options">EasyAuth options</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ServiceCollectionExtensions.AddEasyAuthSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds Swagger documentation for EasyAuth endpoints
+            </summary>
+            <param name="services">Service collection</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Extensions.EAuthServiceOptions">
+            <summary>
+            Custom service configuration options for EasyAuth
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Extensions.EAuthServiceOptions.Services">
+            <summary>
+            Service collection for advanced customization
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.EAuthServiceOptions.Replace``1(``0)">
+            <summary>
+            Replace a service registration
+            </summary>
+            <typeparam name="T">Service type</typeparam>
+            <param name="implementation">New implementation</param>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.EAuthServiceOptions.AddCustomProvider``1">
+            <summary>
+            Add a custom provider
+            </summary>
+            <typeparam name="T">Provider type</typeparam>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Extensions.EAuthBackgroundService">
+            <summary>
+            Background service for EasyAuth maintenance tasks
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.EAuthResponse`1">
+            <summary>
+            Standard API response wrapper
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.UserInfo">
+            <summary>
+            User information model
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.UserAccount">
+            <summary>
+            User account model for provider linking
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.SessionInfo">
+            <summary>
+            Session information model
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.LoginRequest">
+            <summary>
+            Login request model
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.PasswordResetRequest">
+            <summary>
+            Password reset request model
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.ProviderInfo">
+            <summary>
+            Provider information model
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.ProviderCapabilities">
+            <summary>
+            Provider capabilities and features
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportsPasswordReset">
+            <summary>
+            Supports password reset functionality
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportsProfileEditing">
+            <summary>
+            Supports profile editing
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportsAccountLinking">
+            <summary>
+            Supports account linking
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportsRefreshTokens">
+            <summary>
+            Supports refresh tokens
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportsLogout">
+            <summary>
+            Supports logout URL
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportedMethods">
+            <summary>
+            Supported authentication methods
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.SupportedScopes">
+            <summary>
+            Supported OAuth scopes
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderCapabilities.MaxSessionDurationMinutes">
+            <summary>
+            Maximum session duration in minutes
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.ProviderHealth">
+            <summary>
+            Provider health status
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderHealth.ProviderName">
+            <summary>
+            Provider name
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderHealth.IsHealthy">
+            <summary>
+            Whether the provider is healthy
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderHealth.LastChecked">
+            <summary>
+            Last health check timestamp
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderHealth.ResponseTimeMs">
+            <summary>
+            Response time in milliseconds
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderHealth.ErrorMessage">
+            <summary>
+            Health check error message (if any)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderHealth.Metrics">
+            <summary>
+            Additional health metrics
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.ProviderValidationResult">
+            <summary>
+            Provider validation result
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderValidationResult.IsValid">
+            <summary>
+            Whether all providers are valid
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderValidationResult.ValidationErrors">
+            <summary>
+            Validation error messages
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderValidationResult.ProviderResults">
+            <summary>
+            Provider-specific validation results
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ProviderValidationResult.ValidatedAt">
+            <summary>
+            Validation timestamp
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.TokenResponse">
+            <summary>
+            OAuth token response model for authentication providers
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Providers.AppleAuthProvider">
+            <summary>
+            Apple Sign-In authentication provider implementation
+            Follows TDD methodology - minimal implementation to make tests pass
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Providers.AzureB2CAuthProvider">
+            <summary>
+            Azure B2C authentication provider implementation
+            Follows TDD methodology - minimal implementation to make tests pass
+            Supports B2C-specific features like custom policies and id_token claims extraction
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Providers.FacebookAuthProvider">
+            <summary>
+            Facebook/Meta authentication provider implementation
+            Follows TDD methodology - minimal implementation to make tests pass
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Providers.GoogleAuthProvider">
+            <summary>
+            Google OAuth 2.0 authentication provider
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.EAuthDatabaseService">
+            <summary>
+            Implementation of database setup service that auto-configures required database objects
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.EAuthProviderFactory">
+            <summary>
+            Factory for creating and managing authentication providers
+            Follows TDD methodology - minimal implementation to make tests pass
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.EAuthService">
+            <summary>
+            Main authentication service implementation
+            This is a minimal stub implementation following TDD approach:
+            Tests are written first, then this stub allows compilation,
+            then proper implementation follows in GREEN phase
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.IEAuthDatabaseService">
+            <summary>
+            Service interface for automatic database setup and migration
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.InitializeDatabaseAsync">
+            <summary>
+            Initialize the database with required tables and stored procedures
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.IsDatabaseInitializedAsync">
+            <summary>
+            Check if the database is properly initialized
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.ApplyMigrationsAsync">
+            <summary>
+            Apply any pending migrations
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.GetDatabaseVersionAsync">
+            <summary>
+            Get the current database version
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.CleanupExpiredDataAsync">
+            <summary>
+            Clean up expired sessions and audit logs
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.ValidateSessionAsync(System.String)">
+            <summary>
+            Validate a session token and return session information
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthDatabaseService.InvalidateSessionAsync(System.String)">
+            <summary>
+            Invalidate a session token (logout)
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.IEAuthProvider">
+            <summary>
+            Authentication provider interface for pluggable authentication strategies
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Services.IEAuthProvider.ProviderName">
+            <summary>
+            Provider name (e.g., "AzureB2C", "Google", "Apple", "Facebook")
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Services.IEAuthProvider.DisplayName">
+            <summary>
+            Display name for UI
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Services.IEAuthProvider.IsEnabled">
+            <summary>
+            Whether this provider is enabled
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.GetAuthorizationUrlAsync(System.String)">
+            <summary>
+            Generate authorization URL for OAuth flow
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.ExchangeCodeForTokenAsync(System.String,System.String)">
+            <summary>
+            Exchange authorization code for access tokens
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.GetUserInfoAsync(EasyAuth.Framework.Core.Models.TokenResponse)">
+            <summary>
+            Get user information from provider using tokens
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.GetLoginUrlAsync(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Generate login URL for this provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.HandleCallbackAsync(System.String,System.String)">
+            <summary>
+            Handle authentication callback from provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.GetLogoutUrlAsync(System.String)">
+            <summary>
+            Generate logout URL for this provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.GetPasswordResetUrlAsync(System.String)">
+            <summary>
+            Get password reset URL (if supported by provider)
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProvider.ValidateConfigurationAsync">
+            <summary>
+            Validate provider-specific configuration
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.IEAuthProviderFactory">
+            <summary>
+            Factory interface for creating and managing authentication providers
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetProvidersAsync">
+            <summary>
+            Gets all available authentication providers
+            </summary>
+            <returns>Collection of enabled authentication providers</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetProviderAsync(System.String)">
+            <summary>
+            Gets a specific authentication provider by name
+            </summary>
+            <param name="providerName">Provider name (case-insensitive)</param>
+            <returns>Authentication provider or null if not found/disabled</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetDefaultProviderAsync">
+            <summary>
+            Gets the default authentication provider
+            </summary>
+            <returns>Default authentication provider</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.ValidateProvidersAsync">
+            <summary>
+            Validates all provider configurations
+            </summary>
+            <returns>Validation result with errors if any</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetProviderInfoAsync(System.String)">
+            <summary>
+            Gets provider information for client applications
+            </summary>
+            <param name="providerName">Provider name</param>
+            <returns>Provider information or null if not found</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetAllProviderInfoAsync">
+            <summary>
+            Gets information for all providers
+            </summary>
+            <returns>Collection of provider information</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.RegisterCustomProviderAsync(System.String,EasyAuth.Framework.Core.Services.IEAuthProvider)">
+            <summary>
+            Registers a custom authentication provider
+            </summary>
+            <param name="providerName">Provider name</param>
+            <param name="provider">Provider instance</param>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetProviderCapabilitiesAsync(System.String)">
+            <summary>
+            Gets provider capabilities
+            </summary>
+            <param name="providerName">Provider name</param>
+            <returns>Provider capabilities or null if not found</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetProvidersByCapabilityAsync(System.String)">
+            <summary>
+            Gets providers that support a specific capability
+            </summary>
+            <param name="capability">Capability name (e.g., "PasswordReset", "ProfileEditing")</param>
+            <returns>Providers that support the capability</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.RefreshProviderCacheAsync">
+            <summary>
+            Refreshes the provider cache
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetProviderHealthAsync(System.String)">
+            <summary>
+            Gets provider health status
+            </summary>
+            <param name="providerName">Provider name</param>
+            <returns>Provider health status or null if not found</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthProviderFactory.GetAllProviderHealthAsync">
+            <summary>
+            Gets health status for all providers
+            </summary>
+            <returns>Collection of provider health statuses</returns>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Services.IEAuthService">
+            <summary>
+            Main authentication service interface
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.GetProvidersAsync">
+            <summary>
+            Get all available authentication providers
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.InitiateLoginAsync(EasyAuth.Framework.Core.Models.LoginRequest)">
+            <summary>
+            Initiate login with specific provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.HandleAuthCallbackAsync(System.String,System.String,System.String)">
+            <summary>
+            Handle authentication callback
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.SignOutAsync(System.String)">
+            <summary>
+            Sign out user and invalidate session
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.GetCurrentUserAsync">
+            <summary>
+            Get current user information
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.ValidateSessionAsync(System.String)">
+            <summary>
+            Validate current session
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.LinkAccountAsync(System.String,System.String,System.String)">
+            <summary>
+            Link account from another provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.UnlinkAccountAsync(System.String)">
+            <summary>
+            Unlink account from provider
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Services.IEAuthService.InitiatePasswordResetAsync(EasyAuth.Framework.Core.Models.PasswordResetRequest)">
+            <summary>
+            Initiate password reset (for supported providers)
+            </summary>
+        </member>
+    </members>
+</doc>

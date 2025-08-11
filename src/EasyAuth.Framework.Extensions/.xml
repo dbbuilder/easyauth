@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EasyAuth.Framework.Extensions</name>
+    </assembly>
+    <members>
+        <member name="T:EasyAuth.Framework.Extensions.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for configuring EasyAuth Framework services
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Hosting.IHostEnvironment)">
+            <summary>
+            Add EasyAuth Framework to the service collection
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Extensions.ServiceCollectionExtensions.UseEasyAuth(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Configure the EasyAuth Framework middleware
+            </summary>
+        </member>
+    </members>
+</doc>

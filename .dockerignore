@@ -1,0 +1,91 @@
+# Exclude files and directories that don't need to be in the Docker context
+
+# Git
+.git
+.gitignore
+.gitattributes
+.github/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+
+# Test results
+TestResults/
+**/*.trx
+**/*.coverage
+coverage/
+**/*.cobertura.xml
+
+# Documentation
+**/*.md
+docs/
+README.md
+LICENSE
+
+# Logs
+logs/
+**/*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+temp/
+tmp/
+**/*.tmp
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+.nuget/
+
+# Azure
+.azure/
+
+# Local environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+azure-pipelines*.yml
+.github/workflows/
+
+# Code coverage
+**/*.opencover.xml
+**/*.cobertura.xml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Performance test results
+BenchmarkDotNet.Artifacts/
+**/*.perfcounter
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user

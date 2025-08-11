@@ -53,7 +53,9 @@ namespace EasyAuth.Framework.Core.Services
                         _logger.LogInformation("Executing script: {ScriptName}", scriptName);
                         
                         using var command = connection.CreateCommand();
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities - script is from embedded resources, not user input
                         command.CommandText = script;
+#pragma warning restore CA2100
                         command.CommandTimeout = 300; // 5 minutes
                         await command.ExecuteNonQueryAsync();
                     }

@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  easyauth-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - EasyAuth__ConnectionString=Server=sqlserver;Database=EasyAuth;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+    depends_on:
+      - sqlserver
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - easyauth-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - easyauth-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - easyauth-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass YourRedisPassword123
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development tools container
+  dev-tools:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    profiles:
+      - dev
+    working_dir: /src
+    volumes:
+      - .:/src
+      - ~/.nuget/packages:/root/.nuget/packages
+    networks:
+      - easyauth-network
+    command: tail -f /dev/null
+
+volumes:
+  sqlserver_data:
+  redis_data:
+
+networks:
+  easyauth-network:
+    driver: bridge
