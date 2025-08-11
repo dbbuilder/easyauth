@@ -30,6 +30,41 @@ namespace EasyAuth.Framework.Core.Providers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        public async Task<string> GetAuthorizationUrlAsync(string? returnUrl = null)
+        {
+            return await GetLoginUrlAsync(returnUrl);
+        }
+
+        public async Task<TokenResponse> ExchangeCodeForTokenAsync(string code, string? state = null)
+        {
+            var googleTokens = await ExchangeCodeForTokensAsync(code);
+            
+            if (googleTokens == null)
+            {
+                throw new InvalidOperationException("Failed to exchange code for tokens");
+            }
+
+            return new TokenResponse
+            {
+                AccessToken = googleTokens.AccessToken,
+                TokenType = googleTokens.token_type,
+                ExpiresIn = googleTokens.expires_in,
+                RefreshToken = googleTokens.refresh_token ?? string.Empty
+            };
+        }
+
+        public async Task<UserInfo> GetUserInfoAsync(TokenResponse tokens)
+        {
+            var userInfo = await GetUserInfoAsync(tokens.AccessToken);
+            
+            if (userInfo == null)
+            {
+                throw new InvalidOperationException("Failed to retrieve user information");
+            }
+
+            return userInfo;
+        }
+
         public async Task<string> GetLoginUrlAsync(string? returnUrl = null, Dictionary<string, string>? parameters = null)
         {
             try

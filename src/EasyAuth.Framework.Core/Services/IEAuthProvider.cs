@@ -23,6 +23,21 @@ namespace EasyAuth.Framework.Core.Services
         bool IsEnabled { get; }
         
         /// <summary>
+        /// Generate authorization URL for OAuth flow
+        /// </summary>
+        Task<string> GetAuthorizationUrlAsync(string? returnUrl = null);
+        
+        /// <summary>
+        /// Exchange authorization code for access tokens
+        /// </summary>
+        Task<TokenResponse> ExchangeCodeForTokenAsync(string code, string? state = null);
+        
+        /// <summary>
+        /// Get user information from provider using tokens
+        /// </summary>
+        Task<UserInfo> GetUserInfoAsync(TokenResponse tokens);
+        
+        /// <summary>
         /// Generate login URL for this provider
         /// </summary>
         Task<string> GetLoginUrlAsync(string? returnUrl = null, Dictionary<string, string>? parameters = null);
