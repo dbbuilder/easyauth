@@ -17,7 +17,7 @@ namespace EasyAuth.Framework.Integration.Tests;
 public abstract class BaseIntegrationTest : IAsyncLifetime
 {
     protected readonly MsSqlContainer DatabaseContainer;
-    protected readonly ServiceProvider ServiceProvider;
+    protected ServiceProvider ServiceProvider = null!;
     protected string ConnectionString { get; private set; } = string.Empty;
     
     protected BaseIntegrationTest()
@@ -29,18 +29,6 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
             .WithEnvironment("ACCEPT_EULA", "Y")
             .WithPortBinding(0, 1433)
             .Build();
-
-        // Build service provider with EasyAuth configuration
-        var services = new ServiceCollection();
-        var configuration = BuildTestConfiguration();
-        
-        // Add logging
-        services.AddLogging(builder => builder.AddConsole());
-        
-        // Add EasyAuth services
-        services.AddEasyAuth(configuration);
-        
-        ServiceProvider = services.BuildServiceProvider();
     }
 
     private IConfiguration BuildTestConfiguration()
@@ -75,6 +63,18 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
         
         // Get connection string
         ConnectionString = DatabaseContainer.GetConnectionString();
+        
+        // Build service provider with EasyAuth configuration now that connection string is available
+        var services = new ServiceCollection();
+        var configuration = BuildTestConfiguration();
+        
+        // Add logging
+        services.AddLogging(builder => builder.AddConsole());
+        
+        // Add EasyAuth services
+        services.AddEasyAuth(configuration);
+        
+        ServiceProvider = services.BuildServiceProvider();
         
         // Initialize database schema
         await InitializeDatabaseAsync();
