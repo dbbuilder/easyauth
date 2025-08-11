@@ -47,10 +47,12 @@ namespace EasyAuth.Framework.Core.Services
 
         public async Task<EAuthResponse<string>> InitiateLoginAsync(LoginRequest request)
         {
-            // TDD GREEN Phase: Minimal implementation to make tests pass
+            // TDD GREEN Phase: Enhanced validation for edge cases
             await Task.CompletedTask;
 
-            if (request?.Provider != "Google")
+            if (request?.Provider == null || 
+                string.IsNullOrWhiteSpace(request.Provider) ||
+                request.Provider != "Google")
             {
                 return new EAuthResponse<string>
                 {
@@ -74,10 +76,12 @@ namespace EasyAuth.Framework.Core.Services
 
         public async Task<EAuthResponse<UserInfo>> HandleAuthCallbackAsync(string provider, string code, string? state = null)
         {
-            // TDD GREEN Phase: Minimal implementation to make test pass
+            // TDD GREEN Phase: Enhanced validation for edge cases
             await Task.CompletedTask;
 
-            if (provider != "Google" || string.IsNullOrEmpty(code))
+            if (string.IsNullOrWhiteSpace(provider) || 
+                string.IsNullOrWhiteSpace(code) ||
+                provider != "Google")
             {
                 return new EAuthResponse<UserInfo>
                 {
@@ -161,7 +165,17 @@ namespace EasyAuth.Framework.Core.Services
 
         public async Task<EAuthResponse<SessionInfo>> ValidateSessionAsync(string sessionId)
         {
-            // TDD GREEN Phase: Minimal implementation to make test pass
+            // TDD GREEN Phase: Enhanced validation for edge cases
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                return new EAuthResponse<SessionInfo>
+                {
+                    Success = false,
+                    ErrorCode = "INVALID_SESSION_ID",
+                    Message = "Session ID is required and cannot be empty"
+                };
+            }
+
             try
             {
                 var sessionInfo = await _databaseService.ValidateSessionAsync(sessionId);
