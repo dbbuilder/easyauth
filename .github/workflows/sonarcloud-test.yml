@@ -1,0 +1,152 @@
+name: SonarCloud Test (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip running tests (faster for config validation)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+
+jobs:
+  sonarcloud-test:
+    name: SonarCloud Configuration Test
+    runs-on: windows-latest
+    
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            6.0.x
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: packages/easyauth-js-sdk/package-lock.json
+      
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+      
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      
+      - name: Validate SonarCloud configuration
+        shell: powershell
+        run: |
+          Write-Host "🔍 Validating SonarCloud Configuration" -ForegroundColor Green
+          
+          # Check required files
+          $requiredFiles = @(
+            "sonar-project.properties",
+            "EasyAuth.Framework.sln",
+            "packages/easyauth-js-sdk/package.json"
+          )
+          
+          foreach ($file in $requiredFiles) {
+            if (Test-Path $file) {
+              Write-Host "✅ Found: $file" -ForegroundColor Green
+            } else {
+              Write-Host "❌ Missing: $file" -ForegroundColor Red
+              exit 1
+            }
+          }
+          
+          # Check SonarCloud scanner installation
+          $scannerPath = ".\.sonar\scanner\dotnet-sonarscanner.exe"
+          if (Test-Path $scannerPath) {
+            Write-Host "✅ SonarScanner installed at: $scannerPath" -ForegroundColor Green
+          } else {
+            Write-Host "❌ SonarScanner not found" -ForegroundColor Red
+            exit 1
+          }
+          
+          Write-Host "🎉 Configuration validation passed!" -ForegroundColor Green
+      
+      - name: Test build without analysis (fast check)
+        run: |
+          dotnet restore
+          dotnet build --no-restore --configuration Release
+      
+      - name: Install JavaScript SDK dependencies
+        working-directory: packages/easyauth-js-sdk
+        run: npm ci
+      
+      - name: Run JavaScript SDK tests (if not skipped)
+        if: github.event.inputs.skip_tests == 'false'
+        working-directory: packages/easyauth-js-sdk
+        run: npm run test:coverage
+        env:
+          CI: true
+      
+      - name: Dry-run SonarCloud Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: powershell
+        run: |
+          Write-Host "🧪 Starting SonarCloud dry-run analysis" -ForegroundColor Blue
+          
+          # Start analysis with preview mode
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"dbbuilder_easyauth" /o:"dbbuilder" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.cs.vstest.reportsPaths="**/*.trx" /d:sonar.javascript.lcov.reportPaths="packages/easyauth-js-sdk/coverage/lcov.info" /d:sonar.typescript.lcov.reportPaths="packages/easyauth-js-sdk/coverage/lcov.info"
+          
+          # Build is already done, so skip
+          Write-Host "✅ Build completed successfully" -ForegroundColor Green
+          
+          # Run .NET tests only if not skipped
+          if ("${{ github.event.inputs.skip_tests }}" -eq "false") {
+            Write-Host "🧪 Running .NET tests with coverage..." -ForegroundColor Blue
+            dotnet test --no-build --configuration Release --logger trx --collect:"XPlat Code Coverage" --settings coverage.settings
+          } else {
+            Write-Host "⏭️ Skipping .NET tests as requested" -ForegroundColor Yellow
+          }
+          
+          # End analysis
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          
+          Write-Host "✅ SonarCloud analysis completed!" -ForegroundColor Green
+      
+      - name: Summary
+        shell: powershell
+        run: |
+          Write-Host "🎉 SonarCloud Integration Test Summary" -ForegroundColor Green
+          Write-Host "✅ Configuration validation: PASSED" -ForegroundColor Green
+          Write-Host "✅ Build process: PASSED" -ForegroundColor Green
+          Write-Host "✅ SonarCloud analysis: COMPLETED" -ForegroundColor Green
+          Write-Host "" 
+          Write-Host "🔗 View results: https://sonarcloud.io/project/overview?id=dbbuilder_easyauth" -ForegroundColor Cyan
+          Write-Host "📋 Next steps: Merge to master to enable automatic analysis" -ForegroundColor Yellow
