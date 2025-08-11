@@ -96,7 +96,11 @@ jobs:
           dotnet build --no-restore --configuration Release
           
           # Run .NET tests with coverage (continue on failure for analysis)
-          dotnet test --no-build --configuration Release --logger trx --collect:"XPlat Code Coverage" --settings coverage.settings || echo "Some .NET tests failed, but continuing with analysis"
+          try {
+            dotnet test --no-build --configuration Release --logger trx --collect:"XPlat Code Coverage" --settings coverage.settings
+          } catch {
+            Write-Host "Some .NET tests failed, but continuing with analysis" -ForegroundColor Yellow
+          }
           
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
       
