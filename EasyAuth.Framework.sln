@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9BC99435-93C5-40F7-A26C-9A6A095CC1FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyAuth.Framework.Core", "src\EasyAuth.Framework.Core\EasyAuth.Framework.Core.csproj", "{984C7A06-7345-4086-9D8A-5AD4EF8BB382}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyAuth.Framework.Extensions", "src\EasyAuth.Framework.Extensions\EasyAuth.Framework.Extensions.csproj", "{7B4DEAC2-A4B9-49E9-B187-732E4C50D606}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{40AE814D-9A7B-41E3-B28A-7E94D004CA88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyAuth.Framework.Core.Tests", "tests\EasyAuth.Framework.Core.Tests\EasyAuth.Framework.Core.Tests.csproj", "{E960A34F-A772-4245-A6D4-8F3C21F26386}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyAuth.Framework.Integration.Tests", "tests\EasyAuth.Framework.Integration.Tests\EasyAuth.Framework.Integration.Tests.csproj", "{75CF9821-CD6D-4BF2-822D-CDE93CCD77B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyAuth.Framework.Security.Tests", "tests\EasyAuth.Framework.Security.Tests\EasyAuth.Framework.Security.Tests.csproj", "{9E146080-54DC-44A8-9DBA-9DDEA5EA37AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyAuth.Framework.Performance.Tests", "tests\EasyAuth.Framework.Performance.Tests\EasyAuth.Framework.Performance.Tests.csproj", "{C61AA911-E06F-418C-8F82-1E3573A25A65}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{984C7A06-7345-4086-9D8A-5AD4EF8BB382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{984C7A06-7345-4086-9D8A-5AD4EF8BB382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{984C7A06-7345-4086-9D8A-5AD4EF8BB382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{984C7A06-7345-4086-9D8A-5AD4EF8BB382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B4DEAC2-A4B9-49E9-B187-732E4C50D606}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B4DEAC2-A4B9-49E9-B187-732E4C50D606}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B4DEAC2-A4B9-49E9-B187-732E4C50D606}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B4DEAC2-A4B9-49E9-B187-732E4C50D606}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E960A34F-A772-4245-A6D4-8F3C21F26386}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E960A34F-A772-4245-A6D4-8F3C21F26386}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E960A34F-A772-4245-A6D4-8F3C21F26386}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E960A34F-A772-4245-A6D4-8F3C21F26386}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75CF9821-CD6D-4BF2-822D-CDE93CCD77B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75CF9821-CD6D-4BF2-822D-CDE93CCD77B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75CF9821-CD6D-4BF2-822D-CDE93CCD77B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75CF9821-CD6D-4BF2-822D-CDE93CCD77B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E146080-54DC-44A8-9DBA-9DDEA5EA37AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E146080-54DC-44A8-9DBA-9DDEA5EA37AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E146080-54DC-44A8-9DBA-9DDEA5EA37AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E146080-54DC-44A8-9DBA-9DDEA5EA37AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C61AA911-E06F-418C-8F82-1E3573A25A65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C61AA911-E06F-418C-8F82-1E3573A25A65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C61AA911-E06F-418C-8F82-1E3573A25A65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C61AA911-E06F-418C-8F82-1E3573A25A65}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{984C7A06-7345-4086-9D8A-5AD4EF8BB382} = {9BC99435-93C5-40F7-A26C-9A6A095CC1FE}
+		{7B4DEAC2-A4B9-49E9-B187-732E4C50D606} = {9BC99435-93C5-40F7-A26C-9A6A095CC1FE}
+		{E960A34F-A772-4245-A6D4-8F3C21F26386} = {40AE814D-9A7B-41E3-B28A-7E94D004CA88}
+		{75CF9821-CD6D-4BF2-822D-CDE93CCD77B7} = {40AE814D-9A7B-41E3-B28A-7E94D004CA88}
+		{9E146080-54DC-44A8-9DBA-9DDEA5EA37AA} = {40AE814D-9A7B-41E3-B28A-7E94D004CA88}
+		{C61AA911-E06F-418C-8F82-1E3573A25A65} = {40AE814D-9A7B-41E3-B28A-7E94D004CA88}
+	EndGlobalSection
+EndGlobal

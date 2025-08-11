@@ -2,6 +2,7 @@ using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace EasyAuth.Framework.Core.Controllers
 {

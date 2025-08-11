@@ -1,3 +1,4 @@
+using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -233,6 +234,22 @@ namespace EasyAuth.Framework.Core.Services
                 _logger.LogError(ex, "Error seeding initial data");
                 throw;
             }
+        }
+
+        public async Task<SessionInfo> ValidateSessionAsync(string sessionId)
+        {
+            // TDD RED Phase - Stub implementation
+            // Will be properly implemented in GREEN phase after tests define behavior
+            await Task.CompletedTask;
+            throw new NotImplementedException("TDD RED Phase - Test first, implement later");
+        }
+
+        public async Task<bool> InvalidateSessionAsync(string sessionId)
+        {
+            // TDD RED Phase - Stub implementation  
+            // Will be properly implemented in GREEN phase after tests define behavior
+            await Task.CompletedTask;
+            throw new NotImplementedException("TDD RED Phase - Test first, implement later");
         }
     }
 }

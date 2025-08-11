@@ -5,10 +5,12 @@ using EasyAuth.Framework.Core.Providers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace EasyAuth.Framework.Extensions
 {
@@ -68,7 +70,7 @@ namespace EasyAuth.Framework.Extensions
             if (eauthOptions.Framework.EnableHealthChecks)
             {
                 services.AddHealthChecks()
-                    .AddSqlServer(connectionString, name: "eauth-database");
+                    .AddSqlServer(connectionString);
             }
 
             return services;
@@ -241,7 +243,8 @@ namespace EasyAuth.Framework.Extensions
         {
             using var scope = app.ApplicationServices.CreateScope();
             var databaseService = scope.ServiceProvider.GetRequiredService<IEAuthDatabaseService>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<ServiceCollectionExtensions>>();
+            var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger("EasyAuth.DatabaseInitializer");
 
             try
             {

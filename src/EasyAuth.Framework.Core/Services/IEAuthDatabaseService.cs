@@ -1,3 +1,5 @@
+using EasyAuth.Framework.Core.Models;
+
 namespace EasyAuth.Framework.Core.Services
 {
     /// <summary>
@@ -29,5 +31,15 @@ namespace EasyAuth.Framework.Core.Services
         /// Clean up expired sessions and audit logs
         /// </summary>
         Task<int> CleanupExpiredDataAsync();
+
+        /// <summary>
+        /// Validate a session token and return session information
+        /// </summary>
+        Task<SessionInfo> ValidateSessionAsync(string sessionId);
+
+        /// <summary>
+        /// Invalidate a session token (logout)
+        /// </summary>
+        Task<bool> InvalidateSessionAsync(string sessionId);
     }
 }
