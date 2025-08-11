@@ -41,7 +41,7 @@ export class StateManager {
     }
 
     // Check if state has expired
-    const isExpired = Date.now() - data.timestamp > this.EXPIRATION_TIME;
+    const isExpired = Date.now() - data.timestamp >= this.EXPIRATION_TIME;
     
     if (isExpired) {
       this.states.delete(state);
