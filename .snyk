@@ -1,0 +1,115 @@
+# Snyk (https://snyk.io) policy file for EasyAuth Framework
+# Auto-generated and manually curated
+
+# Ignore specific vulnerabilities or paths
+ignore:
+  # Test dependencies with known low-severity issues
+  'SNYK-DOTNET-XUNIT-*':
+    - '*':
+        reason: Test framework dependencies only used in test environment
+        expires: '2024-12-31T23:59:59.999Z'
+  
+  # AutoFixture test data generation - not production concern
+  'SNYK-DOTNET-AUTOFIXTURE-*':
+    - '*':
+        reason: Test data generation library, not production code
+        expires: '2024-12-31T23:59:59.999Z'
+
+# Language and package manager settings
+language-settings:
+  dotnet:
+    # Scan only production dependencies by default
+    dev-dependencies: false
+    # Include all project files
+    all-projects: true
+    
+# Severity threshold configuration
+severity-threshold: high
+
+# Monitor settings for continuous monitoring
+monitor: true
+
+# Patch settings for automatic fixes
+patch: true
+auto-patch: false
+
+# Project-specific configurations
+projects:
+  EasyAuth.Framework.Core:
+    path: src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj
+    monitor: true
+    
+  EasyAuth.Framework.Extensions:
+    path: src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj
+    monitor: true
+    
+  EasyAuth.Framework.Core.Tests:
+    path: tests/EasyAuth.Framework.Core.Tests/EasyAuth.Framework.Core.Tests.csproj
+    monitor: false
+    dev-dependencies: true
+
+# Exclude certain paths from scanning
+exclude:
+  global:
+    - bin/
+    - obj/
+    - packages/
+    - '**/*.generated.cs'
+    - '**/Migrations/**'
+    - '**/wwwroot/**'
+
+# License policy (for enterprise accounts)
+license:
+  # Allow common permissive licenses
+  allow:
+    - MIT
+    - BSD-2-Clause
+    - BSD-3-Clause  
+    - Apache-2.0
+    - ISC
+    - CC0-1.0
+  
+  # Disallow problematic licenses
+  disallow:
+    - GPL-2.0
+    - GPL-3.0
+    - AGPL-1.0
+    - AGPL-3.0
+    - LGPL-2.1
+    - LGPL-3.0
+
+# Security policy configuration
+security:
+  # Alert on high and critical vulnerabilities
+  high-severity: true
+  medium-severity: false
+  low-severity: false
+  
+  # Authentication framework specific checks
+  rules:
+    # Ensure secure crypto libraries
+    - rule: 'weak-crypto'
+      severity: 'critical'
+    - rule: 'hardcoded-secrets'
+      severity: 'critical'
+    - rule: 'sql-injection'
+      severity: 'high'
+    - rule: 'xss'
+      severity: 'high'
+    - rule: 'insecure-transport'
+      severity: 'high'
+
+# Custom test configuration
+test:
+  exclude-base-image-vulns: true
+  severity-threshold: high
+  fail-on: upgradable
+  
+# Notification settings (for enterprise)
+notifications:
+  slack:
+    enabled: false
+  email:
+    enabled: true
+    
+version: v1.0.0

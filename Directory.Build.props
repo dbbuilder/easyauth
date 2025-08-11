@@ -1,0 +1,129 @@
+<Project>
+  
+  <PropertyGroup>
+    <!-- Global Properties -->
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors />
+    
+    <!-- Package Properties -->
+    <Product>EasyAuth Framework</Product>
+    <Company>EasyAuth Development Team</Company>
+    <Authors>EasyAuth Development Team</Authors>
+    <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbbuilder/easyauth</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dbbuilder/easyauth</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>authentication;oauth;azure;google;apple;facebook;framework;enterprise</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)EasyAuth.ruleset</CodeAnalysisRuleSet>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Deterministic Build -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    
+    <!-- Security -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimMode>link</TrimMode>
+    
+    <!-- Versioning -->
+    <Version>1.0.0</Version>
+    <PackageVersion>$(Version)</PackageVersion>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+  </PropertyGroup>
+
+  <!-- Conditional Properties for Test Projects -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == '$(MSBuildProjectName)' AND $(MSBuildProjectName.Contains('.Tests'))">
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Package References for all projects -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Additional package references for test projects -->
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Moq" Version="4.20.69" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Performance Test Specific Packages -->
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('.Performance.Tests'))">
+    <PackageReference Include="NBomber" Version="5.2.3" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+  </ItemGroup>
+
+  <!-- Security Test Specific Packages -->
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('.Security.Tests'))">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageReference Include="AngleSharp" Version="0.18.0" />
+  </ItemGroup>
+
+  <!-- Global Analysis Rules -->
+  <PropertyGroup>
+    <!-- Disable some noisy analyzers for cleaner builds -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn> <!-- Missing XML comment for publicly visible type or member -->
+    
+    <!-- StyleCop Configuration -->
+    <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
+    
+    <!-- Code Coverage -->
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>opencover</CoverletOutputFormat>
+    <CoverletOutput>../coverage/</CoverletOutput>
+    <ExcludeByFile>**/Program.cs;**/GlobalUsings.cs;**/Migrations/**/*.cs</ExcludeByFile>
+    <ExcludeByAttribute>CompilerGeneratedAttribute;GeneratedCodeAttribute;DebuggerNonUserCodeAttribute</ExcludeByAttribute>
+    
+    <!-- SourceLink for better debugging experience -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <!-- Global Usings -->
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+
+  <!-- Test-specific global usings -->
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+    <Using Include="Moq" />
+  </ItemGroup>
+
+</Project>

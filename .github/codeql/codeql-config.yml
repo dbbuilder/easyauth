@@ -1,0 +1,49 @@
+# CodeQL Configuration for EasyAuth Framework
+
+name: "EasyAuth Security Analysis"
+
+disable-default-queries: false
+
+queries:
+  - name: security-and-quality
+    uses: security-and-quality
+  - name: security-extended  
+    uses: security-extended
+  - name: code-scanning
+    uses: code-scanning
+
+query-filters:
+  - exclude:
+      id: cs/hardcoded-credentials
+      # We use test credentials in test files which is acceptable
+  - exclude:
+      id: cs/cleartext-storage-of-sensitive-information
+      # Test data storage is acceptable in test context
+
+paths:
+  - src/
+  - tests/
+
+paths-ignore:
+  - "**/bin/**"
+  - "**/obj/**"
+  - "**/*.generated.cs"
+  - "**/Migrations/**"
+  - "**/wwwroot/**"
+  - "**/*.min.js"
+  - "**/*.min.css"
+  - "**/packages/**"
+
+# Enable additional security queries for authentication framework
+packs:
+  - codeql/csharp-queries:AlertSuppression.ql
+  - codeql/csharp-queries:Security/CWE-079
+  - codeql/csharp-queries:Security/CWE-089
+  - codeql/csharp-queries:Security/CWE-094
+  - codeql/csharp-queries:Security/CWE-190
+  - codeql/csharp-queries:Security/CWE-312
+  - codeql/csharp-queries:Security/CWE-327
+  - codeql/csharp-queries:Security/CWE-502
+  - codeql/csharp-queries:Security/CWE-676
+  - codeql/csharp-queries:Security/CWE-798
+  - codeql/csharp-queries:Security/CWE-916

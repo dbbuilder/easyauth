@@ -1,0 +1,89 @@
+# Codecov Configuration for EasyAuth Framework
+
+codecov:
+  require_ci_to_pass: true
+  max_report_age: 24
+  notify:
+    after_n_builds: 1
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  
+  status:
+    project:
+      default:
+        target: 90%
+        threshold: 2%
+        base: auto
+        informational: false
+        if_ci_failed: error
+    patch:
+      default:
+        target: 85%
+        threshold: 5%
+        base: auto
+        informational: false
+        if_ci_failed: error
+    changes:
+      default:
+        target: auto
+        base: auto
+        if_ci_failed: error
+
+  ignore:
+    - "tests/**"
+    - "**/*Tests.cs"
+    - "**/*Test.cs"
+    - "**/Program.cs"
+    - "**/GlobalUsings.cs"
+    - "**/AssemblyInfo.cs"
+    - "src/**/bin/**"
+    - "src/**/obj/**"
+    - "src/**/Migrations/**"
+    - "**/*.generated.cs"
+    - "**/wwwroot/**"
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "header, diff, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+
+github_checks:
+  annotations: true
+
+# Flag configuration for different components
+flags:
+  unittests:
+    paths:
+      - tests/EasyAuth.Framework.Core.Tests/
+    carryforward: false
+  
+  core:
+    paths:
+      - src/EasyAuth.Framework.Core/
+    carryforward: false
+    
+  extensions:
+    paths:
+      - src/EasyAuth.Framework.Extensions/
+    carryforward: false
+
+# Critical file profiling
+profiling:
+  critical_files_paths: 
+    - "src/EasyAuth.Framework.Core/Services/EAuthService.cs"
+    - "src/EasyAuth.Framework.Core/Providers/**"
+    - "src/EasyAuth.Framework.Core/Security/**"
