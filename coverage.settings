@@ -1,51 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration>
-  <DataCollectors>
-    <DataCollector friendlyName="XPlat code coverage">
-      <Configuration>
-        <Format>opencover</Format>
-        <Format>cobertura</Format>
-        <Format>lcov</Format>
-        
-        <!-- Exclude test assemblies from coverage -->
-        <Exclude>[*.Tests]*</Exclude>
-        <Exclude>[*.Test]*</Exclude>
-        <Exclude>[*]*Migrations*</Exclude>
-        <Exclude>[*]*Program*</Exclude>
-        <Exclude>[*]*GlobalUsings*</Exclude>
-        <Exclude>[*]*AssemblyInfo*</Exclude>
-        
-        <!-- Exclude specific files -->
-        <ExcludeByFile>**/Migrations/**/*.cs</ExcludeByFile>
-        <ExcludeByFile>**/Program.cs</ExcludeByFile>
-        <ExcludeByFile>**/Startup.cs</ExcludeByFile>
-        <ExcludeByFile>**/GlobalUsings.cs</ExcludeByFile>
-        <ExcludeByFile>**/*.generated.cs</ExcludeByFile>
-        <ExcludeByFile>**/bin/**/*.cs</ExcludeByFile>
-        <ExcludeByFile>**/obj/**/*.cs</ExcludeByFile>
-        
-        <!-- Exclude by attributes -->
-        <ExcludeByAttribute>Obsolete</ExcludeByAttribute>
-        <ExcludeByAttribute>GeneratedCodeAttribute</ExcludeByAttribute>
-        <ExcludeByAttribute>CompilerGeneratedAttribute</ExcludeByAttribute>
-        <ExcludeByAttribute>DebuggerNonUserCodeAttribute</ExcludeByAttribute>
-        
-        <!-- Include only source directories -->
-        <IncludeDirectory>src/</IncludeDirectory>
-        
-        <!-- Coverage thresholds -->
-        <Threshold>80</Threshold>
-        <ThresholdType>line</ThresholdType>
-        <ThresholdStat>total</ThresholdStat>
-        
-        <!-- Additional settings for authentication framework -->
-        <SingleHit>true</SingleHit>
-        <UseSourceLink>true</UseSourceLink>
-        <IncludeTestAssembly>false</IncludeTestAssembly>
-        
-        <!-- Skip auto props to focus on meaningful coverage -->
-        <SkipAutoProps>true</SkipAutoProps>
-      </Configuration>
-    </DataCollector>
-  </DataCollectors>
-</Configuration>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>opencover</Format>
+          <Format>cobertura</Format>
+          <Format>lcov</Format>
+          
+          <!-- Exclude test assemblies from coverage -->
+          <Exclude>[*.Tests]*</Exclude>
+          <Exclude>[*.Test]*</Exclude>
+          <Exclude>[*]*Migrations*</Exclude>
+          <Exclude>[*]*Program*</Exclude>
+          <Exclude>[*]*GlobalUsings*</Exclude>
+          <Exclude>[*]*AssemblyInfo*</Exclude>
+          
+          <!-- Exclude specific files -->
+          <ExcludeByFile>**/Migrations/**/*.cs</ExcludeByFile>
+          <ExcludeByFile>**/Program.cs</ExcludeByFile>
+          <ExcludeByFile>**/Startup.cs</ExcludeByFile>
+          <ExcludeByFile>**/GlobalUsings.cs</ExcludeByFile>
+          <ExcludeByFile>**/*.generated.cs</ExcludeByFile>
+          <ExcludeByFile>**/bin/**/*.cs</ExcludeByFile>
+          <ExcludeByFile>**/obj/**/*.cs</ExcludeByFile>
+          
+          <!-- Exclude by attributes -->
+          <ExcludeByAttribute>Obsolete</ExcludeByAttribute>
+          <ExcludeByAttribute>GeneratedCodeAttribute</ExcludeByAttribute>
+          <ExcludeByAttribute>CompilerGeneratedAttribute</ExcludeByAttribute>
+          <ExcludeByAttribute>DebuggerNonUserCodeAttribute</ExcludeByAttribute>
+          
+          <!-- Include only source directories -->
+          <IncludeDirectory>src/</IncludeDirectory>
+          
+          <!-- Coverage thresholds -->
+          <Threshold>80</Threshold>
+          <ThresholdType>line</ThresholdType>
+          <ThresholdStat>total</ThresholdStat>
+          
+          <!-- Additional settings for authentication framework -->
+          <SingleHit>true</SingleHit>
+          <UseSourceLink>true</UseSourceLink>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          
+          <!-- Skip auto props to focus on meaningful coverage -->
+          <SkipAutoProps>true</SkipAutoProps>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
