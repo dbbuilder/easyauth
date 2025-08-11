@@ -7,9 +7,9 @@ CREATE OR ALTER PROCEDURE [eauth].[EAuth_GetUserProfile]
 AS
 BEGIN
     SET NOCOUNT ON
-    
+
     DECLARE @TargetUserId UNIQUEIDENTIFIER
-    
+
     -- Determine user ID from various inputs
     IF @UserId IS NOT NULL
     BEGIN
@@ -28,11 +28,11 @@ BEGIN
         INNER JOIN [eauth].[user_accounts] ua ON u.user_id = ua.user_id
         WHERE ua.provider = @Provider AND ua.provider_id = @ProviderId AND ua.is_active = 1
     END
-    
+
     IF @TargetUserId IS NULL
     BEGIN
         -- Return empty result set with same structure
-        SELECT 
+        SELECT
             CAST(NULL AS UNIQUEIDENTIFIER) AS user_id,
             CAST(NULL AS NVARCHAR(255)) AS email,
             CAST(NULL AS NVARCHAR(255)) AS display_name,
@@ -44,12 +44,12 @@ BEGIN
             CAST(0 AS BIT) AS email_verified,
             CAST(0 AS BIT) AS is_active
         WHERE 1 = 0
-        
+
         RETURN
     END
-    
+
     -- Return user profile
-    SELECT 
+    SELECT
         u.user_id,
         u.email,
         u.display_name,
@@ -62,9 +62,9 @@ BEGIN
         u.is_active
     FROM [eauth].[users] u
     WHERE u.user_id = @TargetUserId
-    
+
     -- Return linked accounts
-    SELECT 
+    SELECT
         ua.provider,
         ua.provider_id,
         ua.provider_email,
@@ -75,9 +75,9 @@ BEGIN
     FROM [eauth].[user_accounts] ua
     WHERE ua.user_id = @TargetUserId AND ua.is_active = 1
     ORDER BY ua.is_primary DESC, ua.linked_date ASC
-    
+
     -- Return user roles
-    SELECT 
+    SELECT
         ur.role_name,
         ur.granted_date,
         ur.expires_at,
@@ -85,8 +85,8 @@ BEGIN
         gu.display_name AS granted_by_name
     FROM [eauth].[user_roles] ur
     LEFT JOIN [eauth].[users] gu ON ur.granted_by = gu.user_id
-    WHERE ur.user_id = @TargetUserId 
-      AND ur.is_active = 1 
+    WHERE ur.user_id = @TargetUserId
+      AND ur.is_active = 1
       AND (ur.expires_at IS NULL OR ur.expires_at > GETUTCDATE())
     ORDER BY ur.role_name
 END

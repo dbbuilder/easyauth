@@ -20,27 +20,36 @@ namespace EasyAuth.Framework.Core.Providers
         private readonly AzureB2COptions _options;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<AzureB2CAuthProvider> _logger;
+        private readonly IConfigurationService _configurationService;
         private readonly JwtSecurityTokenHandler _jwtHandler;
 
         public AzureB2CAuthProvider(
             IOptions<AzureB2COptions> options,
             IHttpClientFactory httpClientFactory,
-            ILogger<AzureB2CAuthProvider> logger)
+            ILogger<AzureB2CAuthProvider> logger,
+            IConfigurationService configurationService)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
             _jwtHandler = new JwtSecurityTokenHandler();
         }
 
         public string ProviderName => "AzureB2C";
+
         public string DisplayName => "Azure B2C";
+
         public bool IsEnabled => _options.Enabled;
 
+        /// <summary>
+        /// Generates Azure B2C authorization URL with custom policy and nonce for OIDC compliance
+        /// Uses B2C-specific authority endpoint and supports policy-based authentication flows
+        /// </summary>
         public async Task<string> GetAuthorizationUrlAsync(string? returnUrl = null)
         {
             // TDD GREEN Phase: Minimal implementation to make tests pass
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             var state = GenerateState(returnUrl);
             var nonce = GenerateNonce();
@@ -59,6 +68,10 @@ namespace EasyAuth.Framework.Core.Providers
             return authUrl;
         }
 
+        /// <summary>
+        /// Exchanges Azure B2C authorization code for access token and ID token
+        /// Returns mock B2C tokens in TDD phase - real implementation calls B2C token endpoint
+        /// </summary>
         public async Task<TokenResponse> ExchangeCodeForTokenAsync(string code, string? state = null)
         {
             // TDD GREEN Phase: Enhanced validation and implementation
@@ -67,7 +80,7 @@ namespace EasyAuth.Framework.Core.Providers
                 throw new ArgumentException("Authorization code is required", nameof(code));
             }
 
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             // For TDD GREEN phase, return a mock response
             // Real implementation would make HTTP call to Azure B2C token endpoint
@@ -80,10 +93,14 @@ namespace EasyAuth.Framework.Core.Providers
             };
         }
 
+        /// <summary>
+        /// Extracts user information from Azure B2C ID token claims
+        /// B2C provides user data in id_token JWT rather than separate userinfo endpoint
+        /// </summary>
         public async Task<UserInfo> GetUserInfoAsync(TokenResponse tokens)
         {
             // TDD GREEN Phase: Extract user info from id_token (B2C pattern)
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(tokens.IdToken))
             {
@@ -96,9 +113,13 @@ namespace EasyAuth.Framework.Core.Providers
 
         #region IEAuthProvider Implementation
 
+        /// <summary>
+        /// Generates Azure B2C login URL with support for custom policies
+        /// Allows policy override through 'p' parameter for specialized B2C flows
+        /// </summary>
         public async Task<string> GetLoginUrlAsync(string? returnUrl = null, Dictionary<string, string>? parameters = null)
         {
-            var authUrl = await GetAuthorizationUrlAsync(returnUrl);
+            var authUrl = await GetAuthorizationUrlAsync(returnUrl).ConfigureAwait(false);
 
             // Support custom B2C policies through parameters
             if (parameters?.ContainsKey("p") == true)
@@ -111,12 +132,16 @@ namespace EasyAuth.Framework.Core.Providers
             return authUrl;
         }
 
+        /// <summary>
+        /// Handles Azure B2C OAuth callback with policy-aware token processing
+        /// Returns standardized response with B2C-specific error handling and logging
+        /// </summary>
         public async Task<EAuthResponse<UserInfo>> HandleCallbackAsync(string code, string? state = null)
         {
             try
             {
-                var tokens = await ExchangeCodeForTokenAsync(code, state);
-                var userInfo = await GetUserInfoAsync(tokens);
+                var tokens = await ExchangeCodeForTokenAsync(code, state).ConfigureAwait(false);
+                var userInfo = await GetUserInfoAsync(tokens).ConfigureAwait(false);
 
                 return new EAuthResponse<UserInfo>
                 {
@@ -137,9 +162,13 @@ namespace EasyAuth.Framework.Core.Providers
             }
         }
 
+        /// <summary>
+        /// Generates Azure B2C logout URL with policy and post-logout redirect
+        /// Uses B2C-specific logout endpoint for complete session termination
+        /// </summary>
         public async Task<string> GetLogoutUrlAsync(string? returnUrl = null)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             // Azure B2C logout endpoint
             var logoutUrl = $"{_options.GetAuthorityUrl()}/oauth2/v2.0/logout" +
@@ -149,9 +178,13 @@ namespace EasyAuth.Framework.Core.Providers
             return logoutUrl;
         }
 
+        /// <summary>
+        /// Generates Azure B2C password reset URL using configured reset policy
+        /// Returns null if password reset policy is not configured in B2C tenant
+        /// </summary>
         public async Task<string?> GetPasswordResetUrlAsync(string email)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(_options.ResetPasswordPolicyId))
             {
@@ -175,9 +208,13 @@ namespace EasyAuth.Framework.Core.Providers
             return resetUrl;
         }
 
+        /// <summary>
+        /// Validates Azure B2C configuration including TenantId, ClientId, ClientSecret, and policies
+        /// Ensures required B2C-specific settings like SignUpSignInPolicyId are configured
+        /// </summary>
         public async Task<bool> ValidateConfigurationAsync()
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             if (!IsEnabled) return true; // Skip validation if disabled
 
@@ -193,9 +230,22 @@ namespace EasyAuth.Framework.Core.Providers
                 return false;
             }
 
-            if (string.IsNullOrEmpty(_options.ClientSecret))
+            // SECURITY: Use unified configuration service to validate client secret
+            try
             {
-                _logger.LogError("Azure B2C ClientSecret is not configured");
+                var clientSecret = _configurationService.GetRequiredSecretValue(
+                    "AzureB2C:ClientSecret",
+                    "AZUREB2C_CLIENT_SECRET");
+
+                if (string.IsNullOrEmpty(clientSecret))
+                {
+                    _logger.LogError("Azure B2C ClientSecret is not configured");
+                    return false;
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Azure B2C ClientSecret validation failed");
                 return false;
             }
 
@@ -351,21 +401,26 @@ namespace EasyAuth.Framework.Core.Providers
                 using var httpClient = _httpClientFactory.CreateClient();
 
                 var tokenEndpoint = _options.GetTokenEndpoint();
+                // SECURITY: Use unified configuration service for client secret
+                var clientSecret = _configurationService.GetRequiredSecretValue(
+                    "AzureB2C:ClientSecret",
+                    "AZUREB2C_CLIENT_SECRET");
+
                 var parameters = new Dictionary<string, string>
                 {
                     ["client_id"] = _options.ClientId,
-                    ["client_secret"] = _options.ClientSecret,
+                    ["client_secret"] = clientSecret,
                     ["code"] = code,
                     ["grant_type"] = "authorization_code",
                     ["redirect_uri"] = BuildRedirectUri()
                 };
 
                 var content = new FormUrlEncodedContent(parameters);
-                var response = await httpClient.PostAsync(tokenEndpoint, content);
+                var response = await httpClient.PostAsync(tokenEndpoint, content).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
+                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     return JsonSerializer.Deserialize<AzureB2CTokenResponse>(json);
                 }
 
@@ -434,10 +489,15 @@ namespace EasyAuth.Framework.Core.Providers
         private class AzureB2CTokenResponse
         {
             public string access_token { get; set; } = string.Empty;
+
             public string id_token { get; set; } = string.Empty;
+
             public string token_type { get; set; } = "Bearer";
+
             public int expires_in { get; set; }
+
             public string? refresh_token { get; set; }
+
             public string scope { get; set; } = string.Empty;
         }
 

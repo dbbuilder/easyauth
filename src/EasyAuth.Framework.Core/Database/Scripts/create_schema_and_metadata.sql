@@ -22,7 +22,7 @@ BEGIN
         CONSTRAINT [PK_eauth_framework_metadata] PRIMARY KEY CLUSTERED ([id] ASC),
         CONSTRAINT [IX_eauth_framework_metadata_key] UNIQUE NONCLUSTERED ([key] ASC, [version] ASC)
     )
-    
+
     PRINT 'Created eauth.framework_metadata table'
 END
 ELSE

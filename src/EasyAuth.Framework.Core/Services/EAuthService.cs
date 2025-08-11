@@ -20,11 +20,15 @@ namespace EasyAuth.Framework.Core.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Retrieves list of configured authentication providers with their status and capabilities
+        /// Currently returns mock Google provider in TDD GREEN phase - will be enhanced to query all configured providers
+        /// </summary>
         public async Task<EAuthResponse<IEnumerable<ProviderInfo>>> GetProvidersAsync()
         {
             // TDD GREEN Phase: Minimal implementation to make test pass
-            await Task.CompletedTask;
-            
+            await Task.CompletedTask.ConfigureAwait(false);
+
             var providers = new List<ProviderInfo>
             {
                 new ProviderInfo
@@ -45,12 +49,16 @@ namespace EasyAuth.Framework.Core.Services
             };
         }
 
+        /// <summary>
+        /// Initiates authentication flow by generating provider-specific login URL
+        /// Validates provider and generates state parameter for OAuth security - currently supports Google only in TDD phase
+        /// </summary>
         public async Task<EAuthResponse<string>> InitiateLoginAsync(LoginRequest request)
         {
             // TDD GREEN Phase: Enhanced validation for edge cases
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
-            if (request?.Provider == null || 
+            if (request?.Provider == null ||
                 string.IsNullOrWhiteSpace(request.Provider) ||
                 request.Provider != "Google")
             {
@@ -74,12 +82,16 @@ namespace EasyAuth.Framework.Core.Services
             };
         }
 
+        /// <summary>
+        /// Processes OAuth callback by validating parameters and simulating successful authentication
+        /// TDD GREEN phase returns mock user data - will be enhanced to delegate to specific providers
+        /// </summary>
         public async Task<EAuthResponse<UserInfo>> HandleAuthCallbackAsync(string provider, string code, string? state = null)
         {
             // TDD GREEN Phase: Enhanced validation for edge cases
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
-            if (string.IsNullOrWhiteSpace(provider) || 
+            if (string.IsNullOrWhiteSpace(provider) ||
                 string.IsNullOrWhiteSpace(code) ||
                 provider != "Google")
             {
@@ -112,6 +124,10 @@ namespace EasyAuth.Framework.Core.Services
             };
         }
 
+        /// <summary>
+        /// Signs out user by invalidating their session in the database
+        /// Calls database service to mark session as inactive and logs the operation
+        /// </summary>
         public async Task<EAuthResponse<bool>> SignOutAsync(string? sessionId = null)
         {
             // TDD GREEN Phase: Minimal implementation to make test pass
@@ -128,7 +144,7 @@ namespace EasyAuth.Framework.Core.Services
                     };
                 }
 
-                var result = await _databaseService.InvalidateSessionAsync(sessionId);
+                var result = await _databaseService.InvalidateSessionAsync(sessionId).ConfigureAwait(false);
 
                 return new EAuthResponse<bool>
                 {
@@ -150,10 +166,14 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves current authenticated user information from session context
+        /// TDD stub implementation - returns not authenticated status until proper session management is implemented
+        /// </summary>
         public async Task<EAuthResponse<UserInfo>> GetCurrentUserAsync()
         {
             // TDD GREEN Phase: Stub implementation - will be properly implemented when needed
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             return new EAuthResponse<UserInfo>
             {
@@ -163,6 +183,10 @@ namespace EasyAuth.Framework.Core.Services
             };
         }
 
+        /// <summary>
+        /// Validates active user session by checking database and expiry status
+        /// Delegates to database service for session verification and returns standardized response
+        /// </summary>
         public async Task<EAuthResponse<SessionInfo>> ValidateSessionAsync(string sessionId)
         {
             // TDD GREEN Phase: Enhanced validation for edge cases
@@ -178,7 +202,7 @@ namespace EasyAuth.Framework.Core.Services
 
             try
             {
-                var sessionInfo = await _databaseService.ValidateSessionAsync(sessionId);
+                var sessionInfo = await _databaseService.ValidateSessionAsync(sessionId).ConfigureAwait(false);
 
                 return new EAuthResponse<SessionInfo>
                 {
@@ -199,10 +223,14 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Links additional authentication provider to existing user account
+        /// TDD stub implementation - will enable multi-provider account linking in future iterations
+        /// </summary>
         public async Task<EAuthResponse<UserInfo>> LinkAccountAsync(string provider, string code, string state)
         {
             // TDD GREEN Phase: Stub implementation - will be properly implemented when needed
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             return new EAuthResponse<UserInfo>
             {
@@ -212,24 +240,32 @@ namespace EasyAuth.Framework.Core.Services
             };
         }
 
+        /// <summary>
+        /// Removes authentication provider link from user account
+        /// TDD stub implementation - will enable provider unlinking with proper validation in future iterations
+        /// </summary>
         public async Task<EAuthResponse<bool>> UnlinkAccountAsync(string provider)
         {
             // TDD GREEN Phase: Stub implementation - will be properly implemented when needed
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             return new EAuthResponse<bool>
             {
                 Success = false,
                 Data = false,
-                ErrorCode = "NOT_IMPLEMENTED", 
+                ErrorCode = "NOT_IMPLEMENTED",
                 Message = "Account unlinking not yet implemented"
             };
         }
 
+        /// <summary>
+        /// Initiates password reset flow for providers that support it
+        /// TDD stub implementation - will delegate to provider-specific password reset URLs when implemented
+        /// </summary>
         public async Task<EAuthResponse<string>> InitiatePasswordResetAsync(PasswordResetRequest request)
         {
             // TDD GREEN Phase: Stub implementation - will be properly implemented when needed
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             return new EAuthResponse<string>
             {

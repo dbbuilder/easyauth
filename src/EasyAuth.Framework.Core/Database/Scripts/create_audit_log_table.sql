@@ -22,7 +22,7 @@ BEGIN
         INDEX [IX_eauth_audit_log_provider] NONCLUSTERED ([provider] ASC),
         INDEX [IX_eauth_audit_log_result] NONCLUSTERED ([result] ASC)
     )
-    
+
     PRINT 'Created eauth.audit_log table'
 END
 ELSE

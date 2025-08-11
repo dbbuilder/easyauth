@@ -23,7 +23,7 @@ BEGIN
         INDEX [IX_eauth_user_sessions_is_active] NONCLUSTERED ([is_active] ASC),
         INDEX [IX_eauth_user_sessions_last_activity] NONCLUSTERED ([last_activity] ASC)
     )
-    
+
     PRINT 'Created eauth.user_sessions table'
 END
 ELSE

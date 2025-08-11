@@ -22,7 +22,7 @@ BEGIN
         INDEX [IX_eauth_user_accounts_is_primary] NONCLUSTERED ([is_primary] ASC),
         INDEX [IX_eauth_user_accounts_is_active] NONCLUSTERED ([is_active] ASC)
     )
-    
+
     PRINT 'Created eauth.user_accounts table'
 END
 ELSE

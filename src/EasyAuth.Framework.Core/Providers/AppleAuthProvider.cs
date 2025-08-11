@@ -20,25 +20,34 @@ namespace EasyAuth.Framework.Core.Providers
         private readonly AppleOptions _options;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<AppleAuthProvider> _logger;
+        private readonly IConfigurationService _configurationService;
 
         public AppleAuthProvider(
             IOptions<AppleOptions> options,
             IHttpClientFactory httpClientFactory,
-            ILogger<AppleAuthProvider> logger)
+            ILogger<AppleAuthProvider> logger,
+            IConfigurationService configurationService)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
         }
 
         public string ProviderName => "Apple";
+
         public string DisplayName => "Apple Sign-In";
+
         public bool IsEnabled => _options.Enabled;
 
+        /// <summary>
+        /// Generates Apple Sign-In authorization URL with client_id, scopes, and state parameters
+        /// Apple uses form_post response mode for security and requires nonce for id_token validation
+        /// </summary>
         public async Task<string> GetAuthorizationUrlAsync(string? returnUrl = null)
         {
             // TDD GREEN Phase: Minimal implementation to make tests pass
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             var state = GenerateState(returnUrl);
             var scopes = string.Join(" ", _options.Scopes);
@@ -55,6 +64,10 @@ namespace EasyAuth.Framework.Core.Providers
             return authUrl;
         }
 
+        /// <summary>
+        /// Exchanges Apple Sign-In authorization code for access and ID tokens
+        /// Returns mock tokens in TDD GREEN phase - real implementation would call Apple's token endpoint
+        /// </summary>
         public async Task<TokenResponse> ExchangeCodeForTokenAsync(string code, string? state = null)
         {
             // TDD GREEN Phase: Enhanced validation and minimal implementation
@@ -63,7 +76,7 @@ namespace EasyAuth.Framework.Core.Providers
                 throw new ArgumentException("Authorization code is required", nameof(code));
             }
 
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             // For TDD GREEN phase, return a mock response
             // Real implementation would make HTTP call to Apple's token endpoint
@@ -76,10 +89,14 @@ namespace EasyAuth.Framework.Core.Providers
             };
         }
 
+        /// <summary>
+        /// Extracts user information from Apple ID token JWT claims
+        /// Apple provides user data in id_token rather than a separate userinfo endpoint
+        /// </summary>
         public async Task<UserInfo> GetUserInfoAsync(TokenResponse tokens)
         {
             // TDD GREEN Phase: Extract user info from ID token
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(tokens.IdToken))
             {
@@ -107,17 +124,25 @@ namespace EasyAuth.Framework.Core.Providers
 
         #region IEAuthProvider Implementation (Stub methods)
 
+        /// <summary>
+        /// Generates Apple Sign-In login URL - delegates to GetAuthorizationUrlAsync
+        /// Apple authentication follows standard OAuth 2.0 flow with OIDC extensions
+        /// </summary>
         public async Task<string> GetLoginUrlAsync(string? returnUrl = null, Dictionary<string, string>? parameters = null)
         {
-            return await GetAuthorizationUrlAsync(returnUrl);
+            return await GetAuthorizationUrlAsync(returnUrl).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Handles Apple Sign-In callback by exchanging code for tokens and extracting user info
+        /// Returns standardized EAuthResponse with success/error status and user data
+        /// </summary>
         public async Task<EAuthResponse<UserInfo>> HandleCallbackAsync(string code, string? state = null)
         {
             try
             {
-                var tokens = await ExchangeCodeForTokenAsync(code, state);
-                var userInfo = await GetUserInfoAsync(tokens);
+                var tokens = await ExchangeCodeForTokenAsync(code, state).ConfigureAwait(false);
+                var userInfo = await GetUserInfoAsync(tokens).ConfigureAwait(false);
 
                 return new EAuthResponse<UserInfo>
                 {
@@ -138,21 +163,33 @@ namespace EasyAuth.Framework.Core.Providers
             }
         }
 
+        /// <summary>
+        /// Returns logout redirect URL for Apple Sign-In
+        /// Apple doesn't provide centralized logout - returns local redirect URL
+        /// </summary>
         public async Task<string> GetLogoutUrlAsync(string? returnUrl = null)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             return returnUrl ?? "/";
         }
 
+        /// <summary>
+        /// Apple Sign-In doesn't support direct password reset URLs
+        /// Users must manage passwords through Apple ID settings
+        /// </summary>
         public async Task<string?> GetPasswordResetUrlAsync(string email)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             return null; // Apple doesn't support direct password reset
         }
 
+        /// <summary>
+        /// Validates Apple Sign-In configuration including ClientId, TeamId, and KeyId
+        /// Required for Apple's certificate-based authentication
+        /// </summary>
         public async Task<bool> ValidateConfigurationAsync()
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             return !string.IsNullOrEmpty(_options.ClientId) &&
                    !string.IsNullOrEmpty(_options.TeamId) &&
@@ -186,7 +223,12 @@ namespace EasyAuth.Framework.Core.Providers
 
         private string GenerateMockIdToken()
         {
-            // Generate a mock JWT for testing purposes
+            // SECURITY FIX: Use unified configuration service to get JWT secret with fallback
+            var jwtSecret = _configurationService.GetRequiredSecretValue(
+                "Apple:JwtSecret",
+                "APPLE_JWT_SECRET");
+
+            // Generate a mock JWT for testing purposes using securely configured secret
             var handler = new JwtSecurityTokenHandler();
 
             var claims = new[]
@@ -200,8 +242,9 @@ namespace EasyAuth.Framework.Core.Providers
                 new Claim("exp", DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds().ToString())
             };
 
+            // Use the securely configured JWT secret from Key Vault/environment/config
             var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("dummy_secret_key_for_testing_only"));
+                Encoding.UTF8.GetBytes(jwtSecret));
 
             var creds = new Microsoft.IdentityModel.Tokens.SigningCredentials(
                 key, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256);

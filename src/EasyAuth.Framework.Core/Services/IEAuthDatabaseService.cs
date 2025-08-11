@@ -11,22 +11,22 @@ namespace EasyAuth.Framework.Core.Services
         /// Initialize the database with required tables and stored procedures
         /// </summary>
         Task<bool> InitializeDatabaseAsync();
-        
+
         /// <summary>
         /// Check if the database is properly initialized
         /// </summary>
         Task<bool> IsDatabaseInitializedAsync();
-        
+
         /// <summary>
         /// Apply any pending migrations
         /// </summary>
         Task<bool> ApplyMigrationsAsync();
-        
+
         /// <summary>
         /// Get the current database version
         /// </summary>
         Task<string> GetDatabaseVersionAsync();
-        
+
         /// <summary>
         /// Clean up expired sessions and audit logs
         /// </summary>

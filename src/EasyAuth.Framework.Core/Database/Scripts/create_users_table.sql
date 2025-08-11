@@ -24,7 +24,7 @@ BEGIN
         INDEX [IX_eauth_users_is_active] NONCLUSTERED ([is_active] ASC),
         INDEX [IX_eauth_users_last_login] NONCLUSTERED ([last_login_date] ASC)
     )
-    
+
     PRINT 'Created eauth.users table'
 END
 ELSE

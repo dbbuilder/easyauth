@@ -17,7 +17,7 @@ BEGIN
         INDEX [IX_eauth_user_roles_is_active] NONCLUSTERED ([is_active] ASC),
         INDEX [IX_eauth_user_roles_expires_at] NONCLUSTERED ([expires_at] ASC)
     )
-    
+
     PRINT 'Created eauth.user_roles table'
 END
 ELSE

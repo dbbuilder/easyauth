@@ -32,7 +32,7 @@ namespace EasyAuth.Framework.Core.Controllers
         {
             try
             {
-                var result = await _eauthService.GetProvidersAsync();
+                var result = await _eauthService.GetProvidersAsync().ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -57,13 +57,13 @@ namespace EasyAuth.Framework.Core.Controllers
             {
                 _logger.LogInformation("Login request received for provider: {Provider}", request.Provider);
 
-                var result = await _eauthService.InitiateLoginAsync(request);
-                
+                var result = await _eauthService.InitiateLoginAsync(request).ConfigureAwait(false);
+
                 if (result.Success)
                 {
                     return Ok(result);
                 }
-                
+
                 return BadRequest(result);
             }
             catch (Exception ex)
@@ -88,15 +88,15 @@ namespace EasyAuth.Framework.Core.Controllers
             {
                 _logger.LogInformation("Authentication callback received for provider: {Provider}", provider);
 
-                var result = await _eauthService.HandleAuthCallbackAsync(provider, code, state);
-                
+                var result = await _eauthService.HandleAuthCallbackAsync(provider, code, state).ConfigureAwait(false);
+
                 if (result.Success)
                 {
                     // Extract return URL from state if available
                     var returnUrl = ExtractReturnUrlFromState(state) ?? "/";
                     return Redirect(returnUrl);
                 }
-                
+
                 return BadRequest(result);
             }
             catch (Exception ex)
@@ -121,7 +121,7 @@ namespace EasyAuth.Framework.Core.Controllers
             {
                 _logger.LogInformation("Logout request received");
 
-                var result = await _eauthService.SignOutAsync();
+                var result = await _eauthService.SignOutAsync().ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace EasyAuth.Framework.Core.Controllers
         {
             try
             {
-                var result = await _eauthService.GetCurrentUserAsync();
+                var result = await _eauthService.GetCurrentUserAsync().ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -169,8 +169,8 @@ namespace EasyAuth.Framework.Core.Controllers
             {
                 // Use session ID from query parameter or extract from request
                 sessionId ??= HttpContext.Session.Id;
-                
-                var result = await _eauthService.ValidateSessionAsync(sessionId);
+
+                var result = await _eauthService.ValidateSessionAsync(sessionId).ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -196,7 +196,7 @@ namespace EasyAuth.Framework.Core.Controllers
             {
                 _logger.LogInformation("Account linking request for provider: {Provider}", provider);
 
-                var result = await _eauthService.LinkAccountAsync(provider, request.Code, request.State);
+                var result = await _eauthService.LinkAccountAsync(provider, request.Code, request.State).ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -222,7 +222,7 @@ namespace EasyAuth.Framework.Core.Controllers
             {
                 _logger.LogInformation("Account unlinking request for provider: {Provider}", provider);
 
-                var result = await _eauthService.UnlinkAccountAsync(provider);
+                var result = await _eauthService.UnlinkAccountAsync(provider).ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -245,10 +245,10 @@ namespace EasyAuth.Framework.Core.Controllers
         {
             try
             {
-                _logger.LogInformation("Password reset request for email: {Email} via provider: {Provider}", 
+                _logger.LogInformation("Password reset request for email: {Email} via provider: {Provider}",
                     request.Email, request.Provider);
 
-                var result = await _eauthService.InitiatePasswordResetAsync(request);
+                var result = await _eauthService.InitiatePasswordResetAsync(request).ConfigureAwait(false);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -286,7 +286,14 @@ namespace EasyAuth.Framework.Core.Controllers
     /// </summary>
     public class LinkAccountRequest
     {
+        /// <summary>
+        /// Authorization code from the OAuth provider
+        /// </summary>
         public string Code { get; set; } = string.Empty;
+
+        /// <summary>
+        /// State parameter for CSRF protection
+        /// </summary>
         public string State { get; set; } = string.Empty;
     }
 }

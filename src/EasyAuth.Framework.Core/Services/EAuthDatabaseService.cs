@@ -20,6 +20,10 @@ namespace EasyAuth.Framework.Core.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Creates EasyAuth database schema, tables, and stored procedures from embedded SQL scripts
+        /// Executes initialization scripts in sequence and seeds framework metadata
+        /// </summary>
         public async Task<bool> InitializeDatabaseAsync()
         {
             try
@@ -43,7 +47,7 @@ namespace EasyAuth.Framework.Core.Services
                 };
 
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync().ConfigureAwait(false);
 
                 foreach (var scriptName in scripts)
                 {
@@ -51,18 +55,18 @@ namespace EasyAuth.Framework.Core.Services
                     if (!string.IsNullOrEmpty(script))
                     {
                         _logger.LogInformation("Executing script: {ScriptName}", scriptName);
-                        
+
                         using var command = connection.CreateCommand();
 #pragma warning disable CA2100 // Review SQL queries for security vulnerabilities - script is from embedded resources, not user input
                         command.CommandText = script;
 #pragma warning restore CA2100
                         command.CommandTimeout = 300; // 5 minutes
-                        await command.ExecuteNonQueryAsync();
+                        await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
 
                 // Insert initial metadata
-                await SeedInitialDataAsync(connection);
+                await SeedInitialDataAsync(connection).ConfigureAwait(false);
 
                 _logger.LogInformation("EasyAuth database initialization completed successfully");
                 return true;
@@ -74,21 +78,25 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Checks if EasyAuth database is properly initialized by verifying framework_metadata table exists
+        /// Returns true if core schema and metadata tables are present in the database
+        /// </summary>
         public async Task<bool> IsDatabaseInitializedAsync()
         {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync().ConfigureAwait(false);
 
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
-                    SELECT COUNT(*) 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE TABLE_SCHEMA = 'eauth' 
+                    SELECT COUNT(*)
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE TABLE_SCHEMA = 'eauth'
                     AND TABLE_NAME = 'framework_metadata'";
 
-                var count = (int)await command.ExecuteScalarAsync();
+                var count = (int)await command.ExecuteScalarAsync().ConfigureAwait(false);
                 return count > 0;
             }
             catch (Exception ex)
@@ -98,17 +106,21 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Applies pending database migrations to upgrade schema to current version
+        /// Checks current version and executes version-specific upgrade scripts
+        /// </summary>
         public async Task<bool> ApplyMigrationsAsync()
         {
             try
             {
                 _logger.LogInformation("Applying EasyAuth database migrations");
 
-                var currentVersion = await GetDatabaseVersionAsync();
+                var currentVersion = await GetDatabaseVersionAsync().ConfigureAwait(false);
                 _logger.LogInformation("Current database version: {Version}", currentVersion);
 
                 // Add future migration logic here
-                
+
                 _logger.LogInformation("EasyAuth database migrations completed");
                 return true;
             }
@@ -119,21 +131,25 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves current database schema version from framework_metadata table
+        /// Returns '0.0.0' if metadata table doesn't exist or version is not recorded
+        /// </summary>
         public async Task<string> GetDatabaseVersionAsync()
         {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync().ConfigureAwait(false);
 
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
-                    SELECT TOP 1 [value] 
-                    FROM [eauth].[framework_metadata] 
+                    SELECT TOP 1 [value]
+                    FROM [eauth].[framework_metadata]
                     WHERE [key] = 'database_version'
                     ORDER BY [created_date] DESC";
 
-                var version = await command.ExecuteScalarAsync() as string;
+                var version = await command.ExecuteScalarAsync().ConfigureAwait(false) as string;
                 return version ?? "0.0.0";
             }
             catch (Exception ex)
@@ -143,6 +159,10 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Removes expired sessions and old audit log entries to maintain database performance
+        /// Deactivates sessions past expiry time and deletes audit logs older than 90 days
+        /// </summary>
         public async Task<int> CleanupExpiredDataAsync()
         {
             try
@@ -150,7 +170,7 @@ namespace EasyAuth.Framework.Core.Services
                 _logger.LogInformation("Starting EasyAuth data cleanup");
 
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync().ConfigureAwait(false);
 
                 var totalCleaned = 0;
 
@@ -161,8 +181,8 @@ namespace EasyAuth.Framework.Core.Services
                         UPDATE [eauth].[user_sessions]
                         SET is_active = 0, invalidated_date = GETUTCDATE(), invalidated_reason = 'EXPIRED'
                         WHERE is_active = 1 AND expires_at < GETUTCDATE()";
-                    
-                    var expiredSessions = await command.ExecuteNonQueryAsync();
+
+                    var expiredSessions = await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     totalCleaned += expiredSessions;
                     _logger.LogInformation("Cleaned up {Count} expired sessions", expiredSessions);
                 }
@@ -173,8 +193,8 @@ namespace EasyAuth.Framework.Core.Services
                     command.CommandText = @"
                         DELETE FROM [eauth].[audit_log]
                         WHERE created_date < DATEADD(day, -90, GETUTCDATE())";
-                    
-                    var oldAuditLogs = await command.ExecuteNonQueryAsync();
+
+                    var oldAuditLogs = await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     totalCleaned += oldAuditLogs;
                     _logger.LogInformation("Cleaned up {Count} old audit log entries", oldAuditLogs);
                 }
@@ -195,7 +215,7 @@ namespace EasyAuth.Framework.Core.Services
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var resourceName = $"EasyAuth.Framework.Core.Database.Scripts.{scriptName}";
-                
+
                 using var stream = assembly.GetManifestResourceStream(resourceName);
                 if (stream == null)
                 {
@@ -222,13 +242,13 @@ namespace EasyAuth.Framework.Core.Services
                     IF NOT EXISTS (SELECT 1 FROM [eauth].[framework_metadata] WHERE [key] = 'database_version')
                     BEGIN
                         INSERT INTO [eauth].[framework_metadata] ([key], [value], [version], [created_date])
-                        VALUES 
+                        VALUES
                             ('database_version', '1.0.0', '1.0.0', GETUTCDATE()),
                             ('initialization_date', CONVERT(NVARCHAR, GETUTCDATE(), 127), '1.0.0', GETUTCDATE()),
                             ('framework_name', 'EasyAuth.Framework', '1.0.0', GETUTCDATE())
                     END";
 
-                await command.ExecuteNonQueryAsync();
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 _logger.LogInformation("Initial metadata seeded successfully");
             }
             catch (Exception ex)
@@ -238,19 +258,27 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Validates session token against database and returns session information if active
+        /// TDD RED phase stub - will query user_sessions table and verify expiry in GREEN phase
+        /// </summary>
         public async Task<SessionInfo> ValidateSessionAsync(string sessionId)
         {
             // TDD RED Phase - Stub implementation
             // Will be properly implemented in GREEN phase after tests define behavior
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             throw new NotImplementedException("TDD RED Phase - Test first, implement later");
         }
 
+        /// <summary>
+        /// Marks user session as inactive in database for logout functionality
+        /// TDD RED phase stub - will update user_sessions table with invalidation timestamp in GREEN phase
+        /// </summary>
         public async Task<bool> InvalidateSessionAsync(string sessionId)
         {
-            // TDD RED Phase - Stub implementation  
+            // TDD RED Phase - Stub implementation
             // Will be properly implemented in GREEN phase after tests define behavior
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             throw new NotImplementedException("TDD RED Phase - Test first, implement later");
         }
     }

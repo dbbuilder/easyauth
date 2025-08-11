@@ -42,17 +42,35 @@ namespace EasyAuth.Framework.Core.Configuration
         public CorsOptions Cors { get; set; } = new();
     }
 
+    /// <summary>
+    /// Azure Key Vault configuration for secure secret management
+    /// </summary>
     public class KeyVaultOptions
     {
+        /// <summary>
+        /// Base URL of the Azure Key Vault (e.g., https://myvault.vault.azure.net/)
+        /// </summary>
         public string BaseUrl { get; set; } = string.Empty;
+        /// <summary>
+        /// Whether to retrieve database connection string from Key Vault
+        /// </summary>
         public bool UseConnectionStringFromKeyVault { get; set; } = true;
+
+        /// <summary>
+        /// Name of the secret containing the database connection string in Key Vault
+        /// </summary>
         public string ConnectionStringSecretName { get; set; } = "EAuthDatabaseConnectionString";
+
+        /// <summary>
+        /// Mapping of configuration keys to Key Vault secret names
+        /// </summary>
         public Dictionary<string, string> SecretNames { get; set; } = new()
         {
             ["AzureB2C:ClientSecret"] = "EAuthAzureB2CClientSecret",
             ["Google:ClientSecret"] = "EAuthGoogleClientSecret",
             ["Facebook:AppSecret"] = "EAuthFacebookAppSecret",
-            ["Apple:ClientSecret"] = "EAuthAppleClientSecret"
+            ["Apple:ClientSecret"] = "EAuthAppleClientSecret",
+            ["Apple:JwtSecret"] = "EAuthAppleJwtSecret"
         };
     }
 
@@ -89,25 +107,75 @@ namespace EasyAuth.Framework.Core.Configuration
         public bool AllowAccountLinking { get; set; } = true;
     }
 
+    /// <summary>
+    /// Azure Active Directory B2C authentication provider configuration
+    /// </summary>
     public class AzureB2COptions
     {
+        /// <summary>
+        /// Whether Azure B2C authentication is enabled
+        /// </summary>
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Azure B2C instance URL (e.g., https://login.microsoftonline.com/)
+        /// </summary>
         [Required]
         public string Instance { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Azure B2C domain (e.g., mycompany.b2clogin.com)
+        /// </summary>
         [Required]
         public string Domain { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Azure B2C tenant identifier
+        /// </summary>
         [Required]
         public string TenantId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Application (client) ID registered in Azure B2C
+        /// </summary>
         [Required]
         public string ClientId { get; set; } = string.Empty;
-        public string ClientSecret { get; set; } = string.Empty; // Will be loaded from Key Vault if configured
+
+        /// <summary>
+        /// Client secret - will be loaded from Key Vault if configured
+        /// </summary>
+        public string ClientSecret { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Sign-up and sign-in policy ID (user flow)
+        /// </summary>
         [Required]
         public string SignUpSignInPolicyId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Password reset policy ID (user flow)
+        /// </summary>
         [Required]
         public string ResetPasswordPolicyId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Profile editing policy ID (user flow)
+        /// </summary>
         public string EditProfilePolicyId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// OAuth callback path for Azure B2C sign-in
+        /// </summary>
         public string CallbackPath { get; set; } = "/auth/azureb2c-signin";
+
+        /// <summary>
+        /// Callback path after sign-out
+        /// </summary>
         public string SignedOutCallbackPath { get; set; } = "/auth/azureb2c-signout";
+
+        /// <summary>
+        /// OAuth scopes to request from Azure B2C
+        /// </summary>
         public string[] Scopes { get; set; } = { "openid", "profile", "offline_access" };
 
         // Additional properties for enhanced B2C support
@@ -119,7 +187,9 @@ namespace EasyAuth.Framework.Core.Configuration
 
         // Convenience properties for backward compatibility
         public string SignInPolicy => SignUpSignInPolicyId;
+
         public string? ResetPasswordPolicy => ResetPasswordPolicyId;
+
         public string? EditProfilePolicy => EditProfilePolicyId;
 
         /// <summary>
@@ -161,66 +231,225 @@ namespace EasyAuth.Framework.Core.Configuration
         }
     }
 
+    /// <summary>
+    /// Google OAuth 2.0 authentication provider configuration
+    /// </summary>
     public class GoogleOptions
     {
+        /// <summary>
+        /// Whether Google authentication is enabled
+        /// </summary>
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Google OAuth client ID from Google Cloud Console
+        /// </summary>
         [Required]
         public string ClientId { get; set; } = string.Empty;
-        public string ClientSecret { get; set; } = string.Empty; // Will be loaded from Key Vault if configured
+
+        /// <summary>
+        /// Google OAuth client secret - will be loaded from Key Vault if configured
+        /// </summary>
+        public string ClientSecret { get; set; } = string.Empty;
+
+        /// <summary>
+        /// OAuth callback path for Google sign-in
+        /// </summary>
         public string CallbackPath { get; set; } = "/auth/google-signin";
+
+        /// <summary>
+        /// OAuth scopes to request from Google
+        /// </summary>
         public string[] Scopes { get; set; } = { "openid", "profile", "email" };
     }
+
+    /// <summary>
+    /// Facebook OAuth authentication provider configuration
+    /// </summary>
     public class FacebookOptions
     {
+        /// <summary>
+        /// Whether Facebook authentication is enabled
+        /// </summary>
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Facebook App ID from Facebook Developers Console
+        /// </summary>
         [Required]
         public string AppId { get; set; } = string.Empty;
-        public string AppSecret { get; set; } = string.Empty; // Will be loaded from Key Vault if configured
+
+        /// <summary>
+        /// Facebook App Secret - will be loaded from Key Vault if configured
+        /// </summary>
+        public string AppSecret { get; set; } = string.Empty;
+
+        /// <summary>
+        /// OAuth callback path for Facebook sign-in
+        /// </summary>
         public string CallbackPath { get; set; } = "/auth/facebook-signin";
+
+        /// <summary>
+        /// OAuth scopes to request from Facebook
+        /// </summary>
         public string[] Scopes { get; set; } = { "email", "public_profile" };
     }
 
+    /// <summary>
+    /// Apple Sign-In authentication provider configuration
+    /// </summary>
     public class AppleOptions
     {
+        /// <summary>
+        /// Whether Apple Sign-In authentication is enabled
+        /// </summary>
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Apple Services ID (client identifier)
+        /// </summary>
         [Required]
         public string ClientId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Apple Developer Team ID
+        /// </summary>
         [Required]
         public string TeamId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Apple Key ID for JWT signing
+        /// </summary>
         [Required]
         public string KeyId { get; set; } = string.Empty;
-        public string ClientSecret { get; set; } = string.Empty; // Will be loaded from Key Vault if configured
+
+        /// <summary>
+        /// Client secret - will be loaded from Key Vault if configured
+        /// </summary>
+        public string ClientSecret { get; set; } = string.Empty;
+
+        /// <summary>
+        /// JWT signing secret for Apple Sign-In token generation and validation
+        /// SECURITY: This must come from environment variables or Key Vault - NEVER hardcode in production
+        /// </summary>
+        public string JwtSecret { get; set; } = string.Empty;
+
+        /// <summary>
+        /// OAuth callback path for Apple Sign-In
+        /// </summary>
         public string CallbackPath { get; set; } = "/auth/apple-signin";
+
+        /// <summary>
+        /// OAuth scopes to request from Apple
+        /// </summary>
         public string[] Scopes { get; set; } = { "name", "email" };
     }
 
+    /// <summary>
+    /// EasyAuth Framework behavior and feature settings
+    /// </summary>
     public class FrameworkSettings
     {
+        /// <summary>
+        /// Whether to automatically set up database schema on startup
+        /// </summary>
         public bool AutoDatabaseSetup { get; set; } = true;
+
+        /// <summary>
+        /// Whether to enable Swagger API documentation
+        /// </summary>
         public bool EnableSwagger { get; set; } = true;
+
+        /// <summary>
+        /// Whether to enable ASP.NET Core health checks
+        /// </summary>
         public bool EnableHealthChecks { get; set; } = true;
+
+        /// <summary>
+        /// API route prefix for EasyAuth endpoints
+        /// </summary>
         public string ApiPrefix { get; set; } = "api/eauth";
+
+        /// <summary>
+        /// Default token expiration time in minutes
+        /// </summary>
         public int TokenExpirationMinutes { get; set; } = 60;
+
+        /// <summary>
+        /// Whether to include detailed error information in responses (disable in production)
+        /// </summary>
         public bool EnableDetailedErrors { get; set; } = false;
+
+        /// <summary>
+        /// Whether to enable audit logging of authentication events
+        /// </summary>
         public bool EnableAuditLogging { get; set; } = true;
+
+        /// <summary>
+        /// Interval in minutes for automatic session cleanup
+        /// </summary>
         public int SessionCleanupIntervalMinutes { get; set; } = 60;
     }
 
+    /// <summary>
+    /// User session and cookie configuration options
+    /// </summary>
     public class SessionOptions
     {
+        /// <summary>
+        /// Session idle timeout in hours before automatic expiration
+        /// </summary>
         public int IdleTimeoutHours { get; set; } = 24;
+
+        /// <summary>
+        /// Whether session cookies should be HTTP-only (recommended for security)
+        /// </summary>
         public bool HttpOnly { get; set; } = true;
+
+        /// <summary>
+        /// Whether session cookies require HTTPS (recommended for production)
+        /// </summary>
         public bool Secure { get; set; } = true;
+
+        /// <summary>
+        /// SameSite cookie attribute for CSRF protection
+        /// </summary>
         public string SameSite { get; set; } = "Lax";
+
+        /// <summary>
+        /// Name of the session cookie
+        /// </summary>
         public string CookieName { get; set; } = "EAuth.Session";
+
+        /// <summary>
+        /// Whether to use sliding expiration (session timeout resets on activity)
+        /// </summary>
         public bool SlidingExpiration { get; set; } = true;
     }
 
+    /// <summary>
+    /// Cross-Origin Resource Sharing (CORS) configuration for frontend applications
+    /// </summary>
     public class CorsOptions
     {
+        /// <summary>
+        /// List of allowed origin URLs for CORS requests
+        /// </summary>
         public string[] AllowedOrigins { get; set; } = { "http://localhost:3000", "http://localhost:5173" };
+
+        /// <summary>
+        /// Whether to allow credentials (cookies, authorization headers) in CORS requests
+        /// </summary>
         public bool AllowCredentials { get; set; } = true;
+
+        /// <summary>
+        /// List of allowed HTTP methods for CORS requests
+        /// </summary>
         public string[] AllowedMethods { get; set; } = { "GET", "POST", "PUT", "DELETE", "OPTIONS" };
+
+        /// <summary>
+        /// List of allowed headers for CORS requests
+        /// </summary>
         public string[] AllowedHeaders { get; set; } = { "*" };
     }
 }

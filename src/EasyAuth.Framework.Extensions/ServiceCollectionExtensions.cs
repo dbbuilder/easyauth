@@ -51,6 +51,14 @@ namespace EasyAuth.Framework.Extensions
             // Add HTTP client factory for providers
             services.AddHttpClient();
 
+            // Add unified configuration service
+            services.AddSingleton<IConfigurationService>(provider =>
+            {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var logger = provider.GetRequiredService<ILogger<ConfigurationService>>();
+                return new ConfigurationService(config, logger, eauthOptions.KeyVault);
+            });
+
             // Add authentication providers
             AddAuthenticationProviders(services, eauthOptions);
 
@@ -154,8 +162,8 @@ namespace EasyAuth.Framework.Extensions
                     cookieOptions.AccessDeniedPath = "/auth/access-denied";
                     cookieOptions.Cookie.Name = options.Session.CookieName;
                     cookieOptions.Cookie.HttpOnly = options.Session.HttpOnly;
-                    cookieOptions.Cookie.SecurePolicy = options.Session.Secure 
-                        ? Microsoft.AspNetCore.Http.CookieSecurePolicy.Always 
+                    cookieOptions.Cookie.SecurePolicy = options.Session.Secure
+                        ? Microsoft.AspNetCore.Http.CookieSecurePolicy.Always
                         : Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
                     cookieOptions.ExpireTimeSpan = TimeSpan.FromHours(options.Session.IdleTimeoutHours);
                     cookieOptions.SlidingExpiration = options.Session.SlidingExpiration;
@@ -169,13 +177,13 @@ namespace EasyAuth.Framework.Extensions
                     googleOptions.ClientId = options.Providers.Google.ClientId;
                     googleOptions.ClientSecret = options.Providers.Google.ClientSecret;
                     googleOptions.CallbackPath = options.Providers.Google.CallbackPath;
-                    
+
                     foreach (var scope in options.Providers.Google.Scopes)
                     {
                         googleOptions.Scope.Add(scope);
                     }
                 });
-                
+
                 services.AddScoped<IEAuthProvider, GoogleAuthProvider>();
             }
 
@@ -187,7 +195,7 @@ namespace EasyAuth.Framework.Extensions
                     facebookOptions.AppId = options.Providers.Facebook.AppId;
                     facebookOptions.AppSecret = options.Providers.Facebook.AppSecret;
                     facebookOptions.CallbackPath = options.Providers.Facebook.CallbackPath;
-                    
+
                     foreach (var scope in options.Providers.Facebook.Scopes)
                     {
                         facebookOptions.Scope.Add(scope);
@@ -195,7 +203,17 @@ namespace EasyAuth.Framework.Extensions
                 });
             }
 
-            // Additional providers (Apple, Azure B2C) would be added here
+            // Add Apple Sign-In if configured
+            if (options.Providers.Apple?.Enabled == true)
+            {
+                services.AddScoped<IEAuthProvider, AppleAuthProvider>();
+            }
+
+            // Add Azure B2C if configured
+            if (options.Providers.AzureB2C?.Enabled == true)
+            {
+                services.AddScoped<IEAuthProvider, AzureB2CAuthProvider>();
+            }
         }
 
         private static void AddSessionServices(IServiceCollection services, EAuthOptions options)
@@ -207,8 +225,8 @@ namespace EasyAuth.Framework.Extensions
                 sessionOptions.Cookie.IsEssential = true;
                 sessionOptions.Cookie.Name = options.Session.CookieName;
                 sessionOptions.Cookie.SameSite = Enum.Parse<Microsoft.AspNetCore.Http.SameSiteMode>(options.Session.SameSite);
-                sessionOptions.Cookie.SecurePolicy = options.Session.Secure 
-                    ? Microsoft.AspNetCore.Http.CookieSecurePolicy.Always 
+                sessionOptions.Cookie.SecurePolicy = options.Session.Secure
+                    ? Microsoft.AspNetCore.Http.CookieSecurePolicy.Always
                     : Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
             });
         }
@@ -250,13 +268,13 @@ namespace EasyAuth.Framework.Extensions
             {
                 logger.LogInformation("Checking EasyAuth database initialization status");
 
-                if (!await databaseService.IsDatabaseInitializedAsync())
+                if (!await databaseService.IsDatabaseInitializedAsync().ConfigureAwait(false))
                 {
                     logger.LogInformation("EasyAuth database not initialized, starting setup");
-                    await databaseService.InitializeDatabaseAsync();
+                    await databaseService.InitializeDatabaseAsync().ConfigureAwait(false);
                 }
 
-                await databaseService.ApplyMigrationsAsync();
+                await databaseService.ApplyMigrationsAsync().ConfigureAwait(false);
                 logger.LogInformation("EasyAuth database setup completed successfully");
             }
             catch (Exception ex)

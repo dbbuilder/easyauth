@@ -7,11 +7,34 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class EAuthResponse<T>
     {
+        /// <summary>
+        /// Whether the operation was successful
+        /// </summary>
         public bool Success { get; set; }
+
+        /// <summary>
+        /// The response data (null if operation failed)
+        /// </summary>
         public T? Data { get; set; }
+
+        /// <summary>
+        /// Human-readable message describing the result
+        /// </summary>
         public string? Message { get; set; }
+
+        /// <summary>
+        /// Error code for failed operations (null if successful)
+        /// </summary>
         public string? ErrorCode { get; set; }
+
+        /// <summary>
+        /// Timestamp when the response was generated
+        /// </summary>
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+
+        /// <summary>
+        /// Additional metadata about the operation
+        /// </summary>
         public Dictionary<string, object>? Metadata { get; set; }
     }
 
@@ -20,17 +43,64 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class UserInfo
     {
+        /// <summary>
+        /// Unique user identifier
+        /// </summary>
         public string UserId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User's email address
+        /// </summary>
         public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Display name for the user
+        /// </summary>
         public string DisplayName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User's first name
+        /// </summary>
         public string FirstName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User's last name
+        /// </summary>
         public string LastName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User roles and permissions
+        /// </summary>
         public string[] Roles { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Additional claims from the authentication provider
+        /// </summary>
         public Dictionary<string, string> Claims { get; set; } = new();
+
+        /// <summary>
+        /// Whether the user is currently authenticated
+        /// </summary>
         public bool IsAuthenticated { get; set; }
+
+        /// <summary>
+        /// Last successful login timestamp
+        /// </summary>
         public DateTimeOffset? LastLoginDate { get; set; }
+
+        /// <summary>
+        /// URL to the user's profile picture
+        /// </summary>
         public string ProfilePictureUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Authentication provider used for this session
+        /// </summary>
         public string AuthProvider { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Other linked authentication accounts
+        /// </summary>
         public UserAccount[] LinkedAccounts { get; set; } = Array.Empty<UserAccount>();
     }
 
@@ -39,11 +109,34 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class UserAccount
     {
+        /// <summary>
+        /// Authentication provider name
+        /// </summary>
         public string Provider { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User ID from the authentication provider
+        /// </summary>
         public string ProviderId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Email address associated with this account
+        /// </summary>
         public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Display name from this account
+        /// </summary>
         public string DisplayName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When this account was linked
+        /// </summary>
         public DateTimeOffset LinkedDate { get; set; }
+
+        /// <summary>
+        /// Whether this is the primary authentication account
+        /// </summary>
         public bool IsPrimary { get; set; }
     }
 
@@ -52,12 +145,39 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class SessionInfo
     {
+        /// <summary>
+        /// Unique session identifier
+        /// </summary>
         public string SessionId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When the session expires
+        /// </summary>
         public DateTimeOffset ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Whether the session is currently valid
+        /// </summary>
         public bool IsValid { get; set; }
+
+        /// <summary>
+        /// User ID associated with this session
+        /// </summary>
         public string UserId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// IP address where the session was created
+        /// </summary>
         public string IpAddress { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User agent string from the client
+        /// </summary>
         public string UserAgent { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Authentication provider used for this session
+        /// </summary>
         public string AuthProvider { get; set; } = string.Empty;
     }
 
@@ -66,12 +186,30 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class LoginRequest
     {
+        /// <summary>
+        /// Authentication provider to use for login
+        /// </summary>
         [Required]
         public string Provider { get; set; } = string.Empty;
-        
+
+        /// <summary>
+        /// Email address for login hint (optional)
+        /// </summary>
         public string? Email { get; set; }
+
+        /// <summary>
+        /// URL to redirect to after successful login
+        /// </summary>
         public string? ReturnUrl { get; set; }
+
+        /// <summary>
+        /// Whether to persist the login session
+        /// </summary>
         public bool RememberMe { get; set; }
+
+        /// <summary>
+        /// Additional parameters for the authentication provider
+        /// </summary>
         public Dictionary<string, string> Parameters { get; set; } = new();
     }
 
@@ -80,9 +218,16 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class PasswordResetRequest
     {
+        /// <summary>
+        /// Email address for password reset
+        /// </summary>
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Authentication provider to handle the password reset
+        /// </summary>
         public string Provider { get; set; } = "AzureB2C";
     }
 
@@ -91,14 +236,49 @@ namespace EasyAuth.Framework.Core.Models
     /// </summary>
     public class ProviderInfo
     {
+        /// <summary>
+        /// Internal provider name
+        /// </summary>
         public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Human-readable provider name
+        /// </summary>
         public string DisplayName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Whether this provider is enabled and available
+        /// </summary>
         public bool IsEnabled { get; set; }
+
+        /// <summary>
+        /// URL to initiate login with this provider
+        /// </summary>
         public string LoginUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// URL to the provider's icon/logo
+        /// </summary>
         public string IconUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Description of the authentication provider
+        /// </summary>
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// OAuth scopes supported by this provider
+        /// </summary>
         public string[] SupportedScopes { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Provider capabilities and features
+        /// </summary>
         public ProviderCapabilities Capabilities { get; set; } = new();
+
+        /// <summary>
+        /// Additional provider metadata
+        /// </summary>
         public Dictionary<string, object> Metadata { get; set; } = new();
     }
 

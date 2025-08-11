@@ -43,35 +43,39 @@ namespace EasyAuth.Framework.Core.Services
             _healthCache = new ConcurrentDictionary<string, ProviderHealth>(StringComparer.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// Retrieves all configured and enabled authentication providers from options and custom registrations
+        /// Checks configuration settings and creates provider instances on-demand with caching
+        /// </summary>
         public async Task<IEnumerable<IEAuthProvider>> GetProvidersAsync()
         {
             // TDD GREEN Phase: Return all enabled providers
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             var providers = new List<IEAuthProvider>();
 
             // Check each provider configuration
             if (_options.Providers.Google?.Enabled == true)
             {
-                var provider = await GetProviderAsync("Google");
+                var provider = await GetProviderAsync("Google").ConfigureAwait(false);
                 if (provider != null) providers.Add(provider);
             }
 
             if (_options.Providers.AzureB2C?.Enabled == true)
             {
-                var provider = await GetProviderAsync("AzureB2C");
+                var provider = await GetProviderAsync("AzureB2C").ConfigureAwait(false);
                 if (provider != null) providers.Add(provider);
             }
 
             if (_options.Providers.Facebook?.Enabled == true)
             {
-                var provider = await GetProviderAsync("Facebook");
+                var provider = await GetProviderAsync("Facebook").ConfigureAwait(false);
                 if (provider != null) providers.Add(provider);
             }
 
             if (_options.Providers.Apple?.Enabled == true)
             {
-                var provider = await GetProviderAsync("Apple");
+                var provider = await GetProviderAsync("Apple").ConfigureAwait(false);
                 if (provider != null) providers.Add(provider);
             }
 
@@ -81,10 +85,14 @@ namespace EasyAuth.Framework.Core.Services
             return providers;
         }
 
+        /// <summary>
+        /// Gets specific authentication provider by name with caching support
+        /// Checks custom providers first, then built-in providers, creating instances as needed
+        /// </summary>
         public async Task<IEAuthProvider?> GetProviderAsync(string providerName)
         {
             // TDD GREEN Phase: Return provider by name with caching
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(providerName))
                 return null;
@@ -112,25 +120,33 @@ namespace EasyAuth.Framework.Core.Services
             return null;
         }
 
+        /// <summary>
+        /// Returns the configured default provider or first enabled provider if no default is set
+        /// Useful for single sign-on scenarios where user doesn't specify provider preference
+        /// </summary>
         public async Task<IEAuthProvider?> GetDefaultProviderAsync()
         {
             // TDD GREEN Phase: Return configured default or first enabled
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             var defaultProviderName = _options.Providers.DefaultProvider;
-            
+
             if (!string.IsNullOrWhiteSpace(defaultProviderName))
             {
-                var defaultProvider = await GetProviderAsync(defaultProviderName);
+                var defaultProvider = await GetProviderAsync(defaultProviderName).ConfigureAwait(false);
                 if (defaultProvider != null)
                     return defaultProvider;
             }
 
             // Return first enabled provider
-            var providers = await GetProvidersAsync();
+            var providers = await GetProvidersAsync().ConfigureAwait(false);
             return providers.FirstOrDefault();
         }
 
+        /// <summary>
+        /// Validates configuration of all registered providers and returns comprehensive validation results
+        /// Executes provider-specific configuration checks and aggregates success/failure status
+        /// </summary>
         public async Task<ProviderValidationResult> ValidateProvidersAsync()
         {
             // TDD GREEN Phase: Validate all provider configurations
@@ -138,13 +154,13 @@ namespace EasyAuth.Framework.Core.Services
 
             try
             {
-                var providers = await GetProvidersAsync();
+                var providers = await GetProvidersAsync().ConfigureAwait(false);
 
                 foreach (var provider in providers)
                 {
                     try
                     {
-                        var isValid = await provider.ValidateConfigurationAsync();
+                        var isValid = await provider.ValidateConfigurationAsync().ConfigureAwait(false);
                         result.ProviderResults[provider.ProviderName] = isValid;
 
                         if (!isValid)
@@ -172,19 +188,23 @@ namespace EasyAuth.Framework.Core.Services
             return result;
         }
 
+        /// <summary>
+        /// Retrieves comprehensive provider metadata including capabilities, login URLs, and configuration
+        /// Combines provider instance data with static metadata like icons and descriptions
+        /// </summary>
         public async Task<ProviderInfo?> GetProviderInfoAsync(string providerName)
         {
             // TDD GREEN Phase: Return provider metadata
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
-            var provider = await GetProviderAsync(providerName);
+            var provider = await GetProviderAsync(providerName).ConfigureAwait(false);
             if (provider == null)
                 return null;
 
             try
             {
-                var loginUrl = await provider.GetLoginUrlAsync();
-                var capabilities = await GetProviderCapabilitiesAsync(providerName);
+                var loginUrl = await provider.GetLoginUrlAsync().ConfigureAwait(false);
+                var capabilities = await GetProviderCapabilitiesAsync(providerName).ConfigureAwait(false);
 
                 return new ProviderInfo
                 {
@@ -205,6 +225,10 @@ namespace EasyAuth.Framework.Core.Services
             }
         }
 
+        /// <summary>
+        /// Gets metadata for all providers including disabled ones for UI configuration purposes
+        /// Useful for admin interfaces that need to show all possible provider options
+        /// </summary>
         public async Task<IEnumerable<ProviderInfo>> GetAllProviderInfoAsync()
         {
             // TDD GREEN Phase: Return info for all providers
@@ -217,7 +241,7 @@ namespace EasyAuth.Framework.Core.Services
 
             foreach (var providerName in allProviderNames)
             {
-                var providerInfo = await GetProviderInfoAsync(providerName);
+                var providerInfo = await GetProviderInfoAsync(providerName).ConfigureAwait(false);
                 if (providerInfo != null)
                 {
                     providerInfos.Add(providerInfo);
@@ -227,10 +251,14 @@ namespace EasyAuth.Framework.Core.Services
             return providerInfos;
         }
 
+        /// <summary>
+        /// Registers a custom authentication provider implementation for extensibility
+        /// Allows applications to add non-standard providers while maintaining factory consistency
+        /// </summary>
         public async Task RegisterCustomProviderAsync(string providerName, IEAuthProvider provider)
         {
             // TDD GREEN Phase: Register custom provider
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(providerName))
                 throw new ArgumentException("Provider name cannot be null or empty", nameof(providerName));
@@ -239,16 +267,20 @@ namespace EasyAuth.Framework.Core.Services
                 throw new ArgumentNullException(nameof(provider));
 
             _customProviders.AddOrUpdate(providerName, provider, (key, existing) => provider);
-            
+
             _logger.LogInformation("Registered custom provider: {ProviderName}", providerName);
         }
 
+        /// <summary>
+        /// Returns detailed capabilities for specific provider including supported features and limits
+        /// Defines what authentication features each provider supports (password reset, linking, etc.)
+        /// </summary>
         public async Task<ProviderCapabilities?> GetProviderCapabilitiesAsync(string providerName)
         {
             // TDD GREEN Phase: Return provider capabilities
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
-            var provider = await GetProviderAsync(providerName);
+            var provider = await GetProviderAsync(providerName).ConfigureAwait(false);
             if (provider == null)
                 return null;
 
@@ -303,6 +335,10 @@ namespace EasyAuth.Framework.Core.Services
             };
         }
 
+        /// <summary>
+        /// Filters available providers by specific capability (password reset, account linking, etc.)
+        /// Enables feature-specific provider selection based on application requirements
+        /// </summary>
         public async Task<IEnumerable<IEAuthProvider>> GetProvidersByCapabilityAsync(string capability)
         {
             // TDD GREEN Phase: Filter providers by capability
@@ -311,7 +347,7 @@ namespace EasyAuth.Framework.Core.Services
 
             foreach (var provider in providers)
             {
-                var capabilities = await GetProviderCapabilitiesAsync(provider.ProviderName);
+                var capabilities = await GetProviderCapabilitiesAsync(provider.ProviderName).ConfigureAwait(false);
                 if (capabilities == null)
                     continue;
 
@@ -334,10 +370,14 @@ namespace EasyAuth.Framework.Core.Services
             return filteredProviders;
         }
 
+        /// <summary>
+        /// Clears provider and health caches to force recreation of provider instances
+        /// Used when configuration changes require fresh provider instances
+        /// </summary>
         public async Task RefreshProviderCacheAsync()
         {
             // TDD GREEN Phase: Clear and refresh provider cache
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
             _providerCache.Clear();
             _healthCache.Clear();
@@ -345,17 +385,21 @@ namespace EasyAuth.Framework.Core.Services
             _logger.LogInformation("Provider cache refreshed");
         }
 
+        /// <summary>
+        /// Performs health check on specific provider including configuration validation and response time
+        /// Caches results for 5 minutes to avoid excessive health check overhead
+        /// </summary>
         public async Task<ProviderHealth?> GetProviderHealthAsync(string providerName)
         {
             // TDD GREEN Phase: Check provider health
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
 
-            var provider = await GetProviderAsync(providerName);
+            var provider = await GetProviderAsync(providerName).ConfigureAwait(false);
             if (provider == null)
                 return null;
 
             // Check cache first
-            if (_healthCache.TryGetValue(providerName, out var cachedHealth) && 
+            if (_healthCache.TryGetValue(providerName, out var cachedHealth) &&
                 cachedHealth.LastChecked > DateTimeOffset.UtcNow.AddMinutes(-5))
             {
                 return cachedHealth;
@@ -371,7 +415,7 @@ namespace EasyAuth.Framework.Core.Services
 
             try
             {
-                var isHealthy = await provider.ValidateConfigurationAsync();
+                var isHealthy = await provider.ValidateConfigurationAsync().ConfigureAwait(false);
                 health.IsHealthy = isHealthy;
                 health.ResponseTimeMs = stopwatch.ElapsedMilliseconds;
 
@@ -394,6 +438,10 @@ namespace EasyAuth.Framework.Core.Services
             return health;
         }
 
+        /// <summary>
+        /// Executes health checks for all registered providers and returns aggregate health status
+        /// Useful for monitoring dashboards and system health endpoints
+        /// </summary>
         public async Task<IEnumerable<ProviderHealth>> GetAllProviderHealthAsync()
         {
             // TDD GREEN Phase: Check health of all providers
@@ -405,7 +453,7 @@ namespace EasyAuth.Framework.Core.Services
 
             foreach (var providerName in allProviderNames)
             {
-                var health = await GetProviderHealthAsync(providerName);
+                var health = await GetProviderHealthAsync(providerName).ConfigureAwait(false);
                 if (health != null)
                 {
                     healthResults.Add(health);
@@ -439,7 +487,7 @@ namespace EasyAuth.Framework.Core.Services
 
                 // Try to get provider from DI container
                 var provider = _serviceProvider.GetService(providerType) as IEAuthProvider;
-                
+
                 if (provider == null)
                 {
                     _logger.LogWarning("Provider {ProviderName} not registered in DI container", providerName);

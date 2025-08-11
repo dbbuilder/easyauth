@@ -60,11 +60,26 @@ packages/
 # Azure
 .azure/
 
-# Local environment files
+# SECURITY: Exclude sensitive configuration and credential files
 .env
 .env.local
 .env.development
 .env.production
+.env.test
+appsettings.*.json
+!appsettings.json
+*.config
+
+# Security-sensitive files
+*.pfx
+*.p12
+*.pem
+*.key
+*.crt
+id_rsa*
+known_hosts
+ssh_config
+*.secrets
 
 # Docker
 Dockerfile*

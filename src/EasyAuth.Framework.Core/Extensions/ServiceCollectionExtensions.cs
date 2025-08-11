@@ -358,10 +358,10 @@ namespace EasyAuth.Framework.Core.Extensions
                 try
                 {
                     // Perform periodic maintenance tasks
-                    await PerformMaintenanceAsync();
+                    await PerformMaintenanceAsync().ConfigureAwait(false);
 
                     // Wait for next cycle
-                    await Task.Delay(TimeSpan.FromMinutes(60), stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(60), stoppingToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -371,7 +371,7 @@ namespace EasyAuth.Framework.Core.Extensions
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error in EasyAuth background service");
-                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken).ConfigureAwait(false);
                 }
             }
 
@@ -390,7 +390,7 @@ namespace EasyAuth.Framework.Core.Extensions
                 if (databaseService != null)
                 {
                     // Cleanup would be implemented here
-                    await Task.CompletedTask;
+                    await Task.CompletedTask.ConfigureAwait(false);
                 }
 
                 _logger.LogDebug("EasyAuth maintenance tasks completed");

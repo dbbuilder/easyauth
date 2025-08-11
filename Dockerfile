@@ -11,8 +11,8 @@ COPY ["global.json", "."]
 
 RUN dotnet restore "src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj"
 
-# Copy everything else and build
-COPY . .
+# SECURITY: Copy only necessary source files, avoid sensitive data
+COPY ["src/", "src/"]
 WORKDIR "/src/src/EasyAuth.Framework.Core"
 
 # Build the application
