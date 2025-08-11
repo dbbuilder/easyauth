@@ -22,7 +22,12 @@ bld/
 # NuGet packages
 *.nupkg
 *.snupkg
-packages/
+
+# JavaScript/NPM packages directory (allow our SDK packages)
+!packages/
+packages/*/node_modules/
+packages/*/dist/
+packages/*/coverage/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
