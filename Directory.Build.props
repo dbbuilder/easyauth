@@ -63,37 +63,37 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.15.0.120848" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Additional package references for test projects -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.6.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Moq" Version="4.20.69" />
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="FluentAssertions" Version="8.5.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.msbuild" Version="6.0.0" PrivateAssets="all" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.4" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Performance Test Specific Packages -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('.Performance.Tests'))">
-    <PackageReference Include="NBomber" Version="5.3.0" />
+    <PackageReference Include="NBomber" Version="6.1.1" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
   </ItemGroup>
 
   <!-- Security Test Specific Packages -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('.Security.Tests'))">
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
-    <PackageReference Include="AngleSharp" Version="1.0.0" />
+    <PackageReference Include="AngleSharp" Version="1.3.0" />
   </ItemGroup>
 
   <!-- Global Analysis Rules -->

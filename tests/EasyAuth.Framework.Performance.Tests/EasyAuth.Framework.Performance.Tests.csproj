@@ -11,7 +11,7 @@
   <ItemGroup>
     <!-- Common test packages and performance-specific packages are now defined in Directory.Build.props -->
     <!-- Only project-specific packages remain here -->
-    <PackageReference Include="AutoFixture" Version="4.18.0" />
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
   </ItemGroup>
 
   <ItemGroup>
