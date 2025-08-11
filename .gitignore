@@ -1,22 +1,82 @@
-# Build artifacts
-bin/
-obj/
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+.vscode/
+.idea/
+
+# NuGet packages
 *.nupkg
 *.snupkg
+packages/
 
-# Visual Studio
-.vs/
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+TestResults/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Files built by Visual Studio
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 *.userprefs
-*.vcxproj.filters
-
-# .NET
-**/obj/
-**/bin/
 *.dll
 *.pdb
 *.exe
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
 
 # Node.js
 node_modules/
@@ -25,37 +85,20 @@ yarn-error.log
 .npm
 .pnpm-debug.log*
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-logs/
-*.log
-
 # Environment files
 .env
 .env.local
 .env.production
+.env.development
 
-# Package files
-packages/
-dist/
-
-# Test results
-TestResults/
-*.trx
-*.coverage
-
-# Database
-*.mdf
-*.ldf
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Azure
 .azure/
@@ -63,3 +106,35 @@ TestResults/
 # Temporary files
 temp/
 tmp/
+
+# JetBrains Rider
+*.sln.iml
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Local History for Visual Studio Code
+.history/
+
+# BenchmarkDotNet
+BenchmarkDotNet.Artifacts/
+
+# Backup & report files
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+
+# Performance test results
+*.perfcounter
+*.psess
+*.vsp
+*.vspx
+
+# DocFX
+_site/
+
+# StyleCop
+StyleCopReport.xml
