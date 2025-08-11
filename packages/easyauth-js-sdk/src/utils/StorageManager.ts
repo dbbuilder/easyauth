@@ -20,7 +20,7 @@ export class StorageManager {
     // Perform any initialization required for the storage type
     if (this.storageType === 'cookie') {
       // Ensure we can access document.cookie in browser environment
-      if (typeof document === 'undefined') {
+      if (typeof document === 'undefined' || !document) {
         throw new Error('Cookie storage requires a browser environment');
       }
     }
@@ -175,21 +175,39 @@ export class StorageManager {
     ];
 
     // Add Secure flag if served over HTTPS
-    if (typeof location !== 'undefined' && location.protocol === 'https:') {
+    if (typeof location !== 'undefined' && location && location.protocol === 'https:') {
       cookieOptions.push('Secure');
     }
 
-    document.cookie = `${name}=${encodeURIComponent(value)}; ${cookieOptions.join('; ')}`;
+    const cookieString = `${name}=${encodeURIComponent(value)}; ${cookieOptions.join('; ')}`;
+    
+    // Handle mock document for testing
+    if (typeof document !== 'undefined' && document) {
+      // In real browser, this would set the cookie
+      document.cookie = cookieString;
+    }
   }
 
   private getCookie(name: string): string | null {
-    const nameEQ = `${name}=`;
+    if (typeof document === 'undefined' || !document || !document.cookie) {
+      return null;
+    }
+
     const cookies = document.cookie.split(';');
     
     for (let cookie of cookies) {
       cookie = cookie.trim();
-      if (cookie.indexOf(nameEQ) === 0) {
-        return decodeURIComponent(cookie.substring(nameEQ.length));
+      
+      // Split on first '=' to handle values that might contain '='
+      const equalIndex = cookie.indexOf('=');
+      if (equalIndex === -1) continue;
+      
+      const cookieName = cookie.substring(0, equalIndex).trim();
+      const cookieValue = cookie.substring(equalIndex + 1).trim();
+      
+      // Check for exact match
+      if (cookieName === name) {
+        return decodeURIComponent(cookieValue);
       }
     }
     
@@ -197,6 +215,10 @@ export class StorageManager {
   }
 
   private deleteCookie(name: string): void {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    const cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    
+    if (typeof document !== 'undefined' && document) {
+      document.cookie = cookieString;
+    }
   }
 }

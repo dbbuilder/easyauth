@@ -31,7 +31,7 @@ describe('StorageManager', () => {
     refreshToken: 'refresh_token_123',
   };
 
-  // Mock localStorage and sessionStorage
+  // Mock storage for specific tests that need to control the behavior
   const mockStorage = {
     getItem: jest.fn(),
     setItem: jest.fn(),
@@ -39,26 +39,24 @@ describe('StorageManager', () => {
     clear: jest.fn(),
   };
 
-  const mockDocument = {
-    cookie: '',
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Clear cookies in jsdom
+    document.cookie.split(";").forEach((c) => {
+      const eqPos = c.indexOf("=");
+      const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    });
+    
+    // Set default location protocol for testing using jsdom
+    delete (window as any).location;
+    (window as any).location = { protocol: 'https:' };
     
     // Reset mock storage
     mockStorage.getItem.mockReturnValue(null);
     mockStorage.setItem.mockClear();
     mockStorage.removeItem.mockClear();
-    
-    // Mock browser APIs
-    (global as any).localStorage = mockStorage;
-    (global as any).sessionStorage = mockStorage;
-    (global as any).document = mockDocument;
-    (global as any).location = { protocol: 'https:' };
-    
-    // Reset document.cookie
-    mockDocument.cookie = '';
   });
 
   describe('Constructor', () => {
@@ -102,10 +100,14 @@ describe('StorageManager', () => {
     });
 
     it('should throw error for cookie storage without document', () => {
-      delete (global as any).document;
+      const originalDocument = (global as any).document;
+      (global as any).document = undefined;
       
       const manager = new StorageManager('cookie');
       expect(() => manager.initialize()).toThrow('Cookie storage requires a browser environment');
+      
+      // Restore document
+      (global as any).document = originalDocument;
     });
   });
 
@@ -113,6 +115,11 @@ describe('StorageManager', () => {
     let manager: StorageManager;
 
     beforeEach(() => {
+      // Use mock storage for localStorage tests
+      Object.defineProperty(window, 'localStorage', {
+        value: mockStorage,
+        writable: true,
+      });
       manager = new StorageManager('localStorage');
     });
 
@@ -163,6 +170,11 @@ describe('StorageManager', () => {
     let manager: StorageManager;
 
     beforeEach(() => {
+      // Use mock storage for localStorage tests
+      Object.defineProperty(window, 'localStorage', {
+        value: mockStorage,
+        writable: true,
+      });
       manager = new StorageManager('localStorage');
     });
 
@@ -341,25 +353,26 @@ describe('StorageManager', () => {
     it('should store session in cookies', async () => {
       await manager.storeSession(mockSession);
       
-      // Check that document.cookie was set
-      expect(mockDocument.cookie).toContain('easyauth_session=');
+      // Check that document.cookie was set by jsdom
+      expect(document.cookie).toContain('easyauth_session=');
     });
 
     it('should set secure cookie options', async () => {
       await manager.storeSession(mockSession);
       
-      expect(mockDocument.cookie).toContain('expires=');
-      expect(mockDocument.cookie).toContain('path=/');
-      expect(mockDocument.cookie).toContain('SameSite=Lax');
-      expect(mockDocument.cookie).toContain('Secure'); // Because location.protocol is 'https:'
+      expect(document.cookie).toContain('expires=');
+      expect(document.cookie).toContain('path=/');
+      expect(document.cookie).toContain('SameSite=Lax');
+      expect(document.cookie).toContain('Secure'); // Because location.protocol is 'https:'
     });
 
     it('should not set Secure flag for HTTP', async () => {
-      (global as any).location = { protocol: 'http:' };
+      delete (window as any).location;
+      (window as any).location = { protocol: 'http:' };
       
       await manager.storeSession(mockSession);
       
-      expect(mockDocument.cookie).not.toContain('Secure');
+      expect(document.cookie).not.toContain('Secure');
     });
 
     it('should retrieve session from cookies', async () => {
@@ -376,7 +389,7 @@ describe('StorageManager', () => {
         },
       });
       
-      mockDocument.cookie = `easyauth_session=${encodeURIComponent(sessionData)}; other_cookie=value`;
+      document.cookie = `easyauth_session=${encodeURIComponent(sessionData)}; other_cookie=value`;
       
       const session = await manager.getSession();
       
@@ -385,7 +398,7 @@ describe('StorageManager', () => {
     });
 
     it('should return null when cookie does not exist', async () => {
-      mockDocument.cookie = 'other_cookie=value';
+      document.cookie = 'other_cookie=value';
       
       const session = await manager.getSession();
       expect(session).toBeNull();
@@ -394,11 +407,11 @@ describe('StorageManager', () => {
     it('should clear session cookie', async () => {
       await manager.clearSession();
       
-      expect(mockDocument.cookie).toContain('easyauth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;');
+      expect(document.cookie).toContain('easyauth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;');
     });
 
     it('should handle malformed cookies gracefully', async () => {
-      mockDocument.cookie = 'easyauth_session=invalid_json';
+      document.cookie = 'easyauth_session=invalid_json';
       
       const session = await manager.getSession();
       expect(session).toBeNull();
@@ -486,7 +499,7 @@ describe('StorageManager', () => {
     });
 
     it('should handle multiple cookies with similar names', async () => {
-      mockDocument.cookie = 'easyauth_session_temp=temp; easyauth_session=real_value; easyauth_session_other=other';
+      document.cookie = 'easyauth_session_temp=temp; easyauth_session=real_value; easyauth_session_other=other';
       
       // This should get the exact match 'easyauth_session'
       const value = await (manager as any).getItem('easyauth_session');
@@ -494,14 +507,14 @@ describe('StorageManager', () => {
     });
 
     it('should handle cookies with spaces', async () => {
-      mockDocument.cookie = ' easyauth_session = value_with_spaces ; other=cookie';
+      document.cookie = ' easyauth_session = value_with_spaces ; other=cookie';
       
       const value = await (manager as any).getItem('easyauth_session');
       expect(value).toBe('value_with_spaces');
     });
 
     it('should handle empty cookie string', async () => {
-      mockDocument.cookie = '';
+      document.cookie = '';
       
       const value = await (manager as any).getItem('easyauth_session');
       expect(value).toBeNull();
@@ -509,7 +522,7 @@ describe('StorageManager', () => {
 
     it('should handle cookies with encoded values', async () => {
       const encodedValue = encodeURIComponent('{"key": "value with spaces and special chars!"}');
-      mockDocument.cookie = `easyauth_session=${encodedValue}`;
+      document.cookie = `easyauth_session=${encodedValue}`;
       
       const value = await (manager as any).getItem('easyauth_session');
       expect(value).toBe('{"key": "value with spaces and special chars!"}');

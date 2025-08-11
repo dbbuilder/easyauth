@@ -50,6 +50,13 @@ Object.defineProperty(window, 'sessionStorage', {
 // Mock fetch globally
 global.fetch = jest.fn();
 
+// Provide real WebCrypto API from Node.js for realistic crypto testing
+// Node.js 16+ has built-in webcrypto support
+if (typeof crypto === 'undefined' || !crypto.subtle) {
+  const { webcrypto } = require('crypto');
+  (global as any).crypto = webcrypto;
+}
+
 // Mock console methods to avoid noise in tests
 const originalConsole = console;
 beforeEach(() => {
