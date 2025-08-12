@@ -87,10 +87,9 @@ public static class EAuthCorsExtensions
     /// <returns>Application builder for chaining</returns>
     public static IApplicationBuilder UseEasyAuthCors(this IApplicationBuilder app)
     {
-        // Add correlation ID middleware for request tracing
-        app.UseMiddleware<CorrelationIdMiddleware>();
+        // NOTE: CorrelationIdMiddleware is registered in UseEasyAuth() to avoid duplicates
         
-        // Add detection middleware next
+        // Add detection middleware
         app.UseMiddleware<EAuthCorsDetectionMiddleware>();
         
         // Apply CORS configuration

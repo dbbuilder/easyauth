@@ -46,11 +46,11 @@
     <TrimMode>link</TrimMode>
     
     <!-- Versioning -->
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <PackageReleaseNotes>v2.3.0 Zero-Configuration Release: Revolutionary auto-CORS detection for all frontend frameworks, intelligent development server discovery, and true zero-config development experience. Eliminates manual CORS setup while maintaining production security. Features enhanced middleware pipeline and smart environment detection.</PackageReleaseNotes>
+    <PackageReleaseNotes>v2.3.1 Critical Fix: Resolved duplicate CorrelationIdMiddleware registration in UseEasyAuthCors method. This patch prevents middleware conflicts when using CORS extensions alongside main UseEasyAuth method. All v2.3.0 zero-configuration features remain fully functional.</PackageReleaseNotes>
     
     <!-- Multi-targeting configuration for .NET 8 and .NET 9 support -->
     <EasyAuthTargetFrameworks>net8.0</EasyAuthTargetFrameworks>
