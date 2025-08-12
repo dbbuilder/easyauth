@@ -18,7 +18,7 @@ namespace EasyAuth.Framework.Core.Providers
     public class AppleAuthProvider : IEAuthProvider
     {
         private readonly AppleOptions _options;
-        private readonly IHttpClientFactory _httpClientFactory;
+        // TODO: Use IHttpClientFactory for Apple API calls when implementing real token exchange
         private readonly ILogger<AppleAuthProvider> _logger;
         private readonly IConfigurationService _configurationService;
 
@@ -29,7 +29,7 @@ namespace EasyAuth.Framework.Core.Providers
             IConfigurationService configurationService)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            // httpClientFactory will be used for future Apple API integration
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
         }

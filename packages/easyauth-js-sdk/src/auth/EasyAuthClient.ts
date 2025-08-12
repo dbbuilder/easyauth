@@ -385,13 +385,14 @@ export class EasyAuthClient implements IEasyAuthClient {
       await this._storageManager.clearSession();
       this._stateManager.clearAllStates();
 
-      // TODO: Revoke tokens on server
+      // TODO: Revoke tokens on server - could potentially fail and return false
 
       this.emitEvent('logout_completed', {
         sessionId: session?.sessionId,
         provider: session?.provider,
       });
 
+      // Always return true for local logout - local cleanup should always succeed
       return true;
 
     } catch (error) {
@@ -399,7 +400,9 @@ export class EasyAuthClient implements IEasyAuthClient {
       this._currentSession = null;
       await this._storageManager.clearSession();
       
-      return true; // Return true since local cleanup succeeded
+      // Always return true since local cleanup is the primary goal
+      // Future enhancement: return false if server token revocation fails
+      return true;
     }
   }
 
