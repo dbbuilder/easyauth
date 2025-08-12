@@ -16,7 +16,6 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dbbuilder/easyauth</PackageProjectUrl>
-    <PackageReleaseNotes>v2.1.0 Security Release: Critical security vulnerability fixes (CVE-2024-43485, Azure.Identity conflicts) with updated dependencies. Maintains Universal Integration System with StandardApiController, zero-config CORS, unified API responses. Preparation for .NET 9 multi-targeting support.</PackageReleaseNotes>
     <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

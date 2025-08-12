@@ -16,7 +16,6 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dbbuilder/easyauth</PackageProjectUrl>
-    <PackageReleaseNotes>v2.1.0 Release: Enhanced security with latest package updates, vulnerability fixes for CVE-2024-43485 and high-severity issues. Maintains Universal Integration System with StandardApiController, zero-config CORS, and comprehensive framework extensions.</PackageReleaseNotes>
     <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
