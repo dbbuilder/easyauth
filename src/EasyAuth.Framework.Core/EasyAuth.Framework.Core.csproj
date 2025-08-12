@@ -5,13 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>EasyAuth.Framework.Core</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
-    <Title>EasyAuth Framework - Core</Title>
-    <Description>Self-contained authentication framework with multi-provider support and automatic database setup</Description>
+    <PackageVersion>2.0.0</PackageVersion>
+    <Title>EasyAuth Framework - Universal Integration System Core</Title>
+    <Description>Universal authentication framework with StandardApiController for any frontend, zero-config CORS, and unified API responses. Eliminates integration complexity with React, Vue, Angular support. Includes Google, Facebook, Apple, Azure B2C OAuth providers.</Description>
     <Authors>EasyAuth Development Team</Authors>
-    <PackageTags>authentication;oauth;azure;google;apple;facebook;framework;enterprise</PackageTags>
+    <Company>EasyAuth Project</Company>
+    <Product>EasyAuth Framework - Universal Integration System</Product>
+    <Copyright>Copyright © 2025 EasyAuth Development Team</Copyright>
+    <PackageTags>authentication;oauth;azure;google;apple;facebook;framework;enterprise;security;jwt;aspnetcore;universal;react;vue;angular;frontend;standardapi;cors;typescript</PackageTags>
     <RepositoryUrl>https://github.com/dbbuilder/easyauth</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbbuilder/easyauth</PackageProjectUrl>
+    <PackageReleaseNotes>Major v2.0 Release: Universal Integration System with StandardApiController, zero-config CORS, unified API responses, and companion React/Vue packages. Eliminates frontend integration complexity and reduces setup from 30+ hours to under 2 hours.</PackageReleaseNotes>
+    <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,5 +43,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Database\Scripts\**\*.sql" />
     <EmbeddedResource Include="Database\Migrations\**\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\README.md" />
   </ItemGroup>
 </Project>

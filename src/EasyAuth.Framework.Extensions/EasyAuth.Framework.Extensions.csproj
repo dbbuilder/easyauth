@@ -5,13 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>EasyAuth.Framework</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
-    <Title>EasyAuth Framework - Main Package</Title>
-    <Description>Complete EasyAuth framework with dependency injection extensions for easy integration</Description>
+    <PackageVersion>2.0.0</PackageVersion>
+    <Title>EasyAuth Framework - Universal Integration System</Title>
+    <Description>Complete Universal Integration System for EasyAuth framework with StandardApiController, zero-config frontend support, and comprehensive extensions. Works with React, Vue, Angular, and any frontend framework. Includes all authentication providers and ASP.NET Core extensions.</Description>
     <Authors>EasyAuth Development Team</Authors>
-    <PackageTags>authentication;oauth;azure;google;apple;facebook;framework;enterprise</PackageTags>
+    <Company>EasyAuth Project</Company>
+    <Product>EasyAuth Framework - Universal Integration System</Product>
+    <Copyright>Copyright © 2025 EasyAuth Development Team</Copyright>
+    <PackageTags>authentication;oauth;azure;google;apple;facebook;framework;enterprise;security;jwt;aspnetcore;dependencyinjection;universal;react;vue;angular;frontend;standardapi;cors</PackageTags>
     <RepositoryUrl>https://github.com/dbbuilder/easyauth</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dbbuilder/easyauth</PackageProjectUrl>
+    <PackageReleaseNotes>Major v2.0 Release: Universal Integration System with StandardApiController for any frontend, zero-config CORS support, unified API responses, and comprehensive framework extensions. Complete solution for modern web applications.</PackageReleaseNotes>
+    <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,5 +36,9 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\README.md" />
   </ItemGroup>
 </Project>
