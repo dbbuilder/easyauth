@@ -13,6 +13,7 @@
         <member name="M:EasyAuth.Framework.Core.Configuration.EAuthCorsConfiguration.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Configures CORS services with EasyAuth-specific policies
+            Includes auto-detection of development servers and zero-config experience
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Configuration.EAuthCorsConfiguration.ConfigureMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
@@ -58,6 +59,71 @@
         <member name="T:EasyAuth.Framework.Core.Configuration.EAuthCorsDetectionMiddleware">
             <summary>
             Middleware to automatically detect and configure CORS for frontend origins
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults">
+            <summary>
+            Default configuration values and auto-detection logic for EasyAuth Framework
+            Provides zero-configuration development experience
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.CommonDevPorts">
+            <summary>
+            Common development server ports used by popular frontend frameworks
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.FrameworkPorts">
+            <summary>
+            Framework-specific port mappings for targeted auto-configuration
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.LocalhostPatterns">
+            <summary>
+            Common localhost patterns that should be allowed in development
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.CloudDevDomains">
+            <summary>
+            Cloud development environment domains that should be allowed
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.GenerateLocalhostOrigins(System.String[])">
+            <summary>
+            Generates all possible localhost origins for common development ports
+            </summary>
+            <param name="includePorts">Specific ports to include, null for all common ports</param>
+            <returns>List of localhost origins</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.DetectRunningDevServers">
+            <summary>
+            Detects running development servers by scanning active processes
+            </summary>
+            <returns>List of detected origins from running dev servers</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.GetCommandLine(System.Diagnostics.Process)">
+            <summary>
+            Gets command line arguments for a process (platform-specific implementation)
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.ExtractPortsFromCommandLine(System.String)">
+            <summary>
+            Extracts port numbers from command line arguments
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.IsDevelopmentEnvironment">
+            <summary>
+            Checks if the current environment is development
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.GetFrameworkOrigins(System.String)">
+            <summary>
+            Gets framework-specific origins for a particular frontend framework
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Configuration.EasyAuthDefaults.GetAllDevelopmentOrigins">
+            <summary>
+            Generates a comprehensive list of development origins
+            Combines detected servers, common ports, and framework-specific ports
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Configuration.EAuthOptions">
@@ -565,6 +631,7 @@
         <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.UseEasyAuth(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
             <summary>
             Configures EasyAuth middleware and endpoints with automatic Swagger setup
+            Provides zero-configuration development experience with auto-CORS detection
             </summary>
             <param name="app">Application builder</param>
             <returns>Application builder for chaining</returns>
@@ -596,6 +663,13 @@
             </summary>
             <param name="app">Application builder</param>
             <param name="configureEndpoints">Optional endpoint configuration</param>
+            <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.ValidateProductionSecurity(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Validates production security configuration and provides warnings
+            </summary>
+            <param name="app">Application builder</param>
             <returns>Application builder for chaining</returns>
         </member>
         <member name="T:EasyAuth.Framework.Core.Extensions.AuthControllerExtensions">

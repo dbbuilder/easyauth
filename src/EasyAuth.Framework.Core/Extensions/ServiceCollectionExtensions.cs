@@ -52,8 +52,8 @@ namespace EasyAuth.Framework.Core.Extensions
             // Add built-in CORS configuration for seamless frontend integration
             services.AddEasyAuthCors();
 
-            // Add correlation ID middleware for request tracing
-            services.AddSingleton<CorrelationIdMiddleware>();
+            // Note: CorrelationIdMiddleware is registered via app.UseMiddleware<T>() in UseEasyAuth()
+            // No DI registration needed for middleware with RequestDelegate dependency
 
             return services;
         }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using EasyAuth.Framework.Core.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -13,25 +14,55 @@ public static class ApplicationBuilderExtensions
 {
     /// <summary>
     /// Configures EasyAuth middleware and endpoints with automatic Swagger setup
+    /// Provides zero-configuration development experience with auto-CORS detection
     /// </summary>
     /// <param name="app">Application builder</param>
     /// <returns>Application builder for chaining</returns>
     public static IApplicationBuilder UseEasyAuth(this IApplicationBuilder app)
     {
-        // Get options to check if Swagger is enabled
+        var environment = app.ApplicationServices.GetService<IHostEnvironment>();
+        var isDevelopment = environment?.IsDevelopment() == true;
+        
+        // Get options to check configuration
         var options = app.ApplicationServices.GetService<IOptions<EAuthOptions>>()?.Value;
         var isSwaggerEnabled = options?.Framework?.EnableSwagger ?? true;
 
+        // Add correlation ID middleware first (for request tracing)
+        app.UseMiddleware<CorrelationIdMiddleware>();
+
         // Add EasyAuth Swagger UI in development
-        if (isSwaggerEnabled && app.ApplicationServices.GetService<IHostEnvironment>()?.IsDevelopment() == true)
+        if (isSwaggerEnabled && isDevelopment)
         {
             app.UseEasyAuthSwagger();
         }
 
-        // Configure CORS with EasyAuth policies  
-        app.UseCors();
+        // Configure environment-aware CORS with auto-detection
+        if (isDevelopment)
+        {
+            // Development: Use permissive auto-detecting CORS
+            app.UseCors("EasyAuthDevelopment");
+            
+            // Log auto-detected origins for developer awareness
+            var detectedOrigins = EasyAuthDefaults.GetAllDevelopmentOrigins();
+            var logger = app.ApplicationServices.GetService<ILogger>();
+            logger?.LogInformation("🌐 EasyAuth auto-detected {Count} development origins. Zero CORS configuration required!", 
+                detectedOrigins.Count);
+            
+            if (detectedOrigins.Count > 10)
+            {
+                logger?.LogInformation("💡 Tip: For faster startup, consider configuring specific origins in production");
+            }
+        }
+        else
+        {
+            // Production: Use strict configured CORS
+            app.UseCors("EasyAuthProduction");
+            
+            // Production security warnings
+            app.ValidateProductionSecurity();
+        }
 
-        // Add authentication middleware
+        // Add authentication middleware (order is important)
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -168,6 +199,57 @@ public static class ApplicationBuilderExtensions
         if (app is WebApplication webApp)
         {
             webApp.MapControllers();
+        }
+
+        return app;
+    }
+
+    /// <summary>
+    /// Validates production security configuration and provides warnings
+    /// </summary>
+    /// <param name="app">Application builder</param>
+    /// <returns>Application builder for chaining</returns>
+    public static IApplicationBuilder ValidateProductionSecurity(this IApplicationBuilder app)
+    {
+        var logger = app.ApplicationServices.GetService<ILogger>();
+        var options = app.ApplicationServices.GetService<IOptions<EAuthOptions>>()?.Value;
+
+        if (options?.Cors?.AllowedOrigins?.Any() != true)
+        {
+            logger?.LogWarning("⚠️  SECURITY WARNING: No CORS origins configured for production. Consider adding specific allowed origins in EasyAuth:CORS:AllowedOrigins");
+        }
+
+        var dangerousOrigins = options?.Cors?.AllowedOrigins?.Where(origin => 
+            origin == "*" || 
+            origin.Contains("localhost") || 
+            origin.Contains("127.0.0.1")).ToList();
+
+        if (dangerousOrigins?.Any() == true)
+        {
+            logger?.LogWarning("🔒 SECURITY WARNING: Production CORS includes development origins: {Origins}. Remove these for security.", 
+                string.Join(", ", dangerousOrigins));
+        }
+
+        // Check for secure connection requirements
+        if (options?.Session?.Secure == false)
+        {
+            logger?.LogWarning("🔐 SECURITY RECOMMENDATION: Consider enabling secure cookies in production (EasyAuth:Session:Secure)");
+        }
+
+        // Validate provider configurations
+        var enabledProviders = 0;
+        if (options?.Providers?.Google?.Enabled == true) enabledProviders++;
+        if (options?.Providers?.Facebook?.Enabled == true) enabledProviders++;
+        if (options?.Providers?.Apple?.Enabled == true) enabledProviders++;
+        if (options?.Providers?.AzureB2C?.Enabled == true) enabledProviders++;
+
+        if (enabledProviders == 0)
+        {
+            logger?.LogWarning("⚠️  No authentication providers enabled. Users will not be able to authenticate.");
+        }
+        else
+        {
+            logger?.LogInformation("✅ EasyAuth production security validation complete. {Count} provider(s) enabled.", enabledProviders);
         }
 
         return app;

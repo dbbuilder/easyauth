@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting;
 
 namespace EasyAuth.Framework.Core.Configuration;
 
@@ -24,21 +25,33 @@ public class EAuthCorsConfiguration
 
     /// <summary>
     /// Configures CORS services with EasyAuth-specific policies
+    /// Includes auto-detection of development servers and zero-config experience
     /// </summary>
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddCors(options =>
         {
-            // Default permissive policy for development with smart origin detection
+            // Enhanced development policy with auto-detection
             options.AddPolicy("EasyAuthDevelopment", policy =>
             {
+                var autoDetectedOrigins = EasyAuthDefaults.GetAllDevelopmentOrigins();
+                var configuredOrigins = _options.AllowedOrigins.ToList();
+                var allOrigins = autoDetectedOrigins.Concat(configuredOrigins).Distinct().ToList();
+
+                _logger.LogInformation("Auto-detected {Count} development origins: {Origins}", 
+                    autoDetectedOrigins.Count, string.Join(", ", autoDetectedOrigins.Take(5)));
+
                 policy
-                    .SetIsOriginAllowed(origin => IsDevOrigin(origin) || IsLocalhostOrigin(origin))
+                    .SetIsOriginAllowed(origin => 
+                        IsDevOrigin(origin) || 
+                        IsLocalhostOrigin(origin) || 
+                        allOrigins.Contains(origin) ||
+                        EAuthCorsDetectionMiddleware.IsAutoDetectedFramework(origin))
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
                     
-                _logger.LogInformation("EasyAuthDevelopment policy configured with smart origin detection");
+                _logger.LogInformation("EasyAuthDevelopment policy configured with {Total} total origins", allOrigins.Count);
             });
 
             // Secure policy for production with specific origins
@@ -428,6 +441,24 @@ public class EAuthCorsDetectionMiddleware
                    origin.ToLowerInvariant().Contains("preview") ||
                    origin.ToLowerInvariant().Contains("staging") ||
                    IsCommonDevPortForMiddleware(uri.Port);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool IsAutoDetectedFramework(string origin)
+    {
+        if (string.IsNullOrEmpty(origin)) return false;
+
+        try
+        {
+            var uri = new Uri(origin);
+            var port = uri.Port.ToString();
+            
+            // Check if this origin matches any of our auto-detected development patterns
+            return uri.IsLoopback && EasyAuthDefaults.CommonDevPorts.Contains(port);
         }
         catch
         {
