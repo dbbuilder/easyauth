@@ -22,6 +22,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
         private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
         private readonly Mock<ILogger<AzureB2CAuthProvider>> _mockLogger;
         private readonly Mock<IOptions<AzureB2COptions>> _mockOptions;
+        private readonly Mock<IConfigurationService> _mockConfigurationService;
         private readonly Fixture _fixture;
         private readonly AzureB2COptions _azureB2CConfig;
 
@@ -30,6 +31,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<AzureB2CAuthProvider>>();
             _mockOptions = new Mock<IOptions<AzureB2COptions>>();
+            _mockConfigurationService = new Mock<IConfigurationService>();
             _fixture = new Fixture();
 
             _azureB2CConfig = new AzureB2COptions
@@ -48,6 +50,10 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             };
 
             _mockOptions.Setup(x => x.Value).Returns(_azureB2CConfig);
+            
+            // Setup configuration service to return valid client secret
+            _mockConfigurationService.Setup(x => x.GetRequiredSecretValue("AzureB2C:ClientSecret", "AZUREB2C_CLIENT_SECRET"))
+                .Returns("dummy_client_secret_from_config");
         }
 
         #region TDD RED Phase - Tests that should fail initially
@@ -87,12 +93,12 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             // Assert
             result.Should().NotBeNullOrEmpty();
             result.Should().Contain("nonce=");
-            
+
             // Extract nonce parameter
             var uri = new Uri(result);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var nonce = query["nonce"];
-            
+
             nonce.Should().NotBeNullOrEmpty();
             nonce!.Length.Should().BeGreaterThan(16); // Should be a secure random value
         }
@@ -104,7 +110,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             var authCode = "valid_b2c_auth_code";
             var state = "valid_state_parameter";
             var provider = CreateAzureB2CAuthProvider();
-            
+
             // Mock HTTP response for B2C token exchange
             var mockHttpClient = new Mock<HttpClient>();
             _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
@@ -132,7 +138,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 ExpiresIn = 3600,
                 IdToken = CreateMockB2CIdToken() // B2C returns user claims in id_token
             };
-            
+
             var provider = CreateAzureB2CAuthProvider();
 
             // Act
@@ -159,7 +165,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 TokenType = "Bearer",
                 IdToken = CreateMockB2CIdTokenWithCustomAttributes()
             };
-            
+
             var provider = CreateAzureB2CAuthProvider();
 
             // Act
@@ -245,11 +251,11 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 ClientSecret = "valid_secret",
                 SignUpSignInPolicyId = "B2C_1_SignInUp"
             };
-            
+
             var mockInvalidOptions = new Mock<IOptions<AzureB2COptions>>();
             mockInvalidOptions.Setup(x => x.Value).Returns(invalidConfig);
-            
-            var provider = new AzureB2CAuthProvider(mockInvalidOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object);
+
+            var provider = new AzureB2CAuthProvider(mockInvalidOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object, _mockConfigurationService.Object);
 
             // Act
             var result = await provider.ValidateConfigurationAsync();
@@ -270,11 +276,11 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 ClientSecret = "valid_secret",
                 SignUpSignInPolicyId = "" // Missing required policy
             };
-            
+
             var mockInvalidOptions = new Mock<IOptions<AzureB2COptions>>();
             mockInvalidOptions.Setup(x => x.Value).Returns(invalidConfig);
-            
-            var provider = new AzureB2CAuthProvider(mockInvalidOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object);
+
+            var provider = new AzureB2CAuthProvider(mockInvalidOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object, _mockConfigurationService.Object);
 
             // Act
             var result = await provider.ValidateConfigurationAsync();
@@ -312,7 +318,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 TokenType = "Bearer",
                 IdToken = "" // Missing id_token
             };
-            
+
             var provider = CreateAzureB2CAuthProvider();
 
             // Act & Assert
@@ -356,7 +362,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
         {
             // This will fail until we implement AzureB2CAuthProvider
             // Following TDD: test first, then implement
-            return new AzureB2CAuthProvider(_mockOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object);
+            return new AzureB2CAuthProvider(_mockOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object, _mockConfigurationService.Object);
         }
 
         private string CreateMockB2CIdToken()

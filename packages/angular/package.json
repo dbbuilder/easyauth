@@ -1,0 +1,79 @@
+{
+  "name": "@easyauth/angular",
+  "version": "1.0.0",
+  "description": "Angular services and guards for EasyAuth Framework",
+  "main": "dist/bundles/easyauth-angular.umd.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json",
+    "build:watch": "ng-packagr -p ng-package.json --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "authentication",
+    "angular",
+    "services",
+    "guards",
+    "interceptors", 
+    "easyauth",
+    "oauth",
+    "typescript"
+  ],
+  "author": "EasyAuth Development Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbbuilder/easyauth.git",
+    "directory": "packages/angular"
+  },
+  "bugs": {
+    "url": "https://github.com/dbbuilder/easyauth/issues"
+  },
+  "homepage": "https://github.com/dbbuilder/easyauth#readme",
+  "peerDependencies": {
+    "@angular/core": "^18.0.0 || ^19.0.0",
+    "@angular/common": "^18.0.0 || ^19.0.0",
+    "@angular/router": "^18.0.0 || ^19.0.0",
+    "rxjs": "^7.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@angular/core": "^18.0.0",
+    "@angular/common": "^18.0.0",
+    "@angular/router": "^18.0.0",
+    "@angular/platform-browser": "^18.0.0",
+    "@angular/platform-browser-dynamic": "^18.0.0",
+    "@angular/compiler": "^18.0.0",
+    "@angular/compiler-cli": "^18.0.0",
+    "@types/jest": "^29.5.5",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.7.0",
+    "jest-preset-angular": "^14.0.0",
+    "ng-packagr": "^18.0.0",
+    "rimraf": "^5.0.0",
+    "rxjs": "^7.8.0",
+    "typescript": "~5.4.0",
+    "zone.js": "^0.14.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

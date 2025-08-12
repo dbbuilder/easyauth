@@ -32,14 +32,14 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var providers = await providerFactory.GetProvidersAsync();
-        
+
         // Assert
         providers.Should().NotBeNullOrEmpty();
         providers.Should().HaveCount(4); // Google, Apple, Facebook, AzureB2C
-        
+
         _testOutputHelper.WriteLine($"Retrieved {providers.Count()} providers");
     }
 
@@ -53,13 +53,13 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var provider = await providerFactory.GetProviderAsync(providerName);
-        
+
         // Assert
         provider.Should().NotBeNull();
-        
+
         _testOutputHelper.WriteLine($"Provider {providerName} retrieved successfully");
     }
 
@@ -69,13 +69,13 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var provider = await providerFactory.GetProviderAsync("invalid_provider");
-        
+
         // Assert
         provider.Should().BeNull();
-        
+
         _testOutputHelper.WriteLine("Invalid provider returned null as expected");
     }
 
@@ -85,26 +85,26 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var providerInfos = await providerFactory.GetAllProviderInfoAsync();
-        
+
         // Assert
         providerInfos.Should().NotBeNullOrEmpty();
         providerInfos.Should().HaveCount(4);
-        
+
         var providerNames = providerInfos.Select(p => p.Name).ToList();
         providerNames.Should().Contain("google");
         providerNames.Should().Contain("apple");
         providerNames.Should().Contain("facebook");
         providerNames.Should().Contain("azureb2c");
-        
+
         foreach (var providerInfo in providerInfos)
         {
             providerInfo.Name.Should().NotBeNullOrEmpty();
             providerInfo.DisplayName.Should().NotBeNullOrEmpty();
             providerInfo.IsEnabled.Should().BeTrue();
-            
+
             _testOutputHelper.WriteLine($"Provider: {providerInfo.Name} - {providerInfo.DisplayName}");
         }
     }
@@ -119,16 +119,16 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var providerInfo = await providerFactory.GetProviderInfoAsync(providerName);
-        
+
         // Assert
         providerInfo.Should().NotBeNull();
         providerInfo?.Name.Should().Be(providerName);
         providerInfo?.DisplayName.Should().NotBeNullOrEmpty();
         providerInfo?.IsEnabled.Should().BeTrue();
-        
+
         _testOutputHelper.WriteLine($"Provider {providerName}: {providerInfo?.DisplayName}");
     }
 
@@ -138,16 +138,16 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var validationResult = await providerFactory.ValidateProvidersAsync();
-        
+
         // Assert
         validationResult.Should().NotBeNull();
         validationResult.IsValid.Should().BeTrue();
         validationResult.ValidationErrors.Should().BeEmpty();
         validationResult.ProviderResults.Should().NotBeEmpty();
-        
+
         _testOutputHelper.WriteLine($"Provider validation: {validationResult.IsValid}");
         _testOutputHelper.WriteLine($"Provider results: {validationResult.ProviderResults.Count}");
     }
@@ -158,16 +158,16 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var capabilities = await providerFactory.GetProviderCapabilitiesAsync("google");
-        
+
         // Assert
         capabilities.Should().NotBeNull();
         capabilities?.SupportedMethods.Should().NotBeNull();
         capabilities?.SupportedScopes.Should().NotBeNull();
         capabilities?.MaxSessionDurationMinutes.Should().BeGreaterThan(0);
-        
+
         _testOutputHelper.WriteLine($"Google capabilities: Methods={capabilities?.SupportedMethods.Length}, Scopes={capabilities?.SupportedScopes.Length}");
     }
 
@@ -177,15 +177,15 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
         // Arrange
         using var scope = ServiceProvider.CreateScope();
         var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-        
+
         // Act
         var health = await providerFactory.GetProviderHealthAsync("google");
-        
+
         // Assert
         health.Should().NotBeNull();
         health?.ProviderName.Should().Be("google");
         health?.LastChecked.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromMinutes(5));
-        
+
         _testOutputHelper.WriteLine($"Google health: IsHealthy={health?.IsHealthy}, ResponseTime={health?.ResponseTimeMs}ms");
     }
 
@@ -197,20 +197,20 @@ public class ProviderAuthenticationFlowTests : BaseIntegrationTest
             using var scope = ServiceProvider.CreateScope();
             var eauthService = scope.ServiceProvider.GetRequiredService<IEAuthService>();
             var providerFactory = scope.ServiceProvider.GetRequiredService<IEAuthProviderFactory>();
-            
+
             // Step 1: Get providers through EAuthService
             var providersResponse = await eauthService.GetProvidersAsync();
             providersResponse.Success.Should().BeTrue();
             providersResponse.Data.Should().NotBeNullOrEmpty();
-            
+
             // Step 2: Get providers through ProviderFactory
             var providers = await providerFactory.GetProvidersAsync();
             providers.Should().HaveCount(providersResponse.Data?.Count() ?? 0);
-            
+
             // Step 3: Validate providers
             var validationResult = await providerFactory.ValidateProvidersAsync();
             validationResult.IsValid.Should().BeTrue();
-            
+
             _testOutputHelper.WriteLine($"✅ EAuthService and ProviderFactory integration completed");
             _testOutputHelper.WriteLine($"   - EAuthService providers: ✅ {providersResponse.Data?.Count()}");
             _testOutputHelper.WriteLine($"   - ProviderFactory providers: ✅ {providers.Count()}");

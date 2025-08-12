@@ -389,4 +389,137 @@ namespace EasyAuth.Framework.Core.Models
         /// </summary>
         public DateTimeOffset ValidatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
+
+    /// <summary>
+    /// User profile model for API responses
+    /// </summary>
+    public class UserProfile
+    {
+        /// <summary>
+        /// User unique identifier
+        /// </summary>
+        public string Id { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User email address
+        /// </summary>
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User display name
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// User first name
+        /// </summary>
+        public string? FirstName { get; set; }
+
+        /// <summary>
+        /// User last name
+        /// </summary>
+        public string? LastName { get; set; }
+
+        /// <summary>
+        /// User profile picture URL
+        /// </summary>
+        public string? ProfilePictureUrl { get; set; }
+
+        /// <summary>
+        /// User locale preference
+        /// </summary>
+        public string? Locale { get; set; }
+
+        /// <summary>
+        /// User timezone preference
+        /// </summary>
+        public string? TimeZone { get; set; }
+
+        /// <summary>
+        /// Account creation timestamp
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// Last login timestamp
+        /// </summary>
+        public DateTime LastLoginAt { get; set; }
+
+        /// <summary>
+        /// User roles
+        /// </summary>
+        public List<string> Roles { get; set; } = new();
+
+        /// <summary>
+        /// Custom user claims
+        /// </summary>
+        public Dictionary<string, object> CustomClaims { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Token refresh result
+    /// </summary>
+    public class RefreshTokenResult
+    {
+        /// <summary>
+        /// Whether token refresh was successful
+        /// </summary>
+        public bool Success { get; set; }
+
+        /// <summary>
+        /// New access token
+        /// </summary>
+        public string? AccessToken { get; set; }
+
+        /// <summary>
+        /// New refresh token (if rotated)
+        /// </summary>
+        public string? RefreshToken { get; set; }
+
+        /// <summary>
+        /// Token expiration in seconds
+        /// </summary>
+        public int ExpiresIn { get; set; }
+
+        /// <summary>
+        /// Error code if refresh failed
+        /// </summary>
+        public string? Error { get; set; }
+
+        /// <summary>
+        /// Human-readable error description
+        /// </summary>
+        public string? ErrorDescription { get; set; }
+    }
+
+    /// <summary>
+    /// Authentication initiation result
+    /// </summary>
+    public class AuthenticationResult
+    {
+        /// <summary>
+        /// Whether authentication initiation was successful
+        /// </summary>
+        public bool Success { get; set; }
+
+        /// <summary>
+        /// OAuth provider authorization URL
+        /// </summary>
+        public string? AuthUrl { get; set; }
+
+        /// <summary>
+        /// CSRF protection state parameter
+        /// </summary>
+        public string? State { get; set; }
+
+        /// <summary>
+        /// Error code if initiation failed
+        /// </summary>
+        public string? Error { get; set; }
+
+        /// <summary>
+        /// Human-readable error description
+        /// </summary>
+        public string? ErrorDescription { get; set; }
+    }
 }

@@ -11,9 +11,7 @@
   <ItemGroup>
     <!-- Common test packages are now defined in Directory.Build.props -->
     <!-- Only project-specific packages remain here -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <!-- Updated to compatible versions to avoid dependency conflicts -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
   </ItemGroup>
 

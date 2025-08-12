@@ -91,7 +91,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
             const string code = "valid_auth_code";
             const string state = "valid_state";
             var expectedUserInfo = _fixture.Create<UserInfo>();
-            
+
             var service = CreateEAuthService();
 
             // Act
@@ -136,7 +136,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
         {
             // Arrange
             var sessionId = _fixture.Create<string>();
-            
+
             _mockDatabaseService
                 .Setup(x => x.InvalidateSessionAsync(sessionId))
                 .ReturnsAsync(true);

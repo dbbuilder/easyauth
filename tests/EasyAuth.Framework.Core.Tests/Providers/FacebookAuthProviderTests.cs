@@ -22,6 +22,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
         private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
         private readonly Mock<ILogger<FacebookAuthProvider>> _mockLogger;
         private readonly Mock<IOptions<FacebookOptions>> _mockOptions;
+        private readonly Mock<IConfigurationService> _mockConfigurationService;
         private readonly Fixture _fixture;
         private readonly FacebookOptions _facebookConfig;
 
@@ -30,6 +31,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<FacebookAuthProvider>>();
             _mockOptions = new Mock<IOptions<FacebookOptions>>();
+            _mockConfigurationService = new Mock<IConfigurationService>();
             _fixture = new Fixture();
 
             _facebookConfig = new FacebookOptions
@@ -42,6 +44,10 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             };
 
             _mockOptions.Setup(x => x.Value).Returns(_facebookConfig);
+            
+            // Setup configuration service to return valid app secret
+            _mockConfigurationService.Setup(x => x.GetRequiredSecretValue("Facebook:AppSecret", "FACEBOOK_APP_SECRET"))
+                .Returns("dummy_app_secret_from_config");
         }
 
         #region TDD RED Phase - Tests that should fail initially
@@ -79,12 +85,12 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             // Assert
             result.Should().NotBeNullOrEmpty();
             result.Should().Contain("state=");
-            
+
             // Extract state parameter
             var uri = new Uri(result);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var state = query["state"];
-            
+
             state.Should().NotBeNullOrEmpty();
             state!.Length.Should().BeGreaterThan(10); // Should be a meaningful state value
         }
@@ -96,7 +102,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             var authCode = "valid_auth_code_from_facebook";
             var state = "valid_state_parameter";
             var provider = CreateFacebookAuthProvider();
-            
+
             // Mock HTTP response for token exchange
             var mockHttpClient = new Mock<HttpClient>();
             _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
@@ -122,7 +128,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 TokenType = "Bearer",
                 ExpiresIn = 3600
             };
-            
+
             var provider = CreateFacebookAuthProvider();
 
             // Act
@@ -147,7 +153,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 TokenType = "Bearer",
                 ExpiresIn = 3600
             };
-            
+
             var provider = CreateFacebookAuthProvider();
 
             // Act
@@ -195,7 +201,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
         {
             // Arrange - Facebook uses specific token endpoint
             var provider = CreateFacebookAuthProvider();
-            
+
             // Act
             var result = await provider.ExchangeCodeForTokenAsync("valid_code", "valid_state");
 
@@ -213,7 +219,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 AccessToken = "valid_access_token",
                 TokenType = "Bearer"
             };
-            
+
             var provider = CreateFacebookAuthProvider();
 
             // Act
@@ -249,11 +255,11 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 AppId = "", // Missing
                 AppSecret = "secret"
             };
-            
+
             var mockInvalidOptions = new Mock<IOptions<FacebookOptions>>();
             mockInvalidOptions.Setup(x => x.Value).Returns(invalidConfig);
-            
-            var provider = new FacebookAuthProvider(mockInvalidOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object);
+
+            var provider = new FacebookAuthProvider(mockInvalidOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object, _mockConfigurationService.Object);
 
             // Act
             var result = await provider.ValidateConfigurationAsync();
@@ -271,7 +277,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 AccessToken = "access_token_no_email",
                 TokenType = "Bearer"
             };
-            
+
             var provider = CreateFacebookAuthProvider();
 
             // Act
@@ -291,7 +297,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
         {
             // This will fail until we implement FacebookAuthProvider
             // Following TDD: test first, then implement
-            return new FacebookAuthProvider(_mockOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object);
+            return new FacebookAuthProvider(_mockOptions.Object, _mockHttpClientFactory.Object, _mockLogger.Object, _mockConfigurationService.Object);
         }
 
         #endregion

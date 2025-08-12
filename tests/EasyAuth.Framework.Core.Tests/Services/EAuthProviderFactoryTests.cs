@@ -36,9 +36,9 @@ namespace EasyAuth.Framework.Core.Tests.Services
                 Providers = new AuthProvidersOptions
                 {
                     Google = new GoogleOptions { Enabled = true, ClientId = "google-client-id" },
-                    AzureB2C = new AzureB2COptions 
-                    { 
-                        Enabled = true, 
+                    AzureB2C = new AzureB2COptions
+                    {
+                        Enabled = true,
                         ClientId = "b2c-client-id",
                         TenantId = "contoso.onmicrosoft.com",
                         SignUpSignInPolicyId = "B2C_1_SignInUp"
@@ -65,7 +65,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Should().HaveCount(4); // Google, AzureB2C, Facebook, Apple
-            
+
             var providerNames = result.Select(p => p.ProviderName).ToList();
             providerNames.Should().Contain(new[] { "Google", "AzureB2C", "Facebook", "Apple" });
         }
@@ -226,7 +226,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Should().HaveCount(4);
-            
+
             var enabledProviders = result.Where(p => p.IsEnabled).ToList();
             enabledProviders.Should().HaveCount(4);
         }
@@ -279,7 +279,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
             // Assert
             passwordResetProviders.Should().NotBeNull();
             passwordResetProviders.Should().NotBeEmpty();
-            
+
             var providerNames = passwordResetProviders.Select(p => p.ProviderName).ToList();
             providerNames.Should().Contain("Google"); // Google supports password reset
         }
@@ -289,7 +289,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
         {
             // Arrange
             var factory = CreateProviderFactory();
-            
+
             // Get provider once to cache it
             var firstInstance = await factory.GetProviderAsync("Google");
 
@@ -343,7 +343,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
         {
             // Setup service provider to return provider instances
             SetupMockServiceProvider();
-            
+
             // This will fail until we implement EAuthProviderFactory
             // Following TDD: test first, then implement
             return new EAuthProviderFactory(_mockServiceProvider.Object, _mockOptions.Object, _mockLogger.Object);
@@ -372,7 +372,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
                 .ReturnsAsync("https://contoso.b2clogin.com/oauth2/v2.0/authorize");
             mockAzureProvider.Setup(p => p.GetPasswordResetUrlAsync(It.IsAny<string>()))
                 .ReturnsAsync("https://contoso.b2clogin.com/oauth2/v2.0/authorize?p=B2C_1_PasswordReset");
-            mockAzureProvider.Setup(p => p.ValidateConfigurationAsync()).ReturnsAsync(() => 
+            mockAzureProvider.Setup(p => p.ValidateConfigurationAsync()).ReturnsAsync(() =>
                 !string.IsNullOrEmpty(_eauthOptions.Providers.AzureB2C?.ClientId));
 
             // Mock Facebook provider

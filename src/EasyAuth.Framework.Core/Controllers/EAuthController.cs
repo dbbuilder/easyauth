@@ -3,6 +3,8 @@ using EasyAuth.Framework.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Http;
 
 namespace EasyAuth.Framework.Core.Controllers
 {
@@ -11,6 +13,8 @@ namespace EasyAuth.Framework.Core.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
+    [SwaggerTag("Authentication endpoints for OAuth providers (Google, Facebook, Apple, Azure B2C)")]
     public class EAuthController : ControllerBase
     {
         private readonly IEAuthService _eauthService;
@@ -27,7 +31,44 @@ namespace EasyAuth.Framework.Core.Controllers
         /// <summary>
         /// Get all available authentication providers
         /// </summary>
+        /// <returns>List of configured authentication providers</returns>
+        /// <response code="200">Successfully retrieved available providers</response>
+        /// <response code="500">Internal server error occurred</response>
         [HttpGet("providers")]
+        [SwaggerOperation(
+            Summary = "Get available authentication providers",
+            Description = @"
+🔍 **Discover available authentication providers** configured in this EasyAuth instance.
+
+**What you get:**
+- List of enabled providers (Google, Facebook, Apple, Azure B2C)
+- Provider configuration details
+- Redirect URLs for each provider
+- Provider-specific settings
+
+**Use this to:**
+- Build dynamic login UI
+- Check which providers are available
+- Get redirect URLs for OAuth flows
+
+**Example Response:**
+```json
+{
+  ""success"": true,
+  ""data"": [
+    {
+      ""name"": ""google"",
+      ""displayName"": ""Google"",
+      ""enabled"": true,
+      ""redirectUri"": ""/api/auth/callback/google""
+    }
+  ]
+}
+```",
+            Tags = new[] { "Authentication" }
+        )]
+        [SwaggerResponse(200, "Available authentication providers", typeof(EAuthResponse<IEnumerable<ProviderInfo>>))]
+        [SwaggerResponse(500, "Internal server error", typeof(EAuthResponse<IEnumerable<ProviderInfo>>))]
         public async Task<IActionResult> GetProviders()
         {
             try

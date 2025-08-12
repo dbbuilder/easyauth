@@ -19,14 +19,15 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     protected readonly MsSqlContainer DatabaseContainer;
     protected ServiceProvider ServiceProvider = null!;
     protected string ConnectionString { get; private set; } = string.Empty;
-    
+
     protected BaseIntegrationTest()
     {
-        // Setup SQL Server test container
+        // Setup SQL Server test container with faster startup configuration
         DatabaseContainer = new MsSqlBuilder()
             .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
             .WithPassword("Test123!")
             .WithEnvironment("ACCEPT_EULA", "Y")
+            .WithEnvironment("MSSQL_PID", "Express") // Use Express edition for faster startup
             .WithPortBinding(0, 1433)
             .Build();
     }
@@ -58,24 +59,25 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        // Start database container
-        await DatabaseContainer.StartAsync();
-        
+        // Start database container with extended timeout
+        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+        await DatabaseContainer.StartAsync(cts.Token);
+
         // Get connection string
         ConnectionString = DatabaseContainer.GetConnectionString();
-        
+
         // Build service provider with EasyAuth configuration now that connection string is available
         var services = new ServiceCollection();
         var configuration = BuildTestConfiguration();
-        
+
         // Add logging
         services.AddLogging(builder => builder.AddConsole());
-        
+
         // Add EasyAuth services
         services.AddEasyAuth(configuration);
-        
+
         ServiceProvider = services.BuildServiceProvider();
-        
+
         // Initialize database schema
         await InitializeDatabaseAsync();
     }
@@ -85,7 +87,7 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
         ServiceProvider?.Dispose();
         await DatabaseContainer.DisposeAsync();
     }
-    
+
     /// <summary>
     /// Initialize database with EasyAuth schema and test data
     /// </summary>
@@ -93,23 +95,23 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     {
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync();
-        
+
         // Create EasyAuth tables
         var createTablesScript = await File.ReadAllTextAsync(
             Path.Combine(GetProjectRoot(), "src", "EasyAuth.Framework.Core", "Database", "Scripts", "create_schema_and_metadata.sql"));
-        
+
         await ExecuteSqlScriptAsync(connection, createTablesScript);
-        
+
         // Create other required tables
         var scriptFiles = new[]
         {
             "create_users_table.sql",
-            "create_user_accounts_table.sql", 
+            "create_user_accounts_table.sql",
             "create_user_sessions_table.sql",
             "create_user_roles_table.sql",
             "create_audit_log_table.sql"
         };
-        
+
         foreach (var scriptFile in scriptFiles)
         {
             var scriptPath = Path.Combine(GetProjectRoot(), "src", "EasyAuth.Framework.Core", "Database", "Scripts", scriptFile);
@@ -120,7 +122,7 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
             }
         }
     }
-    
+
     /// <summary>
     /// Execute SQL script with proper error handling
     /// </summary>
@@ -138,7 +140,7 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
             throw new InvalidOperationException($"Failed to execute SQL script: {ex.Message}", ex);
         }
     }
-    
+
     /// <summary>
     /// Get project root directory for file access
     /// </summary>
@@ -146,16 +148,16 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     {
         var currentDirectory = Directory.GetCurrentDirectory();
         var projectRoot = currentDirectory;
-        
+
         // Navigate up to find the solution root
         while (projectRoot != null && !File.Exists(Path.Combine(projectRoot, "EasyAuth.Framework.sln")))
         {
             projectRoot = Directory.GetParent(projectRoot)?.FullName;
         }
-        
+
         return projectRoot ?? throw new DirectoryNotFoundException("Could not find project root directory");
     }
-    
+
     /// <summary>
     /// Create test user data for integration tests
     /// </summary>
@@ -163,12 +165,12 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     {
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync();
-        
+
         const string insertUserSql = @"
             INSERT INTO Users (Email, DisplayName, FirstName, LastName, IsAuthenticated, CreatedAt)
             OUTPUT INSERTED.UserId
             VALUES (@Email, @DisplayName, @FirstName, @LastName, @IsAuthenticated, @CreatedAt)";
-            
+
         await using var command = new SqlCommand(insertUserSql, connection);
         command.Parameters.AddWithValue("@Email", email);
         command.Parameters.AddWithValue("@DisplayName", "Test User");
@@ -176,26 +178,26 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
         command.Parameters.AddWithValue("@LastName", "User");
         command.Parameters.AddWithValue("@IsAuthenticated", true);
         command.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
-        
+
         var userId = (int)await command.ExecuteScalarAsync();
-        
+
         // Create user account for provider
         const string insertAccountSql = @"
             INSERT INTO UserAccounts (UserId, Provider, ProviderUserId, Email, CreatedAt)
             VALUES (@UserId, @Provider, @ProviderUserId, @Email, @CreatedAt)";
-            
+
         await using var accountCommand = new SqlCommand(insertAccountSql, connection);
         accountCommand.Parameters.AddWithValue("@UserId", userId);
         accountCommand.Parameters.AddWithValue("@Provider", provider);
         accountCommand.Parameters.AddWithValue("@ProviderUserId", $"{provider}_{userId}");
         accountCommand.Parameters.AddWithValue("@Email", email);
         accountCommand.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
-        
+
         await accountCommand.ExecuteNonQueryAsync();
-        
+
         return userId;
     }
-    
+
     /// <summary>
     /// Clean up test data after test execution
     /// </summary>
@@ -203,10 +205,10 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     {
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync();
-        
+
         // Clean up in reverse order of dependencies
         var cleanupTables = new[] { "AuditLog", "UserSessions", "UserRoles", "UserAccounts", "Users" };
-        
+
         foreach (var table in cleanupTables)
         {
             // Table names are from a controlled list in test code, safe from injection

@@ -102,7 +102,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
 
         [Theory]
         [InlineData("google")]     // lowercase
-        [InlineData("GOOGLE")]     // uppercase  
+        [InlineData("GOOGLE")]     // uppercase
         [InlineData("gOoGlE")]     // mixed case
         public async Task InitiateLoginAsync_ShouldBeCaseInsensitive_ForProviderNames(string provider)
         {
@@ -227,7 +227,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
         {
             // Arrange
             var sessionId = _fixture.Create<string>();
-            
+
             _mockDatabaseService
                 .Setup(x => x.ValidateSessionAsync(sessionId))
                 .ThrowsAsync(new InvalidOperationException("Database connection failed"));
@@ -278,7 +278,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
         {
             // Arrange
             var sessionId = _fixture.Create<string>();
-            
+
             _mockDatabaseService
                 .Setup(x => x.InvalidateSessionAsync(sessionId))
                 .ThrowsAsync(new TimeoutException("Database timeout"));
@@ -300,7 +300,7 @@ namespace EasyAuth.Framework.Core.Tests.Services
         {
             // Arrange
             var sessionId = _fixture.Create<string>();
-            
+
             _mockDatabaseService
                 .Setup(x => x.InvalidateSessionAsync(sessionId))
                 .ReturnsAsync(false);

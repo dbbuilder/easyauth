@@ -16,7 +16,10 @@ namespace EasyAuth.Framework.Core.Services
 
         public EAuthDatabaseService(string connectionString, ILogger<EAuthDatabaseService> logger)
         {
-            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new ArgumentNullException(nameof(connectionString));
+            
+            _connectionString = connectionString;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -260,26 +263,79 @@ namespace EasyAuth.Framework.Core.Services
 
         /// <summary>
         /// Validates session token against database and returns session information if active
-        /// TDD RED phase stub - will query user_sessions table and verify expiry in GREEN phase
         /// </summary>
         public async Task<SessionInfo> ValidateSessionAsync(string sessionId)
         {
-            // TDD RED Phase - Stub implementation
-            // Will be properly implemented in GREEN phase after tests define behavior
-            await Task.CompletedTask.ConfigureAwait(false);
-            throw new NotImplementedException("TDD RED Phase - Test first, implement later");
+            if (sessionId == null)
+                throw new ArgumentNullException(nameof(sessionId));
+            if (string.IsNullOrWhiteSpace(sessionId))
+                throw new ArgumentException("Session ID cannot be empty or whitespace", nameof(sessionId));
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT session_id, user_id, expires_at, is_active
+                    FROM [eauth].[user_sessions]
+                    WHERE session_id = @SessionId AND is_active = 1 AND expires_at > GETUTCDATE()";
+                
+                command.Parameters.AddWithValue("@SessionId", sessionId);
+
+                using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+                if (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    return new SessionInfo
+                    {
+                        SessionId = reader.GetString(0), // session_id
+                        UserId = reader.GetString(1), // user_id
+                        ExpiresAt = reader.GetDateTimeOffset(2), // expires_at
+                        IsValid = reader.GetBoolean(3) // is_active
+                    };
+                }
+
+                throw new InvalidOperationException("Session not found or expired");
+            }
+            catch (Exception ex) when (!(ex is ArgumentNullException || ex is InvalidOperationException))
+            {
+                _logger.LogError(ex, "Error validating session: {SessionId}", sessionId);
+                throw;
+            }
         }
 
         /// <summary>
         /// Marks user session as inactive in database for logout functionality
-        /// TDD RED phase stub - will update user_sessions table with invalidation timestamp in GREEN phase
         /// </summary>
         public async Task<bool> InvalidateSessionAsync(string sessionId)
         {
-            // TDD RED Phase - Stub implementation
-            // Will be properly implemented in GREEN phase after tests define behavior
-            await Task.CompletedTask.ConfigureAwait(false);
-            throw new NotImplementedException("TDD RED Phase - Test first, implement later");
+            if (sessionId == null)
+                throw new ArgumentNullException(nameof(sessionId));
+            if (string.IsNullOrWhiteSpace(sessionId))
+                throw new ArgumentException("Session ID cannot be empty or whitespace", nameof(sessionId));
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+                    UPDATE [eauth].[user_sessions]
+                    SET is_active = 0, invalidated_date = GETUTCDATE(), invalidated_reason = 'USER_LOGOUT'
+                    WHERE session_id = @SessionId AND is_active = 1";
+                
+                command.Parameters.AddWithValue("@SessionId", sessionId);
+
+                var rowsAffected = await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                return rowsAffected > 0;
+            }
+            catch (Exception ex) when (!(ex is ArgumentNullException))
+            {
+                _logger.LogError(ex, "Error invalidating session: {SessionId}", sessionId);
+                return false;
+            }
         }
     }
 }

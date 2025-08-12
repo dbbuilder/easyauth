@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using EasyAuth.Framework.Core.Configuration;
+using EasyAuth.Framework.Core.Models;
 using EasyAuth.Framework.Core.Providers;
 using EasyAuth.Framework.Core.Services;
 using Microsoft.Extensions.Configuration;
@@ -48,6 +49,12 @@ namespace EasyAuth.Framework.Core.Extensions
                 AddEasyAuthHealthChecks(services, eauthOptions);
             }
 
+            // Add built-in CORS configuration for seamless frontend integration
+            services.AddEasyAuthCors();
+
+            // Add correlation ID middleware for request tracing
+            services.AddSingleton<CorrelationIdMiddleware>();
+
             return services;
         }
 
@@ -80,6 +87,12 @@ namespace EasyAuth.Framework.Core.Extensions
             if (options.Framework.EnableHealthChecks)
             {
                 AddEasyAuthHealthChecks(services, options);
+            }
+
+            // Add Swagger documentation if enabled
+            if (options.Framework.EnableSwagger)
+            {
+                services.AddEasyAuthSwagger();
             }
 
             return services;
@@ -128,6 +141,9 @@ namespace EasyAuth.Framework.Core.Extensions
         /// <returns>Service collection for chaining</returns>
         public static IServiceCollection AddEasyAuthProviders(this IServiceCollection services, EAuthOptions options)
         {
+            // Register minimal dependencies needed by providers
+            services.AddScoped<IConfigurationService, ConfigurationService>();
+            
             // Register provider factory
             services.AddSingleton<IEAuthProviderFactory, EAuthProviderFactory>();
 
@@ -187,14 +203,134 @@ namespace EasyAuth.Framework.Core.Extensions
         }
 
         /// <summary>
-        /// Adds Swagger documentation for EasyAuth endpoints
+        /// Adds comprehensive Swagger/OpenAPI documentation for EasyAuth endpoints
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <returns>Service collection for chaining</returns>
         public static IServiceCollection AddEasyAuthSwagger(this IServiceCollection services)
         {
-            // TDD GREEN Phase: Basic Swagger setup
-            // Note: Actual Swagger configuration would be added here
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "EasyAuth API",
+                    Version = "v2.2.0",
+                    Description = @"
+🚀 **EasyAuth Framework API Documentation**
+
+A powerful, zero-configuration authentication framework that supports:
+- **Google, Facebook, Apple, Azure B2C** authentication
+- **Universal Integration System** with StandardApiController
+- **Smart CORS** with automatic origin detection
+- **Database session management** with cleanup
+- **Comprehensive error handling** with ApiResponse pattern
+
+## 🎯 **Quick Start**
+1. Configure your providers in `appsettings.json`
+2. Call `/api/auth/login/{provider}` to start authentication
+3. Use returned tokens for subsequent API calls
+4. Enjoy zero-configuration authentication!
+
+## 🛡️ **Security**
+All endpoints use industry-standard security practices with JWT tokens and proper CORS handling.
+",
+                    Contact = new Microsoft.OpenApi.Models.OpenApiContact
+                    {
+                        Name = "EasyAuth Framework",
+                        Url = new Uri("https://github.com/yourusername/easyauth-framework")
+                    },
+                    License = new Microsoft.OpenApi.Models.OpenApiLicense
+                    {
+                        Name = "MIT License",
+                        Url = new Uri("https://opensource.org/licenses/MIT")
+                    }
+                });
+
+                // Add comprehensive security definitions
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = @"
+**JWT Authorization header using the Bearer scheme.**
+
+Enter 'Bearer' [space] and then your token in the text input below.
+Example: 'Bearer eyJhbGciOiJIUzI1NiIs...'
+
+The token is obtained from the `/api/auth/login/{provider}` endpoint after successful authentication.",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT"
+                });
+
+                options.AddSecurityDefinition("ApiKey", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "API Key authentication using X-API-Key header",
+                    Name = "X-API-Key",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+                });
+
+                // Add security requirements
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+
+                // Enhanced documentation options
+                options.EnableAnnotations();
+                options.DescribeAllParametersInCamelCase();
+                options.SchemaFilter<EasyAuthSchemaFilter>();
+                options.OperationFilter<EasyAuthOperationFilter>();
+
+                // Include XML documentation
+                var xmlFiles = new[]
+                {
+                    "EasyAuth.Framework.Core.xml",
+                    "EasyAuth.Framework.Extensions.xml"
+                };
+
+                foreach (var xmlFile in xmlFiles)
+                {
+                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                    if (File.Exists(xmlPath))
+                    {
+                        options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+                    }
+                }
+
+                // Custom schema mappings for better documentation
+                options.MapType<TokenResponse>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+                {
+                    Type = "object",
+                    Description = "JWT token response containing access token and user information",
+                    Example = new Microsoft.OpenApi.Any.OpenApiObject
+                    {
+                        ["accessToken"] = new Microsoft.OpenApi.Any.OpenApiString("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."),
+                        ["refreshToken"] = new Microsoft.OpenApi.Any.OpenApiString("refresh_token_here"),
+                        ["expiresIn"] = new Microsoft.OpenApi.Any.OpenApiInteger(3600),
+                        ["tokenType"] = new Microsoft.OpenApi.Any.OpenApiString("Bearer"),
+                        ["user"] = new Microsoft.OpenApi.Any.OpenApiObject
+                        {
+                            ["id"] = new Microsoft.OpenApi.Any.OpenApiString("user123"),
+                            ["email"] = new Microsoft.OpenApi.Any.OpenApiString("user@example.com"),
+                            ["name"] = new Microsoft.OpenApi.Any.OpenApiString("John Doe")
+                        }
+                    }
+                });
+            });
+
             return services;
         }
 
@@ -202,8 +338,9 @@ namespace EasyAuth.Framework.Core.Extensions
 
         private static IServiceCollection AddEasyAuthCore(this IServiceCollection services)
         {
-            // Register core EasyAuth service
+            // Register core EasyAuth services
             services.AddScoped<IEAuthService, EAuthService>();
+            services.AddScoped<IConfigurationService, ConfigurationService>();
             return services;
         }
 

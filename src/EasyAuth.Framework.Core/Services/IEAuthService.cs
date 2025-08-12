@@ -51,5 +51,27 @@ namespace EasyAuth.Framework.Core.Services
         /// Initiate password reset (for supported providers)
         /// </summary>
         Task<EAuthResponse<string>> InitiatePasswordResetAsync(PasswordResetRequest request);
+
+        // Standard API methods for frontend integration
+        
+        /// <summary>
+        /// Get user profile by user ID
+        /// </summary>
+        Task<UserProfile?> GetUserProfileAsync(string userId);
+
+        /// <summary>
+        /// Refresh JWT access token using refresh token
+        /// </summary>
+        Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken);
+
+        /// <summary>
+        /// Initiate OAuth authentication flow
+        /// </summary>
+        Task<AuthenticationResult> InitiateAuthenticationAsync(string provider, string? returnUrl = null);
+
+        /// <summary>
+        /// Sign out user using ClaimsPrincipal
+        /// </summary>
+        Task SignOutUserAsync(System.Security.Claims.ClaimsPrincipal user);
     }
 }

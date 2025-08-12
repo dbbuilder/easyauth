@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>$(EasyAuthTargetFrameworks)</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>EasyAuth.Framework.Core</PackageId>
-    <PackageVersion>2.0.0</PackageVersion>
     <Title>EasyAuth Framework - Universal Integration System Core</Title>
     <Description>Universal authentication framework with StandardApiController for any frontend, zero-config CORS, and unified API responses. Eliminates integration complexity with React, Vue, Angular support. Includes Google, Facebook, Apple, Azure B2C OAuth providers.</Description>
     <Authors>EasyAuth Development Team</Authors>
@@ -17,32 +16,37 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dbbuilder/easyauth</PackageProjectUrl>
-    <PackageReleaseNotes>Major v2.0 Release: Universal Integration System with StandardApiController, zero-config CORS, unified API responses, and companion React/Vue packages. Eliminates frontend integration complexity and reduces setup from 30+ hours to under 2 hours.</PackageReleaseNotes>
+    <PackageReleaseNotes>v2.1.0 Security Release: Critical security vulnerability fixes (CVE-2024-43485, Azure.Identity conflicts) with updated dependencies. Maintains Universal Integration System with StandardApiController, zero-config CORS, unified API responses. Preparation for .NET 9 multi-targeting support.</PackageReleaseNotes>
     <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Web" Version="2.15.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.0" />
-    <PackageReference Include="AspNet.Security.OAuth.Apple" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.0" />
-    <PackageReference Include="Azure.Identity" Version="1.12.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
-    <PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="4.0.0" />
-    <PackageReference Include="Polly" Version="7.2.4" />
-    <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
-    <PackageReference Include="FluentValidation" Version="11.8.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="$(MicrosoftIdentityWebVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="AspNet.Security.OAuth.Apple" Version="$(AspNetSecurityOAuthAppleVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(MicrosoftEntityFrameworkCoreVersion)" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="$(AzureExtensionsAspNetCoreConfigurationSecretsVersion)" />
+    <PackageReference Include="Azure.Identity" Version="$(AzureIdentityVersion)" />
+    <PackageReference Include="Serilog.AspNetCore" Version="$(SerilogAspNetCoreVersion)" />
+    <PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="$(SerilogApplicationInsightsVersion)" />
+    <PackageReference Include="Polly" Version="$(PollyVersion)" />
+    <PackageReference Include="Polly.Extensions.Http" Version="$(PollyExtensionsHttpVersion)" />
+    <PackageReference Include="FluentValidation" Version="$(FluentValidationVersion)" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(SystemIdentityModelTokensJwtVersion)" />
+    <!-- Explicit vulnerable package fixes -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.8.1" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Database\Scripts\**\*.sql" />
     <EmbeddedResource Include="Database\Migrations\**\*.sql" />
+    <EmbeddedResource Include="wwwroot\*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,10 +10,10 @@
 
   <ItemGroup>
     <!-- Common test packages and security-specific packages are now defined in Directory.Build.props -->
-    <!-- Only project-specific packages remain here -->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.13.1" />
+    <!-- Updated to compatible versions to avoid dependency conflicts -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.1.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -44,10 +44,11 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
             });
             _configuration = configBuilder.Build();
             _services = new ServiceCollection();
-            
+
             // Add required base services
             _services.AddLogging();
             _services.AddHttpClient();
+            _services.AddSingleton<IConfiguration>(_configuration);
             _services.AddOptions();
         }
 
@@ -104,11 +105,11 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
             // Assert
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
             httpClientFactory.Should().NotBeNull();
-            
+
             // Should be able to create named clients for providers
             var googleClient = httpClientFactory!.CreateClient("GoogleAuth");
             var facebookClient = httpClientFactory.CreateClient("FacebookAuth");
-            
+
             googleClient.Should().NotBeNull();
             facebookClient.Should().NotBeNull();
         }
@@ -153,7 +154,7 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
             // Assert - Providers should be registered
             serviceProvider.GetService<GoogleAuthProvider>().Should().NotBeNull();
             serviceProvider.GetService<IEAuthProviderFactory>().Should().NotBeNull();
-            
+
             // Core services should not be registered
             serviceProvider.GetService<IEAuthService>().Should().BeNull();
             serviceProvider.GetService<IEAuthDatabaseService>().Should().BeNull();
@@ -168,7 +169,7 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
 
             // Assert - Database services should be registered
             serviceProvider.GetService<IEAuthDatabaseService>().Should().NotBeNull();
-            
+
             // Other services should not be registered
             serviceProvider.GetService<IEAuthService>().Should().BeNull();
             serviceProvider.GetService<IEAuthProviderFactory>().Should().BeNull();
@@ -229,7 +230,7 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
             // Assert - Only enabled providers should be functional
             var providerFactory = serviceProvider.GetService<IEAuthProviderFactory>();
             providerFactory.Should().NotBeNull();
-            
+
             var providers = await providerFactory!.GetProvidersAsync();
             providers.Should().NotContain(p => p.ProviderName == "Google");
             providers.Should().Contain(p => p.ProviderName == "AzureB2C");
@@ -307,7 +308,7 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
             // Assert
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             loggerFactory.Should().NotBeNull();
-            
+
             var eauthLogger = loggerFactory!.CreateLogger<IEAuthService>();
             eauthLogger.Should().NotBeNull();
         }
@@ -318,7 +319,7 @@ namespace EasyAuth.Framework.Core.Tests.Extensions
             // Arrange & Act
             _services.AddEasyAuth(_configuration);
             _services.AddEasyAuthSwagger();
-            
+
             // Assert - Should not throw and should register Swagger-related services
             var serviceProvider = _services.BuildServiceProvider();
             serviceProvider.Should().NotBeNull();

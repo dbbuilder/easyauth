@@ -1,0 +1,6 @@
+@EasyAuthTestApp_HostAddress = http://localhost:5123
+
+GET {{EasyAuthTestApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -24,7 +24,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         _fixture = new Fixture();
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task InitializeDatabase_CompletesSuccessfully()
     {
         // Arrange

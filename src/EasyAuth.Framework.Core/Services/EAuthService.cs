@@ -274,5 +274,132 @@ namespace EasyAuth.Framework.Core.Services
                 Message = "Password reset not yet implemented"
             };
         }
+
+        /// <summary>
+        /// Retrieves user profile information by user ID for StandardApiController
+        /// TDD stub implementation - returns basic profile information for authenticated users
+        /// </summary>
+        public async Task<UserProfile?> GetUserProfileAsync(string userId)
+        {
+            // TDD GREEN Phase: Enhanced validation and stub data
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return null;
+            }
+
+            // Return mock profile data - will be enhanced to query database when needed
+            return new UserProfile
+            {
+                Id = userId,
+                Email = "user@example.com",
+                Name = "Test User",
+                FirstName = "Test",
+                LastName = "User",
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                LastLoginAt = DateTime.UtcNow,
+                Roles = new List<string> { "User" },
+                CustomClaims = new Dictionary<string, object>()
+            };
+        }
+
+        /// <summary>
+        /// Refreshes JWT access token using refresh token for StandardApiController
+        /// TDD stub implementation - returns mock refresh result for valid tokens
+        /// </summary>
+        public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken)
+        {
+            // TDD GREEN Phase: Enhanced validation
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return new RefreshTokenResult
+                {
+                    Success = false,
+                    Error = "invalid_request",
+                    ErrorDescription = "Refresh token is required"
+                };
+            }
+
+            // Mock successful refresh - will be enhanced with real JWT logic when needed
+            return new RefreshTokenResult
+            {
+                Success = true,
+                AccessToken = "mock_new_access_token",
+                RefreshToken = "mock_new_refresh_token",
+                ExpiresIn = 3600 // 1 hour
+            };
+        }
+
+        /// <summary>
+        /// Initiates OAuth authentication flow for StandardApiController
+        /// TDD stub implementation - generates OAuth authorization URLs for supported providers
+        /// </summary>
+        public async Task<AuthenticationResult> InitiateAuthenticationAsync(string provider, string? returnUrl = null)
+        {
+            // TDD GREEN Phase: Enhanced validation for edge cases
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(provider))
+            {
+                return new AuthenticationResult
+                {
+                    Success = false,
+                    Error = "invalid_request",
+                    ErrorDescription = "Provider is required"
+                };
+            }
+
+            if (provider != "Google")
+            {
+                return new AuthenticationResult
+                {
+                    Success = false,
+                    Error = "unsupported_provider",
+                    ErrorDescription = $"Provider '{provider}' is not supported"
+                };
+            }
+
+            // Generate mock OAuth URL - will be enhanced with real OAuth providers when needed
+            var state = Guid.NewGuid().ToString("N");
+            var authUrl = $"https://accounts.google.com/o/oauth2/v2/auth?client_id=dummy&response_type=code&scope=openid%20profile%20email&redirect_uri=callback&state={state}";
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                authUrl += $"&return_url={Uri.EscapeDataString(returnUrl)}";
+            }
+
+            return new AuthenticationResult
+            {
+                Success = true,
+                AuthUrl = authUrl,
+                State = state
+            };
+        }
+
+        /// <summary>
+        /// Signs out user using ClaimsPrincipal for StandardApiController
+        /// TDD stub implementation - clears session for authenticated users
+        /// </summary>
+        public async Task SignOutUserAsync(System.Security.Claims.ClaimsPrincipal user)
+        {
+            // TDD GREEN Phase: Basic implementation for compatibility
+            await Task.CompletedTask.ConfigureAwait(false);
+
+            if (user?.Identity?.IsAuthenticated == true)
+            {
+                var sessionId = user.FindFirst("session_id")?.Value;
+                if (!string.IsNullOrEmpty(sessionId))
+                {
+                    // Delegate to existing SignOutAsync method
+                    await SignOutAsync(sessionId).ConfigureAwait(false);
+                }
+
+                _logger.LogInformation("User {UserId} signed out successfully", 
+                    user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown");
+            }
+        }
     }
 }
