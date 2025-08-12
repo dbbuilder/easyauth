@@ -189,9 +189,30 @@ export class CryptoUtils {
   }
 
   private static generateFallbackRandomString(length: number): string {
+    // SECURITY WARNING: This fallback should only be used in environments without crypto.getRandomValues
+    // eslint-disable-next-line no-console
+    console.warn('SECURITY WARNING: Using fallback random generation. crypto.getRandomValues is not available.');
+    
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
     let result = '';
     
+    // Try to use Node.js crypto module if available
+    if (typeof require !== 'undefined') {
+      try {
+        const nodeCrypto = require('crypto');
+        const buffer = nodeCrypto.randomBytes(length);
+        for (let i = 0; i < length; i++) {
+          result += chars.charAt(buffer[i] % chars.length);
+        }
+        return result;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn('Node.js crypto module not available, falling back to Math.random()');
+      }
+    }
+    
+    // SECURITY FIX: This is still using Math.random() but only as absolute last resort
+    // In practice, this should never execute in modern browsers or Node.js environments
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }

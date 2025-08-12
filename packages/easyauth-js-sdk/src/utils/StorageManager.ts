@@ -20,7 +20,13 @@ export class StorageManager {
     // Perform any initialization required for the storage type
     if (this.storageType === 'cookie') {
       // Ensure we can access document.cookie in browser environment
-      if (typeof document === 'undefined' || !document) {
+      try {
+        if (typeof document === 'undefined' || document === null || document === undefined) {
+          throw new Error('Cookie storage requires a browser environment');
+        }
+        // Test that we can actually access the cookie property
+        void document.cookie;
+      } catch (error) {
         throw new Error('Cookie storage requires a browser environment');
       }
     }
@@ -175,7 +181,7 @@ export class StorageManager {
     ];
 
     // Add Secure flag if served over HTTPS
-    if (typeof location !== 'undefined' && location && location.protocol === 'https:') {
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'https:') {
       cookieOptions.push('Secure');
     }
 

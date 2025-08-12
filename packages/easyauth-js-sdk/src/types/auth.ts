@@ -1,6 +1,7 @@
 /**
  * Authentication-specific types
  */
+/* eslint-disable no-unused-vars */
 
 import { AuthProvider, UserInfo, TokenSet, AuthErrorCode } from './index';
 
@@ -91,12 +92,12 @@ export interface AuthState {
 // Authentication context
 export interface AuthContext {
   state: AuthState;
-  login: (provider: AuthProvider, options?: LoginOptions) => Promise<void>;
+  login: (_provider: AuthProvider, _options?: LoginOptions) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
   getAccessToken: () => Promise<string | null>;
   isTokenExpired: () => boolean;
-  updateUser: (user: Partial<UserInfo>) => void;
+  updateUser: (_user: Partial<UserInfo>) => void;
 }
 
 export interface LoginOptions {

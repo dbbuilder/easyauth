@@ -47,6 +47,7 @@ export class EventEmitter {
           listener(...args);
         } catch (error) {
           // Log error but don't stop other listeners
+          // eslint-disable-next-line no-console
           console.error('Error in event listener:', error);
         }
       }

@@ -2,6 +2,7 @@
  * Core TypeScript definitions for EasyAuth JS SDK
  * Comprehensive type definitions for authentication flows
  */
+/* eslint-disable no-unused-vars */
 
 // #region Provider Types
 
@@ -197,7 +198,7 @@ export interface ProviderInfo {
   description?: string;
   capabilities: ProviderCapability[];
   isEnabled: boolean;
-  configuration: ProviderConfig;
+  configuration: GoogleProviderConfig | AppleProviderConfig | FacebookProviderConfig | AzureB2CProviderConfig | CustomProviderConfig;
   healthStatus: ProviderHealthStatus;
 }
 

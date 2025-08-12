@@ -15,10 +15,25 @@ export class URLValidator {
    */
   public static isValid(url: string): boolean {
     try {
+      // Basic validation
+      if (!url || typeof url !== 'string' || url.length === 0) {
+        return false;
+      }
+
       const parsed = new URL(url);
       
       // Check protocol
       if (!this.ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
+        return false;
+      }
+
+      // Check that hostname is not empty (catches malformed URLs like "http://")
+      if (!parsed.hostname || parsed.hostname.length === 0) {
+        return false;
+      }
+
+      // Check for obvious malformed patterns
+      if (parsed.hostname === '.' || parsed.hostname === '..') {
         return false;
       }
 
@@ -93,7 +108,19 @@ export class URLValidator {
    */
   public static getDomain(url: string): string | null {
     try {
+      // Basic validation first
+      if (!url || typeof url !== 'string' || url.length === 0) {
+        return null;
+      }
+
       const parsed = new URL(url);
+      
+      // Return null for invalid/malformed hostnames
+      if (!parsed.hostname || parsed.hostname.length === 0 || 
+          parsed.hostname === '.' || parsed.hostname === '..') {
+        return null;
+      }
+
       return parsed.hostname;
     } catch {
       return null;
@@ -104,13 +131,29 @@ export class URLValidator {
    * Check if we're in production environment
    */
   private static isProduction(): boolean {
-    if (typeof process !== 'undefined') {
+    // Check Node.js environment first
+    if (typeof process !== 'undefined' && process && process.env && process.env.NODE_ENV) {
       return process.env.NODE_ENV === 'production';
     }
 
-    // Browser heuristic
-    if (typeof location !== 'undefined') {
-      return location.protocol === 'https:' && !this.isLocalhost(location.hostname);
+    // Browser heuristic - check for location in different scopes
+    let loc = null;
+    
+    // Try window.location first (browser)
+    if (typeof window !== 'undefined' && window.location) {
+      loc = window.location;
+    }
+    // Try global location (browser globals)
+    else if (typeof location !== 'undefined') {
+      loc = location;
+    }
+    // Try global.location (test environment)
+    else if (typeof global !== 'undefined' && (global as any).location) {
+      loc = (global as any).location;
+    }
+                
+    if (loc && loc.protocol && loc.hostname) {
+      return loc.protocol === 'https:' && !this.isLocalhost(loc.hostname);
     }
 
     return false;
@@ -142,7 +185,24 @@ export class URLValidator {
    */
   public static isSuspicious(url: string): boolean {
     try {
+      // Basic validation - invalid URLs are suspicious
+      if (!url || typeof url !== 'string' || url.length === 0) {
+        return true;
+      }
+
       const parsed = new URL(url);
+      
+      // Invalid or malformed URLs are suspicious
+      if (!parsed.hostname || parsed.hostname.length === 0 || 
+          parsed.hostname === '.' || parsed.hostname === '..') {
+        return true;
+      }
+
+      // Invalid protocols are suspicious
+      if (!this.ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
+        return true;
+      }
+
       const hostname = parsed.hostname.toLowerCase();
 
       // Check for suspicious patterns

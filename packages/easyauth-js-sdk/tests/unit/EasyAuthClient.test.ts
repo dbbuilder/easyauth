@@ -4,7 +4,7 @@
  */
 
 import { EasyAuthClient } from '../../src/auth/EasyAuthClient';
-import { AuthProvider, AuthConfig, LoginRequest, AuthResult, SessionInfo, ProviderInfo } from '../../src/types';
+import { AuthProvider, AuthConfig, LoginRequest } from '../../src/types';
 
 describe('EasyAuthClient', () => {
   let client: EasyAuthClient;

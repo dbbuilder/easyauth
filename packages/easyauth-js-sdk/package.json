@@ -1,6 +1,7 @@
 {
   "name": "@easyauth/js-sdk",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
+  "type": "module",
   "description": "JavaScript/TypeScript SDK for EasyAuth Framework - Universal authentication for web applications",
   "keywords": [
     "authentication",
@@ -48,10 +49,10 @@
     "build:cjs": "rollup -c rollup.config.js --format cjs --file dist/cjs/index.js",
     "build:umd": "rollup -c rollup.config.js --format umd --name EasyAuth --file dist/umd/easyauth.js",
     "dev": "rollup -c rollup.config.js --format es --file dist/esm/index.js --watch",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --passWithNoTests",
+    "test": "jest --config jest.config.cjs",
+    "test:watch": "jest --config jest.config.cjs --watch",
+    "test:coverage": "jest --config jest.config.cjs --coverage",
+    "test:ci": "jest --config jest.config.cjs --ci --coverage --passWithNoTests",
     "lint": "eslint src/**/*.ts tests/**/*.ts --max-warnings 0",
     "lint:fix": "eslint src/**/*.ts tests/**/*.ts --fix",
     "typecheck": "tsc --noEmit",

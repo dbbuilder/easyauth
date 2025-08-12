@@ -11,7 +11,6 @@ import {
   ProviderHealthCheck,
   GoogleConfig
 } from '../types/providers';
-import { CryptoUtils } from '../utils/CryptoUtils';
 
 export class GoogleAuthProvider implements IAuthProvider {
   public readonly name = 'google' as const;
@@ -112,7 +111,8 @@ export class GoogleAuthProvider implements IAuthProvider {
   /**
    * Exchange authorization code for tokens
    */
-  public async exchangeCodeForTokens(code: string, state: string): Promise<TokenExchangeResult> {
+  // eslint-disable-next-line no-unused-vars
+  public async exchangeCodeForTokens(code: string, _state: string): Promise<TokenExchangeResult> {
     try {
       const body = new URLSearchParams();
       body.append('grant_type', 'authorization_code');

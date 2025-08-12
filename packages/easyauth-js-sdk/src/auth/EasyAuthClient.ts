@@ -12,6 +12,12 @@ import {
   SessionInfo,
   AuthProvider,
   ProviderInfo,
+  ProviderCapability,
+  GoogleProviderConfig,
+  AppleProviderConfig,
+  FacebookProviderConfig,
+  AzureB2CProviderConfig,
+  CustomProviderConfig,
   SessionValidationResult,
   TokenRefreshResult,
   UserInfo,
@@ -72,12 +78,34 @@ export class EasyAuthClient implements IEasyAuthClient {
     const providers: ProviderInfo[] = [];
     
     for (const [name, config] of Object.entries(this._config.providers)) {
-      if (config.enabled) {
+      // Skip if config is undefined or not enabled
+      if (!config || !this.isConfigEnabled(config)) {
+        continue;
+      }
+
+      // For custom providers, iterate through each one
+      if (name === 'custom' && typeof config === 'object' && !('clientId' in config)) {
+        for (const [customName, customConfig] of Object.entries(config)) {
+          if (customConfig.enabled) {
+            providers.push({
+              name: 'custom' as AuthProvider,
+              displayName: customName,
+              isEnabled: true,
+              configuration: customConfig,
+              capabilities: this.getProviderCapabilities('custom' as AuthProvider),
+              healthStatus: {
+                isHealthy: true, // TODO: Implement actual health check
+                lastChecked: new Date(),
+              },
+            });
+          }
+        }
+      } else if ('clientId' in config && config.enabled) {
         providers.push({
           name: name as AuthProvider,
           displayName: this.getProviderDisplayName(name as AuthProvider),
           isEnabled: true,
-          configuration: config,
+          configuration: config as GoogleProviderConfig | AppleProviderConfig | FacebookProviderConfig | AzureB2CProviderConfig | CustomProviderConfig,
           capabilities: this.getProviderCapabilities(name as AuthProvider),
           healthStatus: {
             isHealthy: true, // TODO: Implement actual health check
@@ -92,21 +120,63 @@ export class EasyAuthClient implements IEasyAuthClient {
 
   public async getProviderInfo(provider: AuthProvider): Promise<ProviderInfo | null> {
     const config = this._config.providers[provider];
-    if (!config) {
+    if (!config || !this.isConfigEnabled(config)) {
       return null;
     }
 
-    return {
-      name: provider,
-      displayName: this.getProviderDisplayName(provider),
-      isEnabled: config.enabled,
-      configuration: config,
-      capabilities: this.getProviderCapabilities(provider),
-      healthStatus: {
-        isHealthy: true, // TODO: Implement actual health check
-        lastChecked: new Date(),
-      },
-    };
+    // Handle custom providers
+    if (provider === 'custom' && typeof config === 'object' && !('clientId' in config)) {
+      // For custom providers, return info about the first enabled one
+      const firstCustom = Object.entries(config).find(([, customConfig]) => customConfig.enabled);
+      if (firstCustom) {
+        const [customName, customConfig] = firstCustom;
+        return {
+          name: provider,
+          displayName: customName,
+          isEnabled: true,
+          configuration: customConfig,
+          capabilities: this.getProviderCapabilities(provider),
+          healthStatus: {
+            isHealthy: true, // TODO: Implement actual health check
+            lastChecked: new Date(),
+          },
+        };
+      }
+      return null;
+    }
+
+    // Handle standard providers
+    if ('clientId' in config) {
+      return {
+        name: provider,
+        displayName: this.getProviderDisplayName(provider),
+        isEnabled: config.enabled as boolean,
+        configuration: config as GoogleProviderConfig | AppleProviderConfig | FacebookProviderConfig | AzureB2CProviderConfig | CustomProviderConfig,
+        capabilities: this.getProviderCapabilities(provider),
+        healthStatus: {
+          isHealthy: true, // TODO: Implement actual health check
+          lastChecked: new Date(),
+        },
+      };
+    }
+
+    return null;
+  }
+
+  private isConfigEnabled(config: any): boolean {
+    if (!config) return false;
+    
+    // For standard provider configs
+    if ('enabled' in config) {
+      return config.enabled;
+    }
+    
+    // For custom provider configs (Record<string, CustomProviderConfig>)
+    if (typeof config === 'object' && !('clientId' in config)) {
+      return Object.values(config).some((customConfig: any) => customConfig.enabled);
+    }
+    
+    return false;
   }
 
   // #endregion
@@ -509,8 +579,12 @@ export class EasyAuthClient implements IEasyAuthClient {
     const config = this._config.providers[provider]!;
     const baseUrl = this.getProviderAuthUrl(provider);
     
+    const clientId = typeof config === 'object' && 'clientId' in config 
+      ? String(config.clientId) 
+      : '';
+    
     const params = new URLSearchParams({
-      client_id: config.clientId,
+      client_id: clientId,
       redirect_uri: request.returnUrl,
       response_type: 'code',
       scope: (request.scopes || ['openid', 'email', 'profile']).join(' '),
@@ -558,8 +632,8 @@ export class EasyAuthClient implements IEasyAuthClient {
     }
   }
 
-  private getProviderCapabilities(provider: AuthProvider): string[] {
-    const baseCapabilities = ['oauth2', 'refresh_token', 'user_info'];
+  private getProviderCapabilities(provider: AuthProvider): ProviderCapability[] {
+    const baseCapabilities: ProviderCapability[] = ['oauth2', 'refresh_token', 'user_info'];
     
     switch (provider) {
       case 'google':
@@ -574,11 +648,13 @@ export class EasyAuthClient implements IEasyAuthClient {
   }
 
   private async exchangeCodeForTokens(
-    code: string, 
-    provider: AuthProvider, 
-    stateData: any
+    _code: string, 
+    _provider: AuthProvider, 
+    _stateData: any
   ): Promise<any> {
     // Mock implementation - in real implementation, call token endpoint
+    // These parameters are intentionally unused in the mock
+    void _code; void _provider; void _stateData;
     return {
       accessToken: 'mock-access-token',
       refreshToken: 'mock-refresh-token',
@@ -638,7 +714,8 @@ export class EasyAuthClient implements IEasyAuthClient {
     return null;
   }
 
-  private async refreshTokens(refreshToken: string, provider: AuthProvider): Promise<any> {
+  // eslint-disable-next-line no-unused-vars
+  private async refreshTokens(_refreshToken: string, _provider: AuthProvider): Promise<any> {
     // Mock implementation - in real implementation, call refresh endpoint
     return {
       accessToken: 'new-mock-access-token',

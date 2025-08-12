@@ -3,7 +3,6 @@
  * Handles CSRF protection via state parameters
  */
 
-import { CryptoUtils } from './CryptoUtils';
 
 interface StateData {
   provider: string;

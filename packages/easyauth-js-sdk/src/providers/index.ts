@@ -3,8 +3,10 @@
  * OAuth 2.0 providers for various identity platforms
  */
 
-// Export implemented providers
-export { GoogleAuthProvider } from './GoogleAuthProvider';
+// Import and export implemented providers
+import { GoogleAuthProvider } from './GoogleAuthProvider';
+
+export { GoogleAuthProvider };
 
 // TODO: Implement remaining provider classes
 // export { AppleAuthProvider } from './AppleAuthProvider';

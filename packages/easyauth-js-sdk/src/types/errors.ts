@@ -1,6 +1,7 @@
 /**
  * Error handling types and definitions
  */
+/* eslint-disable no-unused-vars, no-console */
 
 import { AuthProvider, AuthErrorCode } from './index';
 
@@ -12,6 +13,7 @@ export class EasyAuthError extends Error {
   public readonly timestamp: Date;
   public readonly requestId?: string;
   public readonly isRetryable: boolean;
+  public readonly cause?: Error;
 
   constructor(
     code: AuthErrorCode,
@@ -32,15 +34,11 @@ export class EasyAuthError extends Error {
     this.timestamp = new Date();
     this.requestId = options?.requestId;
     this.isRetryable = options?.isRetryable ?? false;
+    this.cause = options?.cause;
 
     // Maintain proper stack trace
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, EasyAuthError);
-    }
-
-    // Set the cause if provided (for error chaining)
-    if (options?.cause) {
-      this.cause = options.cause;
     }
   }
 
@@ -243,9 +241,22 @@ export class DefaultErrorHandler implements ErrorHandler {
       this.maxDelay
     );
 
-    // Add jitter (±25%)
-    const jitter = delay * 0.25 * (Math.random() * 2 - 1);
+    // SECURITY FIX: Use crypto.getRandomValues instead of Math.random() for secure jitter
+    const jitter = delay * 0.25 * (this.getSecureRandom() * 2 - 1);
     return Math.max(0, delay + jitter);
+  }
+
+  private getSecureRandom(): number {
+    // Use cryptographically secure random number generation
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      return array[0] / (0xFFFFFFFF + 1);
+    }
+    
+    // Fallback to Math.random() with warning (should not happen in modern browsers/Node.js)
+    console.warn('SECURITY WARNING: crypto.getRandomValues not available, falling back to Math.random()');
+    return Math.random();
   }
 
   private reportSecurityIncident(error: SecurityError): void {

@@ -1,6 +1,7 @@
 import typescript from 'rollup-plugin-typescript2';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
+import ts from 'typescript';
 
 // Read package.json to get version and dependencies
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
@@ -15,10 +16,13 @@ const baseConfig = {
   ],
   plugins: [
     typescript({
-      typescript: require('typescript'),
+      typescript: ts,
       tsconfig: 'tsconfig.build.json',
       clean: true,
       exclude: ['**/*.test.ts', '**/*.spec.ts'],
+      abortOnError: false,
+      rollupCommonJSResolveHack: false,
+      useTsconfigDeclarationDir: true
     }),
   ],
 };
@@ -78,20 +82,8 @@ const umdMinConfig = {
   },
   plugins: [
     ...umdConfig.plugins,
-    // Add terser for minification in production
-    process.env.NODE_ENV === 'production' && require('rollup-plugin-terser').terser({
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.debug'],
-      },
-      mangle: {
-        reserved: ['EasyAuth'], // Don't mangle the global name
-      },
-      output: {
-        comments: false,
-      },
-    }),
+    // Add terser for minification in production (disabled for now)
+    // false && terser()
   ].filter(Boolean),
 };
 

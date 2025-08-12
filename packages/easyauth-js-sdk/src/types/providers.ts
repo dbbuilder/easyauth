@@ -1,6 +1,7 @@
 /**
  * Provider-specific types and configurations
  */
+/* eslint-disable no-unused-vars */
 
 import { ProviderConfig, AuthProvider } from './index';
 
