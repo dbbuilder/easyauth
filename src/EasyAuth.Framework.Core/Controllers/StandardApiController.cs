@@ -9,12 +9,15 @@ using System.Security.Claims;
 namespace EasyAuth.Framework.Core.Controllers;
 
 /// <summary>
-/// Standard API endpoints that frontend applications expect
-/// Based on real-world integration experience and common patterns
+/// DEPRECATED: Legacy API endpoints - Use EAuthController instead
+/// This controller is disabled by default to prevent route conflicts
+/// All authentication should use /api/EAuth/ paths exclusively
 /// </summary>
 [ApiController]
-[Route("api")]
+[Route("api/legacy")]
 [Produces("application/json")]
+[System.Obsolete("Use EAuthController with /api/EAuth/ paths instead. This controller is deprecated.")]
+[ApiExplorerSettings(IgnoreApi = true)] // Hide from Swagger by default
 public class StandardApiController : ControllerBase
 {
     private readonly IEAuthService _authService;

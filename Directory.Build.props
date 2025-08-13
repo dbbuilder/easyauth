@@ -46,11 +46,11 @@
     <TrimMode>link</TrimMode>
     
     <!-- Versioning -->
-    <Version>2.4.2</Version>
+    <Version>2.4.3</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <PackageReleaseNotes><![CDATA[v2.4.2 Security & Excellence Release: Achieved zero-vulnerability security posture with comprehensive vulnerability resolution. Completed Phases 1-5 of development roadmap including frontend validation, performance testing with graceful OAuth degradation, 100% API documentation coverage, and security hardening. All high and moderate severity vulnerabilities resolved. Enhanced test infrastructure with NBomber performance testing and graceful operation without OAuth provider configuration. Production-ready security compliance with OWASP, NIST, and SOC 2 standards. Foundation complete for TypeScript SDK development in v2.5.0.]]></PackageReleaseNotes>
+    <PackageReleaseNotes><![CDATA[v2.4.3 Controller Consolidation & Swagger Enhancement: Resolved controller conflicts between StandardApiController and EAuthController. StandardApiController deprecated and moved to /api/legacy with IgnoreApi attribute. Enhanced EAuthController with comprehensive Swagger documentation and critical API path warnings. Fixed missing MapEasyAuth() method with proper controller mapping, endpoint logging, and Swagger visibility. Created extensive documentation for MapEasyAuth() integration, dependency version conflicts, and OAuth setup CLI with Azure B2C Graph API provisioning. All OAuth endpoints now properly visible in Swagger under /api/EAuth/ paths exclusively.]]></PackageReleaseNotes>
     
     <!-- Multi-targeting configuration for .NET 8 and .NET 9 support -->
     <EasyAuthTargetFrameworks>net8.0</EasyAuthTargetFrameworks>

@@ -804,8 +804,18 @@
         </member>
         <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.GetCurrentUser">
             <summary>
-            Get current user information
+            Check authentication status and get current user information
             </summary>
+            <returns>Current user information if authenticated, null if not</returns>
+            <response code="200">User information retrieved successfully</response>
+            <response code="401">User not authenticated</response>
+            <response code="500">Internal server error occurred</response>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.GetCurrentUserLegacy">
+            <summary>
+            Legacy endpoint alias for user information (redirects to /user)
+            </summary>
+            <returns>Current user information if authenticated</returns>
         </member>
         <member name="M:EasyAuth.Framework.Core.Controllers.EAuthController.ValidateSession(System.String)">
             <summary>
@@ -844,8 +854,9 @@
         </member>
         <member name="T:EasyAuth.Framework.Core.Controllers.StandardApiController">
             <summary>
-            Standard API endpoints that frontend applications expect
-            Based on real-world integration experience and common patterns
+            DEPRECATED: Legacy API endpoints - Use EAuthController instead
+            This controller is disabled by default to prevent route conflicts
+            All authentication should use /api/EAuth/ paths exclusively
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.CheckAuthStatus">
@@ -1032,9 +1043,19 @@
         <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.MapEasyAuthEndpoints(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
             <summary>
             Maps EasyAuth endpoints with enhanced Swagger documentation
+            CRITICAL: All EasyAuth OAuth endpoints use /api/EAuth/ paths exclusively
             </summary>
             <param name="app">Application builder</param>
             <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.MapEasyAuth(Microsoft.AspNetCore.Builder.WebApplication,System.Action{Microsoft.AspNetCore.Routing.IEndpointRouteBuilder})">
+            <summary>
+            Maps all EasyAuth OAuth endpoints and controllers
+            CRITICAL: This method activates ALL EasyAuth authentication endpoints under /api/EAuth/
+            </summary>
+            <param name="app">Web application builder</param>
+            <param name="configureEndpoints">Optional endpoint configuration</param>
+            <returns>Web application for chaining</returns>
         </member>
         <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.UseEasyAuthComplete(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Action{Microsoft.AspNetCore.Builder.IApplicationBuilder})">
             <summary>

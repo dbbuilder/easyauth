@@ -26,10 +26,10 @@ export class EasyAuthClient implements IEasyAuthClient {
   public readonly config: EasyAuthConfig;
   public session: AuthSession;
   
-  private readonly httpClient: HttpClient;
-  private readonly storage: StorageAdapter;
-  private readonly logger: Logger;
-  private readonly eventEmitter: EventEmitter;
+  protected readonly httpClient: HttpClient;
+  protected readonly storage: StorageAdapter;
+  protected readonly logger: Logger;
+  protected readonly eventEmitter: EventEmitter;
   
   private static readonly STORAGE_KEY = 'easyauth_session';
   
@@ -460,7 +460,7 @@ export class EasyAuthClient implements IEasyAuthClient {
     return new Date() >= this.session.expiresAt;
   }
   
-  private handleError(error: unknown): AuthError {
+  protected handleError(error: unknown): AuthError {
     if (error instanceof Error) {
       return {
         code: 'UNKNOWN_ERROR',
@@ -476,7 +476,7 @@ export class EasyAuthClient implements IEasyAuthClient {
     };
   }
   
-  private emitEvent(event: AuthEvent, data?: AuthEventData): void {
+  protected emitEvent(event: AuthEvent, data?: AuthEventData): void {
     this.eventEmitter.emit(event, data);
   }
 }

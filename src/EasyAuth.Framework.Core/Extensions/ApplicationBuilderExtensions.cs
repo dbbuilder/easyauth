@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -174,6 +175,7 @@ public static class ApplicationBuilderExtensions
 
     /// <summary>
     /// Maps EasyAuth endpoints with enhanced Swagger documentation
+    /// CRITICAL: All EasyAuth OAuth endpoints use /api/EAuth/ paths exclusively
     /// </summary>
     /// <param name="app">Application builder</param>
     /// <returns>Application builder for chaining</returns>
@@ -190,6 +192,38 @@ public static class ApplicationBuilderExtensions
         {
             webApp.MapHealthChecks("/health");
         }
+
+        return app;
+    }
+
+    /// <summary>
+    /// Maps all EasyAuth OAuth endpoints and controllers
+    /// CRITICAL: This method activates ALL EasyAuth authentication endpoints under /api/EAuth/
+    /// </summary>
+    /// <param name="app">Web application builder</param>
+    /// <param name="configureEndpoints">Optional endpoint configuration</param>
+    /// <returns>Web application for chaining</returns>
+    public static WebApplication MapEasyAuth(this WebApplication app, Action<IEndpointRouteBuilder>? configureEndpoints = null)
+    {
+        // Map EasyAuth controllers (this activates all OAuth endpoints)
+        app.MapControllers();
+
+        // Add EasyAuth-specific endpoints
+        app.MapEasyAuthEndpoints();
+
+        // Configure custom endpoints if provided
+        configureEndpoints?.Invoke(app);
+
+        // Log available endpoints for developer awareness
+        var loggerFactory = app.Services.GetService<ILoggerFactory>();
+        var logger = loggerFactory?.CreateLogger("EasyAuth.Extensions");
+        logger?.LogInformation("🔗 EasyAuth OAuth endpoints mapped:");
+        logger?.LogInformation("   ✅ /api/EAuth/providers - Get available authentication providers");
+        logger?.LogInformation("   ✅ /api/EAuth/login - Initiate OAuth login with provider");
+        logger?.LogInformation("   ✅ /api/EAuth/callback/{{provider}} - Handle OAuth callback from provider");
+        logger?.LogInformation("   ✅ /api/EAuth/user - Get current authenticated user info");
+        logger?.LogInformation("   ✅ /api/EAuth/logout - Logout current user session");
+        logger?.LogInformation("   ⚠️  CRITICAL: EasyAuth uses EXCLUSIVE /api/EAuth/ paths (NOT /api/auth/)");
 
         return app;
     }

@@ -13,6 +13,7 @@
     <!-- Only project-specific packages remain here -->
     <!-- Updated to compatible versions to avoid dependency conflicts -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,13 +1,14 @@
 /**
  * EasyAuth SDK - TypeScript authentication client
  * 
- * @version 1.0.0
+ * @version 2.0.0
  * @author EasyAuth Development Team
  * @license MIT
  */
 
-// Main client
+// Main clients
 export { EasyAuthClient } from './client/EasyAuthClient';
+export { EnhancedEasyAuthClient } from './client/EnhancedEasyAuthClient';
 
 // Core types
 export type {
@@ -27,7 +28,13 @@ export type {
   RequestConfig,
   ApiResponse,
   StorageAdapter,
-  Logger
+  Logger,
+  
+  // Enhanced provider-specific types
+  GoogleUserProfile,
+  FacebookUserProfile,
+  AppleUserProfile,
+  AzureB2CUserProfile
 } from './types';
 
 // Utility classes for advanced usage
@@ -40,5 +47,36 @@ export {
 export { ConsoleLogger, NoOpLogger } from './utils/logger';
 export { EventEmitter } from './utils/event-emitter';
 
-// Default export for convenient usage
-export { EasyAuthClient as default } from './client/EasyAuthClient';
+// Enhanced utilities
+export { 
+  detectEnvironment,
+  getOptimalStorageAdapter,
+  supportsOAuthPopup,
+  supportsOAuthRedirect
+} from './utils/environment';
+
+export {
+  CredentialHelper,
+  createQuickSetup
+} from './utils/credential-helper';
+
+// State management integrations
+export {
+  StateManagementConnector,
+  createReduxReducer,
+  createZustandStore,
+  createPiniaStore,
+  reduxAuthActions
+} from './integrations/state-management';
+
+export type {
+  ReduxAuthState,
+  ZustandAuthStore,
+  PiniaAuthState,
+  ReactAuthContextValue,
+  StateStore,
+  StateDispatch
+} from './integrations/state-management';
+
+// Default export for convenient usage (Enhanced client)
+export { EnhancedEasyAuthClient as default } from './client/EnhancedEasyAuthClient';

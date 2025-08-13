@@ -178,10 +178,94 @@ namespace EasyAuth.Framework.Core.Controllers
         }
 
         /// <summary>
-        /// Get current user information
+        /// Check authentication status and get current user information
         /// </summary>
-        [HttpGet("me")]
+        /// <returns>Current user information if authenticated, null if not</returns>
+        /// <response code="200">User information retrieved successfully</response>
+        /// <response code="401">User not authenticated</response>
+        /// <response code="500">Internal server error occurred</response>
+        [HttpGet("user")]
+        [SwaggerOperation(
+            Summary = "Get current authenticated user",
+            Description = @"
+🔍 **Check authentication status** and get comprehensive user information.
+
+**Use this endpoint to:**
+- Check if user is currently authenticated
+- Get complete user profile information
+- Retrieve provider-specific claims data
+- Validate token expiry status
+
+**Response includes:**
+- User ID, email, name, and avatar
+- Complete claims dictionary from OAuth provider
+- Provider identification (google, facebook, apple, azure-b2c)
+- Authentication timestamps and expiry info
+
+**CRITICAL PATH: /api/EAuth/user (NOT /api/auth/user)**
+
+**Example Response:**
+```json
+{
+  ""success"": true,
+  ""data"": {
+    ""id"": ""12345"",
+    ""email"": ""user@example.com"",
+    ""name"": ""John Doe"",
+    ""provider"": ""google"",
+    ""claims"": {
+      ""sub"": ""12345"",
+      ""email_verified"": true
+    }
+  }
+}
+```",
+            Tags = new[] { "Authentication" }
+        )]
+        [SwaggerResponse(200, "Current user information", typeof(EAuthResponse<UserInfo>))]
+        [SwaggerResponse(401, "User not authenticated", typeof(EAuthResponse<UserInfo>))]
+        [SwaggerResponse(500, "Internal server error", typeof(EAuthResponse<UserInfo>))]
         public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var result = await _eauthService.GetCurrentUserAsync().ConfigureAwait(false);
+                
+                if (result.Success && result.Data != null)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return Unauthorized(new EAuthResponse<UserInfo>
+                    {
+                        Success = false,
+                        Message = "User not authenticated",
+                        ErrorCode = "NOT_AUTHENTICATED",
+                        Data = null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving current user information");
+                return StatusCode(500, new EAuthResponse<UserInfo>
+                {
+                    Success = false,
+                    Message = "Internal server error retrieving user information",
+                    ErrorCode = "USER_INFO_ERROR"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Legacy endpoint alias for user information (redirects to /user)
+        /// </summary>
+        /// <returns>Current user information if authenticated</returns>
+        [HttpGet("me")]
+        [ApiExplorerSettings(IgnoreApi = true)] // Hide from Swagger - use /user instead
+        [System.Obsolete("Use GET /api/EAuth/user instead for consistency")]
+        public async Task<IActionResult> GetCurrentUserLegacy()
         {
             try
             {

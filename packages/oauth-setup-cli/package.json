@@ -1,19 +1,17 @@
 {
-  "name": "@easyauth/sdk",
-  "version": "2.0.0",
-  "description": "TypeScript SDK for EasyAuth Framework - Universal authentication client with multi-environment support",
+  "name": "@easyauth/oauth-setup",
+  "version": "1.0.0",
+  "description": "Automated OAuth application setup CLI for EasyAuth Framework",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/"
-  ],
+  "bin": {
+    "easyauth-setup": "dist/cli.js",
+    "easyauth-oauth": "dist/cli.js"
+  },
   "scripts": {
-    "build": "rollup -c",
-    "build:watch": "rollup -c --watch",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "typecheck": "tsc --noEmit",
@@ -21,40 +19,49 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
-    "authentication",
     "oauth",
-    "typescript",
-    "sdk",
+    "authentication",
+    "cli",
+    "setup",
+    "automation",
     "easyauth",
-    "framework"
+    "google",
+    "facebook",
+    "apple",
+    "azure"
   ],
   "author": "EasyAuth Development Team",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbbuilder/easyauth.git",
-    "directory": "packages/sdk"
+    "directory": "packages/oauth-setup-cli"
   },
   "bugs": {
     "url": "https://github.com/dbbuilder/easyauth/issues"
   },
   "homepage": "https://github.com/dbbuilder/easyauth#readme",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "yaml": "^2.3.4",
+    "node-fetch": "^3.3.2",
+    "jsonwebtoken": "^9.0.2"
+  },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/inquirer": "^9.0.7",
     "@types/jest": "^29.5.5",
+    "@types/node": "^20.8.6",
+    "@types/jsonwebtoken": "^9.0.3",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "eslint": "^8.50.0",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
     "rimraf": "^5.0.5",
-    "rollup": "^3.29.4",
-    "rollup-plugin-dts": "^6.1.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
-  },
-  "peerDependencies": {
-    "typescript": ">=4.9.0"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -62,7 +69,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "tslib": "^2.8.1"
-  }
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

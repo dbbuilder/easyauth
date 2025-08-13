@@ -8,6 +8,26 @@ export interface EasyAuthConfig {
   timeout?: number;
   retryAttempts?: number;
   enableLogging?: boolean;
+  
+  // Enhanced configuration options
+  environment?: 'development' | 'staging' | 'production';
+  useDevCredentials?: boolean;
+  enableStateManagement?: boolean;
+  stateManagementType?: 'redux' | 'zustand' | 'pinia' | 'context';
+  
+  // OAuth proxy configuration for simplified setup
+  useOAuthProxy?: boolean;
+  proxyConfig?: {
+    url: string;
+    apiKey?: string;
+    timeout?: number;
+  };
+  
+  // Advanced features
+  enableTokenAutoRefresh?: boolean;
+  refreshThresholdMinutes?: number;
+  enableSessionPersistence?: boolean;
+  storageType?: 'localStorage' | 'sessionStorage' | 'memory';
 }
 
 export interface UserProfile {
@@ -52,6 +72,52 @@ export interface AuthError {
 }
 
 export type AuthProvider = 'google' | 'apple' | 'facebook' | 'azure-b2c' | 'custom';
+
+// Enhanced provider-specific types
+export interface GoogleUserProfile extends UserProfile {
+  provider: 'google';
+  googleId: string;
+  familyName?: string;
+  givenName?: string;
+  locale?: string;
+  picture?: string;
+  verifiedEmail?: boolean;
+}
+
+export interface FacebookUserProfile extends UserProfile {
+  provider: 'facebook';
+  facebookId: string;
+  firstName?: string;
+  lastName?: string;
+  locale?: string;
+  timezone?: number;
+  gender?: string;
+  ageRange?: {
+    min: number;
+    max?: number;
+  };
+}
+
+export interface AppleUserProfile extends UserProfile {
+  provider: 'apple';
+  appleId: string;
+  isPrivateEmail?: boolean;
+  realUserStatus?: 'likelyReal' | 'unknown' | 'unsupported';
+}
+
+export interface AzureB2CUserProfile extends UserProfile {
+  provider: 'azure-b2c';
+  azureId: string;
+  tenantId?: string;
+  userPrincipalName?: string;
+  displayName?: string;
+  jobTitle?: string;
+  department?: string;
+  companyName?: string;
+  country?: string;
+  city?: string;
+  postalCode?: string;
+}
 
 export interface ProviderConfig {
   clientId: string;
