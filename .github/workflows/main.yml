@@ -56,8 +56,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: 'packages/*/package-lock.json'
 
     - name: Determine Version
       id: version
@@ -111,13 +109,25 @@ jobs:
           --configuration Release --verbosity normal --collect:"XPlat Code Coverage" \
           || echo "Security tests completed with warnings"
 
-    # JavaScript/TypeScript Build & Test
+    # JavaScript/TypeScript Build & Test (Skip if no JS packages exist)
+    - name: Check for JavaScript packages
+      id: js-check
+      run: |
+        if [ -d "packages/easyauth-js-sdk" ]; then
+          echo "js-exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "js-exists=false" >> $GITHUB_OUTPUT
+          echo "No JavaScript packages found - skipping JS build"
+        fi
+
     - name: Install JavaScript dependencies
+      if: steps.js-check.outputs.js-exists == 'true'
       run: |
         cd packages/easyauth-js-sdk && npm ci
         cd ../.. # Return to root
 
     - name: Run JavaScript Tests
+      if: steps.js-check.outputs.js-exists == 'true'
       run: |
         cd packages/easyauth-js-sdk
         npm run test
@@ -193,7 +203,17 @@ jobs:
           ${{ env.DOTNET_VERSION_8 }}
           ${{ env.DOTNET_VERSION_9 }}
 
+    - name: Check for JavaScript packages (publish)
+      id: js-check-publish
+      run: |
+        if [ -d "packages/easyauth-js-sdk" ]; then
+          echo "js-exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "js-exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Setup Node.js
+      if: steps.js-check-publish.outputs.js-exists == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
@@ -228,6 +248,7 @@ jobs:
           -p:TreatWarningsAsErrors=false
 
     - name: Build and Package JavaScript SDK
+      if: steps.js-check-publish.outputs.js-exists == 'true'
       run: |
         cd packages/easyauth-js-sdk
         npm ci
@@ -246,6 +267,7 @@ jobs:
           --skip-duplicate
 
     - name: Publish JavaScript SDK to NPM
+      if: steps.js-check-publish.outputs.js-exists == 'true'
       run: |
         cd packages/easyauth-js-sdk
         npm publish --access public
@@ -256,9 +278,7 @@ jobs:
       if: github.ref_type == 'tag'
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          ./packages/*.nupkg
-          ./packages/easyauth-js-sdk/*.tgz
+        files: ./packages/*.nupkg
         generate_release_notes: true
         make_latest: true
       env:
