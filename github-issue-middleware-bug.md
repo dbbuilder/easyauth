@@ -199,4 +199,31 @@ The error occurs during the `WebApplicationBuilder.Build()` phase when ASP.NET C
 
 ---
 
+## Update: v2.3.1 Testing Results
+
+**CONFIRMED**: The CorrelationIdMiddleware registration bug **STILL EXISTS** in v2.3.1.
+
+### Test Results
+- **Date Tested**: 2025-08-12
+- **Version**: EasyAuth.Framework v2.3.1 + EasyAuth.Framework.Core v2.3.1
+- **Result**: SAME ERROR - Application startup crash with identical stack trace
+
+```
+System.AggregateException: Some services are not able to be constructed 
+(Error while validating the service descriptor 'ServiceType: EasyAuth.Framework.Core.Extensions.CorrelationIdMiddleware 
+Lifetime: Singleton ImplementationType: EasyAuth.Framework.Core.Extensions.CorrelationIdMiddleware': 
+Unable to resolve service for type 'Microsoft.AspNetCore.Http.RequestDelegate' 
+while attempting to activate 'EasyAuth.Framework.Core.Extensions.CorrelationIdMiddleware'.)
+```
+
+### Impact
+- **ALL VERSIONS 2.2.0+ ARE UNUSABLE** due to this bug
+- Framework is completely blocked for production use
+- Community adoption severely impacted
+
+### Recommendation
+The proposed Solution 1 (removing `services.AddSingleton<CorrelationIdMiddleware>()`) needs immediate implementation.
+
+---
+
 **Please prioritize this issue as it completely blocks framework adoption. Happy to provide additional testing, reproduction cases, or implementation assistance.**

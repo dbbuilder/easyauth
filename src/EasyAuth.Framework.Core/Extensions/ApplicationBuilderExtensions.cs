@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using EasyAuth.Framework.Core.Configuration;
+using EasyAuth.Framework.Core.Security;
 using Microsoft.Extensions.Options;
 
 namespace EasyAuth.Framework.Core.Extensions;
@@ -17,8 +18,9 @@ public static class ApplicationBuilderExtensions
     /// Provides zero-configuration development experience with auto-CORS detection
     /// </summary>
     /// <param name="app">Application builder</param>
+    /// <param name="enableSecurity">Whether to enable comprehensive security middleware (default: true)</param>
     /// <returns>Application builder for chaining</returns>
-    public static IApplicationBuilder UseEasyAuth(this IApplicationBuilder app)
+    public static IApplicationBuilder UseEasyAuth(this IApplicationBuilder app, bool enableSecurity = true)
     {
         var environment = app.ApplicationServices.GetService<IHostEnvironment>();
         var isDevelopment = environment?.IsDevelopment() == true;
@@ -27,8 +29,20 @@ public static class ApplicationBuilderExtensions
         var options = app.ApplicationServices.GetService<IOptions<EAuthOptions>>()?.Value;
         var isSwaggerEnabled = options?.Framework?.EnableSwagger ?? true;
 
-        // Add correlation ID middleware first (for request tracing)
+        // Add security headers first
+        if (enableSecurity)
+        {
+            app.UseSecurityHeaders(isDevelopment);
+        }
+
+        // Add correlation ID middleware (for request tracing)
         app.UseMiddleware<CorrelationIdMiddleware>();
+
+        // Add comprehensive security middleware if enabled
+        if (enableSecurity)
+        {
+            app.UseEasyAuthSecurity();
+        }
 
         // Add EasyAuth Swagger UI in development
         if (isSwaggerEnabled && isDevelopment)
@@ -65,6 +79,12 @@ public static class ApplicationBuilderExtensions
         // Add authentication middleware (order is important)
         app.UseAuthentication();
         app.UseAuthorization();
+
+        // Add security audit logging if enabled
+        if (enableSecurity)
+        {
+            app.UseSecurityAuditLogging();
+        }
 
         return app;
     }

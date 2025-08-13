@@ -334,6 +334,7 @@
         <member name="T:EasyAuth.Framework.Core.Configuration.FacebookOptions">
             <summary>
             Facebook OAuth authentication provider configuration
+            Enhanced v2.4.0 with API v19+, business features, and Instagram integration
             </summary>
         </member>
         <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.Enabled">
@@ -356,14 +357,113 @@
             OAuth callback path for Facebook sign-in
             </summary>
         </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.RedirectUri">
+            <summary>
+            Custom redirect URI for Facebook authentication
+            If not specified, will use default based on host
+            </summary>
+        </member>
         <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.Scopes">
             <summary>
             OAuth scopes to request from Facebook
             </summary>
         </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.UseLongLivedTokens">
+            <summary>
+            Whether to use long-lived access tokens (60 days vs 2 hours)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.UseMockTokensOnFailure">
+            <summary>
+            Whether to use mock tokens when Facebook service is unavailable (development only)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.DisplayMode">
+            <summary>
+            Display mode for Facebook login dialog
+            Valid values: page, popup, touch, wap
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.Locale">
+            <summary>
+            Locale for Facebook login dialog
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.Business">
+            <summary>
+            Facebook Business Login configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookOptions.Instagram">
+            <summary>
+            Instagram integration configuration
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions">
+            <summary>
+            Facebook Business Login configuration options
+            Enhanced v2.4.0 with comprehensive business asset management
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.EnableBusinessLogin">
+            <summary>
+            Whether to enable Facebook Business Login features
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.BusinessId">
+            <summary>
+            Facebook Business ID for business login
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.Scopes">
+            <summary>
+            Business-specific scopes to request
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.IncludeBusinessAssets">
+            <summary>
+            Whether to retrieve detailed business asset information (Pages, Ad Accounts)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.IncludeBusinessRoles">
+            <summary>
+            Whether to include business roles and permissions in claims
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.MaxPagesLimit">
+            <summary>
+            Maximum number of business pages to retrieve per request
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.ValidateBusinessPermissions">
+            <summary>
+            Whether to validate business permissions on each request
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookBusinessOptions.RequiredBusinessRole">
+            <summary>
+            Required business role level (Admin, Editor, Analyst, etc.)
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.FacebookInstagramOptions">
+            <summary>
+            Facebook Instagram integration configuration options
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookInstagramOptions.EnableInstagramIntegration">
+            <summary>
+            Whether to enable Instagram integration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.FacebookInstagramOptions.Scopes">
+            <summary>
+            Instagram-specific scopes to request
+            </summary>
+        </member>
         <member name="T:EasyAuth.Framework.Core.Configuration.AppleOptions">
             <summary>
             Apple Sign-In authentication provider configuration
+            Enhanced v2.4.0 with comprehensive token validation and private email relay support
             </summary>
         </member>
         <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.Enabled">
@@ -386,6 +486,12 @@
             Apple Key ID for JWT signing
             </summary>
         </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.PrivateKey">
+            <summary>
+            Apple private key in PKCS#8 format (Base64 encoded)
+            Required for production ES256 JWT signing
+            </summary>
+        </member>
         <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.ClientSecret">
             <summary>
             Client secret - will be loaded from Key Vault if configured
@@ -402,9 +508,165 @@
             OAuth callback path for Apple Sign-In
             </summary>
         </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.RedirectUri">
+            <summary>
+            Custom redirect URI for Apple authentication
+            If not specified, will use default based on host
+            </summary>
+        </member>
         <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.Scopes">
             <summary>
             OAuth scopes to request from Apple
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.UseMockTokensOnFailure">
+            <summary>
+            Whether to use mock tokens when Apple service is unavailable (development only)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.TokenValidation">
+            <summary>
+            Token validation settings
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.PrivateEmail">
+            <summary>
+            Private email relay handling settings
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleOptions.Flow">
+            <summary>
+            Web vs native app flow settings
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions">
+            <summary>
+            Apple token validation configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions.ValidateSignature">
+            <summary>
+            Whether to validate token signatures against Apple's public keys
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions.ValidateIssuer">
+            <summary>
+            Whether to validate token issuer
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions.ValidateAudience">
+            <summary>
+            Whether to validate token audience
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions.ValidateLifetime">
+            <summary>
+            Whether to validate token expiration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions.ClockSkewSeconds">
+            <summary>
+            Clock skew tolerance in seconds
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleTokenValidationOptions.KeyCacheDurationMinutes">
+            <summary>
+            Cache duration for Apple public keys in minutes
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.ApplePrivateEmailOptions">
+            <summary>
+            Apple private email relay configuration
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.ApplePrivateEmailOptions.HandlePrivateRelay">
+            <summary>
+            Whether to handle private email relay addresses
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.ApplePrivateEmailOptions.LogPrivateRelayDetection">
+            <summary>
+            Whether to log when private relay emails are detected
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.ApplePrivateEmailOptions.PrivateUserDisplayPrefix">
+            <summary>
+            Custom prefix for private relay user display names
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.ApplePrivateEmailOptions.StorePrivateRelayEmails">
+            <summary>
+            Whether to store private relay emails in database
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.AppleFlowOptions">
+            <summary>
+            Apple Sign-In flow configuration for web vs native apps
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleFlowOptions.DefaultFlow">
+            <summary>
+            Default flow type for Apple Sign-In
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleFlowOptions.ResponseMode">
+            <summary>
+            Response mode for Apple authentication
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleFlowOptions.IncludeNonce">
+            <summary>
+            Whether to include nonce in authentication requests
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleFlowOptions.NativeApp">
+            <summary>
+            Native app configuration (for iOS/macOS apps)
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.AppleFlowType">
+            <summary>
+            Apple Sign-In flow types
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.AppleFlowType.Web">
+            <summary>
+            Web browser-based flow
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.AppleFlowType.Native">
+            <summary>
+            Native iOS/macOS app flow
+            </summary>
+        </member>
+        <member name="F:EasyAuth.Framework.Core.Configuration.AppleFlowType.Hybrid">
+            <summary>
+            Hybrid flow supporting both web and native
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Configuration.AppleNativeAppOptions">
+            <summary>
+            Native app configuration for Apple Sign-In
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleNativeAppOptions.BundleId">
+            <summary>
+            iOS bundle identifier
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleNativeAppOptions.MacOsBundleId">
+            <summary>
+            macOS bundle identifier
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleNativeAppOptions.CustomUrlScheme">
+            <summary>
+            Custom URL scheme for native app callbacks
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Configuration.AppleNativeAppOptions.SupportUniversalLinks">
+            <summary>
+            Whether to support universal links
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Configuration.FrameworkSettings">
@@ -589,8 +851,59 @@
         <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.CheckAuthStatus">
             <summary>
             Check authentication status - the most commonly needed endpoint
-            Frontend apps call this to determine if user is logged in
             </summary>
+            <remarks>
+            Frontend apps call this to determine if user is logged in and get complete user information.
+            
+            **Response includes comprehensive claims data:**
+            - All standard user properties (id, email, name, etc.)
+            - Complete `claims` dictionary with provider-specific data
+            - Provider identification for handling different auth sources
+            - Token expiry information for session management
+            
+            **Claims Examples by Provider:**
+            
+            **Apple Sign-In:**
+            ```json
+            {
+              "claims": {
+                "sub": "001234.567890abcdef.1234",
+                "email": "user@example.com",
+                "email_verified": "true",
+                "aud": "com.yourapp.service",
+                "iss": "https://appleid.apple.com"
+              }
+            }
+            ```
+            
+            **Facebook:**
+            ```json
+            {
+              "claims": {
+                "id": "123456789012345",
+                "email": "user@example.com",
+                "name": "John Doe",
+                "picture": "https://graph.facebook.com/v18.0/123456789/picture",
+                "locale": "en_US"
+              }
+            }
+            ```
+            
+            **Azure B2C:**
+            ```json
+            {
+              "claims": {
+                "oid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                "email": "user@company.com",
+                "extension_department": "Engineering",
+                "tfp": "B2C_1_SignUpOrSignIn"
+              }
+            }
+            ```
+            </remarks>
+            <response code="200">Authentication status retrieved successfully with complete user data and claims</response>
+            <response code="401">User is not authenticated</response>
+            <response code="500">Internal server error occurred</response>
         </member>
         <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.Login(EasyAuth.Framework.Core.Models.LoginRequest)">
             <summary>
@@ -610,12 +923,77 @@
         </member>
         <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.GetUserProfile">
             <summary>
-            Get user profile - commonly needed endpoint
+            Get complete user profile with all claims data
             </summary>
+            <remarks>
+            Returns comprehensive user information including all provider-specific claims.
+            This endpoint provides everything available from the authentication provider.
+            
+            **What's Included:**
+            - Standard user properties (id, email, name, roles, etc.)
+            - Complete `claims` dictionary with all raw provider data
+            - Profile metadata (locale, timezone, last login)
+            - Provider identification for conditional logic
+            
+            **Claims Dictionary Usage:**
+            The `claims` field contains all raw data from the authentication provider:
+            
+            ```csharp
+            // Access claims safely
+            var department = user.Claims.TryGetValue("extension_department", out var dept) ? dept : "Unknown";
+            
+            // Provider-specific handling
+            if (user.Provider == "Apple")
+            {
+                var isPrivateEmail = user.Claims["email"].Contains("privaterelay.appleid.com");
+            }
+            
+            // Azure B2C custom attributes
+            if (user.Provider == "AzureB2C")
+            {
+                var jobTitle = user.Claims.GetValueOrDefault("jobTitle", "Not specified");
+                var userFlow = user.Claims.GetValueOrDefault("tfp", "unknown");
+            }
+            ```
+            
+            **Security Note:** Claims may contain sensitive information. Only expose necessary data to frontend applications.
+            </remarks>
+            <response code="200">User profile retrieved successfully with all available claims</response>
+            <response code="401">User is not authenticated</response>
+            <response code="404">User profile not found in database</response>
+            <response code="500">Internal server error occurred</response>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.GetClaimsReference">
+            <summary>
+            Get available claims documentation for all providers
+            </summary>
+            <remarks>
+            Returns comprehensive documentation of all available claims for each supported authentication provider.
+            This endpoint helps developers understand what data is available from each provider.
+            
+            **Use this endpoint to:**
+            - Discover all available claims for each provider
+            - Understand claim availability and requirements
+            - Get examples of claim values and structures
+            - Plan your application's user data handling
+            
+            **Response includes:**
+            - Complete claim reference for Apple, Facebook, and Azure B2C
+            - Availability requirements (always available vs requires permissions)
+            - Example values and data structures
+            - Usage patterns and best practices
+            </remarks>
+            <response code="200">Claims documentation retrieved successfully</response>
         </member>
         <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.HealthCheck">
             <summary>
             Health check endpoint for monitoring
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Controllers.StandardApiController.ExtractAllClaims(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Extracts all claims from ClaimsPrincipal for API response
+            Provides comprehensive access to provider-specific claims for debugging and advanced scenarios
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Controllers.RefreshTokenRequest">
@@ -628,12 +1006,13 @@
             Application builder extensions for EasyAuth Framework
             </summary>
         </member>
-        <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.UseEasyAuth(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+        <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.UseEasyAuth(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Boolean)">
             <summary>
             Configures EasyAuth middleware and endpoints with automatic Swagger setup
             Provides zero-configuration development experience with auto-CORS detection
             </summary>
             <param name="app">Application builder</param>
+            <param name="enableSecurity">Whether to enable comprehensive security middleware (default: true)</param>
             <returns>Application builder for chaining</returns>
         </member>
         <member name="M:EasyAuth.Framework.Core.Extensions.ApplicationBuilderExtensions.UseEasyAuthSwagger(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
@@ -961,6 +1340,64 @@
             Custom operation filter for enhanced EasyAuth endpoint documentation
             </summary>
         </member>
+        <member name="T:EasyAuth.Framework.Core.Extensions.SecurityExtensions">
+            <summary>
+            Extension methods for configuring EasyAuth security features
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.AddEasyAuthSecurity(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{EasyAuth.Framework.Core.Security.InputValidationOptions},System.Action{EasyAuth.Framework.Core.Security.RateLimitingOptions},System.Action{EasyAuth.Framework.Core.Security.CsrfProtectionOptions})">
+            <summary>
+            Adds comprehensive security services to the dependency injection container
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configureInputValidation">Optional input validation configuration</param>
+            <param name="configureRateLimit">Optional rate limiting configuration</param>
+            <param name="configureCsrf">Optional CSRF protection configuration</param>
+            <returns>Service collection for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.UseEasyAuthSecurity(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Adds the complete EasyAuth security middleware pipeline
+            </summary>
+            <param name="app">Application builder</param>
+            <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.UseInputValidation(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Adds only input validation security
+            </summary>
+            <param name="app">Application builder</param>
+            <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.UseRateLimiting(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Adds only rate limiting security
+            </summary>
+            <param name="app">Application builder</param>
+            <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.UseCsrfProtection(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Adds only CSRF protection security
+            </summary>
+            <param name="app">Application builder</param>
+            <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.UseSecurityHeaders(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Boolean)">
+            <summary>
+            Configures security headers for enhanced protection
+            </summary>
+            <param name="app">Application builder</param>
+            <param name="isDevelopment">Whether running in development mode</param>
+            <returns>Application builder for chaining</returns>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Extensions.SecurityExtensions.UseSecurityAuditLogging(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Enables comprehensive security audit logging
+            </summary>
+            <param name="app">Application builder</param>
+            <returns>Application builder for chaining</returns>
+        </member>
         <member name="T:EasyAuth.Framework.Core.Models.ApiResponse`1">
             <summary>
             Unified API response format for all EasyAuth endpoints
@@ -1095,7 +1532,206 @@
         </member>
         <member name="T:EasyAuth.Framework.Core.Models.ApiUserInfo">
             <summary>
-            User information in consistent API format
+            User information in consistent API format with comprehensive claims documentation
+            </summary>
+            <remarks>
+            This model provides access to user data from all supported authentication providers.
+            The `claims` dictionary contains all raw provider-specific data for advanced scenarios.
+            
+            **Available Claims by Provider:**
+            
+            **Apple Sign-In:**
+            - `sub`: Apple's unique user ID (always available)
+            - `email`: User's email address (requires email scope)
+            - `email_verified`: Email verification status ("true"/"false")
+            - `aud`: Your app's Client ID
+            - `iss`: Token issuer ("https://appleid.apple.com")
+            - `iat`, `exp`: Token timestamps
+            
+            **Facebook:**
+            - `id`: Facebook user ID (always available)
+            - `email`: User's email (requires email permission)
+            - `name`, `first_name`, `last_name`: User's name components
+            - `picture`: Profile picture URL
+            - `locale`: User's locale (e.g., "en_US")
+            - `timezone`: Timezone offset from UTC
+            - `verified`: Account verification status
+            
+            **Azure B2C:**
+            - `sub`/`oid`: Azure B2C user object ID
+            - `email`, `emails`: User's email address(es)
+            - `name`, `given_name`, `family_name`: User's name components
+            - `extension_*`: Custom attributes (e.g., "extension_department")
+            - `tfp`: Trust Framework Policy name
+            - `aud`: Application ID
+            
+            **Usage Examples:**
+            ```csharp
+            // Safe claim access
+            string department = user.Claims.TryGetValue("extension_department", out var dept) ? dept : "Unknown";
+            
+            // Provider-specific handling
+            if (user.Provider == "Apple" &amp;&amp; user.Claims.ContainsKey("email"))
+            {
+                bool isPrivateRelay = user.Claims["email"].Contains("privaterelay.appleid.com");
+            }
+            ```
+            </remarks>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Id">
+            <summary>
+            Unique user identifier from the authentication provider
+            </summary>
+            <example>"a1b2c3d4-e5f6-7890-abcd-ef1234567890" (Azure B2C), "123456789012345" (Facebook), "001234.567890abcdef.1234" (Apple)</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Email">
+            <summary>
+            User's email address (availability depends on provider permissions)
+            </summary>
+            <example>"user@example.com" or "abc123@privaterelay.appleid.com" (Apple private relay)</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Name">
+            <summary>
+            User's display name or full name
+            </summary>
+            <example>"John Doe" (Facebook/Azure B2C) or "user" (Apple - derived from email)</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.FirstName">
+            <summary>
+            User's first name (not available from Apple)
+            </summary>
+            <example>"John"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.LastName">
+            <summary>
+            User's last name (not available from Apple)
+            </summary>
+            <example>"Doe"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.ProfilePicture">
+            <summary>
+            URL to user's profile picture (availability depends on provider)
+            </summary>
+            <example>"https://graph.facebook.com/v18.0/123456789/picture" (Facebook)</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Provider">
+            <summary>
+            Authentication provider used for this session
+            </summary>
+            <example>"Apple", "Facebook", "AzureB2C"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Roles">
+            <summary>
+            Application-specific user roles
+            </summary>
+            <example>["Admin", "User"]</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Permissions">
+            <summary>
+            Application-specific user permissions
+            </summary>
+            <example>["read:users", "write:posts"]</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.LastLogin">
+            <summary>
+            Last successful login timestamp
+            </summary>
+            <example>"2024-01-15T10:30:00Z"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.IsVerified">
+            <summary>
+            Whether the user's email/account is verified
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Locale">
+            <summary>
+            User's locale preference (e.g., "en-US", "fr-FR")
+            </summary>
+            <example>"en-US"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.TimeZone">
+            <summary>
+            User's timezone preference
+            </summary>
+            <example>"America/New_York"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.Claims">
+            <summary>
+            All raw claims from the authentication provider
+            </summary>
+            <remarks>
+            Contains every claim provided by the authentication provider. Use this for:
+            - Provider-specific data not mapped to standard properties
+            - Custom attributes from Azure B2C
+            - Advanced scenarios requiring raw token data
+            
+            **Common Claim Examples:**
+            - Apple: `sub`, `email`, `email_verified`, `aud`, `iss`
+            - Facebook: `id`, `email`, `name`, `picture`, `locale`, `timezone`
+            - Azure B2C: `oid`, `email`, `tfp`, `extension_department`
+            
+            **Safe Access Pattern:**
+            ```csharp
+            string value = claims.TryGetValue("claim_name", out var claim) ? claim : "default";
+            ```
+            </remarks>
+            <example>
+            {
+              "sub": "001234.567890abcdef.1234",
+              "email": "user@example.com",
+              "email_verified": "true",
+              "aud": "com.yourapp.service",
+              "iss": "https://appleid.apple.com"
+            }
+            </example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.ApiUserInfo.LinkedAccounts">
+            <summary>
+            Linked authentication accounts from other providers
+            </summary>
+            <remarks>
+            When account linking is enabled, this contains information about
+            other authentication providers the user has connected to their account.
+            </remarks>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Models.LinkedAccount">
+            <summary>
+            Information about a linked authentication account
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.LinkedAccount.Provider">
+            <summary>
+            Authentication provider name
+            </summary>
+            <example>"Facebook"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.LinkedAccount.ProviderId">
+            <summary>
+            User ID from the linked provider
+            </summary>
+            <example>"987654321"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.LinkedAccount.Email">
+            <summary>
+            Email associated with the linked account
+            </summary>
+            <example>"same.user@example.com"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.LinkedAccount.DisplayName">
+            <summary>
+            Display name from the linked account
+            </summary>
+            <example>"John Doe"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.LinkedAccount.LinkedAt">
+            <summary>
+            When this account was linked
+            </summary>
+            <example>"2024-01-10T08:00:00Z"</example>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Models.LinkedAccount.IsPrimary">
+            <summary>
+            Whether this is the primary authentication method
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Models.EAuthResponse`1">
@@ -1651,25 +2287,25 @@
         <member name="T:EasyAuth.Framework.Core.Providers.AppleAuthProvider">
             <summary>
             Apple Sign-In authentication provider implementation
-            Follows TDD methodology - minimal implementation to make tests pass
+            Enhanced v2.4.0 implementation with comprehensive token validation and private email relay support
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GetAuthorizationUrlAsync(System.String)">
             <summary>
             Generates Apple Sign-In authorization URL with client_id, scopes, and state parameters
-            Apple uses form_post response mode for security and requires nonce for id_token validation
+            Enhanced v2.4.0 with support for web vs native app flows and configurable response modes
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.ExchangeCodeForTokenAsync(System.String,System.String)">
             <summary>
             Exchanges Apple Sign-In authorization code for access and ID tokens
-            Returns mock tokens in TDD GREEN phase - real implementation would call Apple's token endpoint
+            Enhanced v2.4.0 implementation with real Apple token endpoint integration and comprehensive error handling
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GetUserInfoAsync(EasyAuth.Framework.Core.Models.TokenResponse)">
             <summary>
             Extracts user information from Apple ID token JWT claims
-            Apple provides user data in id_token rather than a separate userinfo endpoint
+            Enhanced v2.4.0 implementation with private email relay support and comprehensive claim extraction
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GetLoginUrlAsync(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
@@ -1699,7 +2335,59 @@
         <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.ValidateConfigurationAsync">
             <summary>
             Validates Apple Sign-In configuration including ClientId, TeamId, and KeyId
-            Required for Apple's certificate-based authentication
+            Enhanced v2.4.0 validation with comprehensive checks
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.BuildRedirectUri">
+            <summary>
+            Builds redirect URI for Apple authentication
+            Enhanced v2.4.0 with support for web vs native app flows
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GenerateNonce">
+            <summary>
+            Generates cryptographic nonce for OIDC security
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GenerateClientSecretAsync">
+            <summary>
+            Generates Apple client secret JWT for token exchange
+            Uses ES256 algorithm with Apple's private key
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.ValidateIdTokenAsync(System.String)">
+            <summary>
+            Validates Apple ID token signature and claims
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.ProcessAppleEmail(System.String)">
+            <summary>
+            Processes Apple email with private relay support
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GenerateDisplayName(System.String,System.Boolean)">
+            <summary>
+            Generates display name from email (Apple doesn't provide names)
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.ExtractAllClaims(System.IdentityModel.Tokens.Jwt.JwtSecurityToken)">
+            <summary>
+            Extracts all claims from JWT token
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GetClaimValue(System.IdentityModel.Tokens.Jwt.JwtSecurityToken,System.String)">
+            <summary>
+            Gets claim value safely
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.AppleAuthProvider.GenerateMockIdToken">
+            <summary>
+            Generates mock ID token for development/testing
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Providers.AppleTokenResponse">
+            <summary>
+            Apple token response model
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Providers.AzureB2CAuthProvider">
@@ -1760,25 +2448,25 @@
         <member name="T:EasyAuth.Framework.Core.Providers.FacebookAuthProvider">
             <summary>
             Facebook/Meta authentication provider implementation
-            Follows TDD methodology - minimal implementation to make tests pass
+            Enhanced v2.4.0 with API v18+ compatibility, business features, and advanced permissions
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetAuthorizationUrlAsync(System.String)">
             <summary>
-            Generates Facebook OAuth authorization URL using Graph API v18.0
-            Uses comma-separated scopes format specific to Facebook's OAuth implementation
+            Generates Facebook OAuth authorization URL with enhanced v2.4.0 features
+            Supports business login, dynamic scopes, and advanced permissions management
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.ExchangeCodeForTokenAsync(System.String,System.String)">
             <summary>
-            Exchanges Facebook authorization code for long-lived access token
-            Returns mock token in TDD GREEN phase - Facebook tokens have extended expiry (5183944 seconds)
+            Exchanges Facebook authorization code for access token with enhanced v2.4.0 features
+            Supports long-lived tokens and comprehensive error handling
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetUserInfoAsync(EasyAuth.Framework.Core.Models.TokenResponse)">
             <summary>
-            Creates user info from Facebook access token
-            Returns mock Graph API user data in TDD phase - real implementation queries /me endpoint
+            Retrieves user information from Facebook Graph API with enhanced v2.4.0 features
+            Supports business accounts, Instagram integration, and comprehensive user data
             </summary>
         </member>
         <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetLoginUrlAsync(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
@@ -1808,7 +2496,59 @@
         <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.ValidateConfigurationAsync">
             <summary>
             Validates Facebook OAuth configuration including AppId and AppSecret
-            Uses secure configuration service to verify Facebook app credentials
+            Enhanced v2.4.0 validation with business features and security checks
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetRequestedScopes">
+            <summary>
+            Gets the requested scopes based on configuration and business features
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetBasicUserInfo(System.String)">
+            <summary>
+            Retrieves basic user information from Facebook Graph API
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetBusinessInfo(System.String)">
+            <summary>
+            Retrieves comprehensive business account information if business login is enabled
+            Enhanced v2.4.0 with business assets, roles, and detailed permissions
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetInstagramAccounts(System.String)">
+            <summary>
+            Retrieves Instagram accounts if Instagram integration is enabled
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.EnhanceBusinessInfoWithAssets(EasyAuth.Framework.Core.Providers.FacebookAuthProvider.FacebookBusinessInfo,System.String)">
+            <summary>
+            Enhances business info with additional asset information
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.GetBusinessPages(EasyAuth.Framework.Core.Providers.FacebookAuthProvider.FacebookBusinessInfo,System.String)">
+            <summary>
+            Retrieves business pages associated with the business account
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.ValidateBusinessRole(EasyAuth.Framework.Core.Providers.FacebookAuthProvider.FacebookBusinessInfo)">
+            <summary>
+            Validates business permissions and roles
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.BuildUserClaims(EasyAuth.Framework.Core.Providers.FacebookAuthProvider.FacebookUserInfo,EasyAuth.Framework.Core.Providers.FacebookAuthProvider.FacebookBusinessInfo,EasyAuth.Framework.Core.Providers.FacebookAuthProvider.FacebookInstagramAccount[])">
+            <summary>
+            Builds comprehensive claims dictionary from all available user data
+            Enhanced v2.4.0 with business assets and detailed permissions
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.ExchangeForLongLivedToken(System.String)">
+            <summary>
+            Exchanges short-lived token for long-lived token
+            </summary>
+        </member>
+        <member name="M:EasyAuth.Framework.Core.Providers.FacebookAuthProvider.TryParseErrorResponse(System.String)">
+            <summary>
+            Attempts to parse Facebook error response
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Providers.GoogleAuthProvider">
@@ -1862,6 +2602,144 @@
             <summary>
             Validates Google OAuth configuration including ClientId and ClientSecret
             Uses secure configuration service to verify required credentials
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.CsrfProtectionMiddleware">
+            <summary>
+            CSRF protection middleware with token validation
+            Provides comprehensive protection against Cross-Site Request Forgery attacks
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.CsrfProtectionOptions">
+            <summary>
+            Configuration options for CSRF protection middleware
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.CsrfProtectionOptions.ExemptPaths">
+            <summary>
+            Paths that are exempt from CSRF protection (default: ["/api/public", "/health", "/metrics"])
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.CsrfProtectionOptions.CookieName">
+            <summary>
+            CSRF token cookie name (default: "XSRF-TOKEN")
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.CsrfProtectionOptions.TokenLifetimeHours">
+            <summary>
+            Token lifetime in hours (default: 24)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.CsrfProtectionOptions.RequireHttps">
+            <summary>
+            Whether to require HTTPS for CSRF tokens (default: true)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.CsrfProtectionOptions.Enabled">
+            <summary>
+            Whether to enable CSRF protection (default: true)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.CsrfProtectionOptions.HeaderName">
+            <summary>
+            Custom header name for CSRF token (default: "X-CSRF-Token")
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.InputValidationMiddleware">
+            <summary>
+            Comprehensive input validation middleware for enhanced security
+            Protects against injection attacks, malformed requests, and suspicious patterns
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.InputValidationOptions">
+            <summary>
+            Configuration options for input validation middleware
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.MaxRequestSizeBytes">
+            <summary>
+            Maximum request size in bytes (default: 10MB)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.MaxHeaderValueLength">
+            <summary>
+            Maximum header value length (default: 8KB)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.MaxParameterLength">
+            <summary>
+            Maximum query parameter length (default: 2KB)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.MaxFieldLength">
+            <summary>
+            Maximum form field length (default: 1MB)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.MaxJsonSizeBytes">
+            <summary>
+            Maximum JSON body size in bytes (default: 5MB)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.EnablePatternDetection">
+            <summary>
+            Whether to enable suspicious pattern detection (default: true)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.InputValidationOptions.EnableLogging">
+            <summary>
+            Whether to log validation failures (default: true)
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.RateLimitingMiddleware">
+            <summary>
+            Advanced rate limiting middleware with DDoS protection
+            Implements sliding window, token bucket, and adaptive algorithms
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.RateLimitingOptions">
+            <summary>
+            Rate limiting configuration options
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.RateLimitingOptions.GlobalRequestsPerMinute">
+            <summary>
+            Global requests per minute per client (default: 60)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.RateLimitingOptions.EndpointRequestsPerMinute">
+            <summary>
+            Requests per minute per endpoint per client (default: 30)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.RateLimitingOptions.BurstRequestsPerSecond">
+            <summary>
+            Burst requests per second per client (default: 10)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.RateLimitingOptions.AuthRequestsPer5Minutes">
+            <summary>
+            Authentication requests per 5 minutes per client (default: 5)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.RateLimitingOptions.EnableProgressivePenalties">
+            <summary>
+            Whether to enable progressive penalties (default: true)
+            </summary>
+        </member>
+        <member name="P:EasyAuth.Framework.Core.Security.RateLimitingOptions.EnableBlocking">
+            <summary>
+            Whether to block repeat offenders (default: true)
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.RateLimitResult">
+            <summary>
+            Result of rate limit check
+            </summary>
+        </member>
+        <member name="T:EasyAuth.Framework.Core.Security.ClientMetrics">
+            <summary>
+            Client metrics for tracking behavior
             </summary>
         </member>
         <member name="T:EasyAuth.Framework.Core.Services.ConfigurationService">

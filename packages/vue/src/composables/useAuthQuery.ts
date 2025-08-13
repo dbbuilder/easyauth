@@ -89,7 +89,7 @@ export function useAuthQuery<T>(
   }
 
   return {
-    data,
+    data: data as any,
     error,
     isLoading,
     isError,

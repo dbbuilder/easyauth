@@ -265,6 +265,7 @@ namespace EasyAuth.Framework.Core.Configuration
 
     /// <summary>
     /// Facebook OAuth authentication provider configuration
+    /// Enhanced v2.4.0 with API v19+, business features, and Instagram integration
     /// </summary>
     public class FacebookOptions
     {
@@ -290,13 +291,114 @@ namespace EasyAuth.Framework.Core.Configuration
         public string CallbackPath { get; set; } = "/auth/facebook-signin";
 
         /// <summary>
+        /// Custom redirect URI for Facebook authentication
+        /// If not specified, will use default based on host
+        /// </summary>
+        public string RedirectUri { get; set; } = string.Empty;
+
+        /// <summary>
         /// OAuth scopes to request from Facebook
         /// </summary>
         public string[] Scopes { get; set; } = { "email", "public_profile" };
+
+        /// <summary>
+        /// Whether to use long-lived access tokens (60 days vs 2 hours)
+        /// </summary>
+        public bool UseLongLivedTokens { get; set; } = true;
+
+        /// <summary>
+        /// Whether to use mock tokens when Facebook service is unavailable (development only)
+        /// </summary>
+        public bool UseMockTokensOnFailure { get; set; } = false;
+
+        /// <summary>
+        /// Display mode for Facebook login dialog
+        /// Valid values: page, popup, touch, wap
+        /// </summary>
+        public string DisplayMode { get; set; } = "page";
+
+        /// <summary>
+        /// Locale for Facebook login dialog
+        /// </summary>
+        public string Locale { get; set; } = "en_US";
+
+        /// <summary>
+        /// Facebook Business Login configuration
+        /// </summary>
+        public FacebookBusinessOptions? Business { get; set; }
+
+        /// <summary>
+        /// Instagram integration configuration
+        /// </summary>
+        public FacebookInstagramOptions? Instagram { get; set; }
+    }
+
+    /// <summary>
+    /// Facebook Business Login configuration options
+    /// Enhanced v2.4.0 with comprehensive business asset management
+    /// </summary>
+    public class FacebookBusinessOptions
+    {
+        /// <summary>
+        /// Whether to enable Facebook Business Login features
+        /// </summary>
+        public bool EnableBusinessLogin { get; set; } = false;
+
+        /// <summary>
+        /// Facebook Business ID for business login
+        /// </summary>
+        public string BusinessId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Business-specific scopes to request
+        /// </summary>
+        public string[] Scopes { get; set; } = { "business_management", "pages_show_list", "pages_read_engagement" };
+
+        /// <summary>
+        /// Whether to retrieve detailed business asset information (Pages, Ad Accounts)
+        /// </summary>
+        public bool IncludeBusinessAssets { get; set; } = true;
+
+        /// <summary>
+        /// Whether to include business roles and permissions in claims
+        /// </summary>
+        public bool IncludeBusinessRoles { get; set; } = true;
+
+        /// <summary>
+        /// Maximum number of business pages to retrieve per request
+        /// </summary>
+        public int MaxPagesLimit { get; set; } = 25;
+
+        /// <summary>
+        /// Whether to validate business permissions on each request
+        /// </summary>
+        public bool ValidateBusinessPermissions { get; set; } = false;
+
+        /// <summary>
+        /// Required business role level (Admin, Editor, Analyst, etc.)
+        /// </summary>
+        public string? RequiredBusinessRole { get; set; }
+    }
+
+    /// <summary>
+    /// Facebook Instagram integration configuration options
+    /// </summary>
+    public class FacebookInstagramOptions
+    {
+        /// <summary>
+        /// Whether to enable Instagram integration
+        /// </summary>
+        public bool EnableInstagramIntegration { get; set; } = false;
+
+        /// <summary>
+        /// Instagram-specific scopes to request
+        /// </summary>
+        public string[] Scopes { get; set; } = { "instagram_basic", "instagram_manage_insights" };
     }
 
     /// <summary>
     /// Apple Sign-In authentication provider configuration
+    /// Enhanced v2.4.0 with comprehensive token validation and private email relay support
     /// </summary>
     public class AppleOptions
     {
@@ -324,6 +426,12 @@ namespace EasyAuth.Framework.Core.Configuration
         public string KeyId { get; set; } = string.Empty;
 
         /// <summary>
+        /// Apple private key in PKCS#8 format (Base64 encoded)
+        /// Required for production ES256 JWT signing
+        /// </summary>
+        public string PrivateKey { get; set; } = string.Empty;
+
+        /// <summary>
         /// Client secret - will be loaded from Key Vault if configured
         /// </summary>
         public string ClientSecret { get; set; } = string.Empty;
@@ -340,9 +448,170 @@ namespace EasyAuth.Framework.Core.Configuration
         public string CallbackPath { get; set; } = "/auth/apple-signin";
 
         /// <summary>
+        /// Custom redirect URI for Apple authentication
+        /// If not specified, will use default based on host
+        /// </summary>
+        public string RedirectUri { get; set; } = string.Empty;
+
+        /// <summary>
         /// OAuth scopes to request from Apple
         /// </summary>
         public string[] Scopes { get; set; } = { "name", "email" };
+
+        /// <summary>
+        /// Whether to use mock tokens when Apple service is unavailable (development only)
+        /// </summary>
+        public bool UseMockTokensOnFailure { get; set; } = false;
+
+        /// <summary>
+        /// Token validation settings
+        /// </summary>
+        public AppleTokenValidationOptions TokenValidation { get; set; } = new();
+
+        /// <summary>
+        /// Private email relay handling settings
+        /// </summary>
+        public ApplePrivateEmailOptions PrivateEmail { get; set; } = new();
+
+        /// <summary>
+        /// Web vs native app flow settings
+        /// </summary>
+        public AppleFlowOptions Flow { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Apple token validation configuration
+    /// </summary>
+    public class AppleTokenValidationOptions
+    {
+        /// <summary>
+        /// Whether to validate token signatures against Apple's public keys
+        /// </summary>
+        public bool ValidateSignature { get; set; } = true;
+
+        /// <summary>
+        /// Whether to validate token issuer
+        /// </summary>
+        public bool ValidateIssuer { get; set; } = true;
+
+        /// <summary>
+        /// Whether to validate token audience
+        /// </summary>
+        public bool ValidateAudience { get; set; } = true;
+
+        /// <summary>
+        /// Whether to validate token expiration
+        /// </summary>
+        public bool ValidateLifetime { get; set; } = true;
+
+        /// <summary>
+        /// Clock skew tolerance in seconds
+        /// </summary>
+        public int ClockSkewSeconds { get; set; } = 300;
+
+        /// <summary>
+        /// Cache duration for Apple public keys in minutes
+        /// </summary>
+        public int KeyCacheDurationMinutes { get; set; } = 60;
+    }
+
+    /// <summary>
+    /// Apple private email relay configuration
+    /// </summary>
+    public class ApplePrivateEmailOptions
+    {
+        /// <summary>
+        /// Whether to handle private email relay addresses
+        /// </summary>
+        public bool HandlePrivateRelay { get; set; } = true;
+
+        /// <summary>
+        /// Whether to log when private relay emails are detected
+        /// </summary>
+        public bool LogPrivateRelayDetection { get; set; } = true;
+
+        /// <summary>
+        /// Custom prefix for private relay user display names
+        /// </summary>
+        public string PrivateUserDisplayPrefix { get; set; } = "Apple User";
+
+        /// <summary>
+        /// Whether to store private relay emails in database
+        /// </summary>
+        public bool StorePrivateRelayEmails { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Apple Sign-In flow configuration for web vs native apps
+    /// </summary>
+    public class AppleFlowOptions
+    {
+        /// <summary>
+        /// Default flow type for Apple Sign-In
+        /// </summary>
+        public AppleFlowType DefaultFlow { get; set; } = AppleFlowType.Web;
+
+        /// <summary>
+        /// Response mode for Apple authentication
+        /// </summary>
+        public string ResponseMode { get; set; } = "form_post";
+
+        /// <summary>
+        /// Whether to include nonce in authentication requests
+        /// </summary>
+        public bool IncludeNonce { get; set; } = true;
+
+        /// <summary>
+        /// Native app configuration (for iOS/macOS apps)
+        /// </summary>
+        public AppleNativeAppOptions? NativeApp { get; set; }
+    }
+
+    /// <summary>
+    /// Apple Sign-In flow types
+    /// </summary>
+    public enum AppleFlowType
+    {
+        /// <summary>
+        /// Web browser-based flow
+        /// </summary>
+        Web,
+
+        /// <summary>
+        /// Native iOS/macOS app flow
+        /// </summary>
+        Native,
+
+        /// <summary>
+        /// Hybrid flow supporting both web and native
+        /// </summary>
+        Hybrid
+    }
+
+    /// <summary>
+    /// Native app configuration for Apple Sign-In
+    /// </summary>
+    public class AppleNativeAppOptions
+    {
+        /// <summary>
+        /// iOS bundle identifier
+        /// </summary>
+        public string? BundleId { get; set; }
+
+        /// <summary>
+        /// macOS bundle identifier
+        /// </summary>
+        public string? MacOsBundleId { get; set; }
+
+        /// <summary>
+        /// Custom URL scheme for native app callbacks
+        /// </summary>
+        public string? CustomUrlScheme { get; set; }
+
+        /// <summary>
+        /// Whether to support universal links
+        /// </summary>
+        public bool SupportUniversalLinks { get; set; } = true;
     }
 
     /// <summary>

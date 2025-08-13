@@ -99,7 +99,8 @@ namespace EasyAuth.Framework.Core.Services
                     WHERE TABLE_SCHEMA = 'eauth'
                     AND TABLE_NAME = 'framework_metadata'";
 
-                var count = (int)await command.ExecuteScalarAsync().ConfigureAwait(false);
+                var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                var count = result != null ? (int)result : 0;
                 return count > 0;
             }
             catch (Exception ex)

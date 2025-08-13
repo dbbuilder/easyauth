@@ -1,6 +1,6 @@
 {
   "name": "@easyauth/vue",
-  "version": "1.0.0",
+  "version": "2.4.0",
   "description": "Vue 3 composables and components for EasyAuth Framework",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

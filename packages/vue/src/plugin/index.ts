@@ -4,7 +4,11 @@
  */
 
 import type { App } from 'vue'
-import type { EasyAuthConfig } from '@easyauth/sdk'
+// Using local types since @easyauth/sdk is not yet implemented
+interface EasyAuthConfig {
+  apiUrl?: string;
+  providers?: string[];
+}
 import { useEasyAuth } from '../composables/useEasyAuth'
 import LoginButton from '../components/LoginButton.vue'
 import LogoutButton from '../components/LogoutButton.vue'
@@ -48,7 +52,7 @@ export function createEasyAuth(options: EasyAuthPluginOptions) {
 }
 
 // Export types for TypeScript users
-export type { EasyAuthPluginOptions }
+export type { EasyAuthConfig }
 
 // Default export for easier importing
 export default createEasyAuth

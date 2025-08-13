@@ -3,18 +3,32 @@
  * Provides reactive authentication state and methods
  */
 
-import { ref, reactive, onMounted, onUnmounted, watchEffect } from 'vue'
-import { EasyAuthClient } from '@easyauth/sdk'
-import type { 
-  EasyAuthConfig, 
-  LoginOptions, 
-  AuthSession, 
-  UserProfile,
-  AuthResult 
-} from '@easyauth/sdk'
+import { ref, onUnmounted } from 'vue'
+// Note: @easyauth/sdk is not yet implemented, using placeholder types
+interface EasyAuthConfig {
+  apiUrl?: string;
+  providers?: string[];
+}
+
+interface LoginOptions {
+  provider: string;
+  returnUrl?: string;
+}
+
+interface UserProfile {
+  id: string;
+  email: string;
+  name?: string;
+}
+
+interface AuthResult {
+  success: boolean;
+  user: UserProfile;
+  error?: string;
+}
 
 // Global state management for sharing between multiple composable instances
-let globalClient: EasyAuthClient | null = null
+let globalClient: any | null = null
 let globalState: {
   isAuthenticated: boolean
   isLoading: boolean
@@ -28,9 +42,9 @@ function notifySubscribers() {
   subscribers.forEach(callback => callback())
 }
 
-function initializeGlobalClient(config: EasyAuthConfig) {
+function initializeGlobalClient(_config: EasyAuthConfig) {
   if (!globalClient) {
-    globalClient = new EasyAuthClient(config)
+    globalClient = {} // Placeholder for EasyAuthClient implementation
     globalState = {
       isAuthenticated: false,
       isLoading: false,

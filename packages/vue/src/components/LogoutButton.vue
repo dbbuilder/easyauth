@@ -41,6 +41,7 @@ const emit = defineEmits<{
 }>();
 
 const auth = useAuth();
+const { isAuthenticated, isLoading } = auth;
 
 const buttonClass = computed(() => {
   const classes = [];
@@ -59,7 +60,7 @@ const buttonClass = computed(() => {
 });
 
 const displayText = computed(() => {
-  if (auth.isLoading) {
+  if (isLoading.value) {
     return props.loadingText;
   }
   return 'Logout';

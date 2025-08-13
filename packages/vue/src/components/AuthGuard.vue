@@ -39,13 +39,14 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const auth = useAuth();
+const { isAuthenticated, isLoading, user } = auth;
 
 const hasRequiredRoles = computed(() => {
-  if (props.requiredRoles.length === 0 || !auth.user) {
+  if (props.requiredRoles.length === 0 || !user.value) {
     return true;
   }
   
-  const userRoles = auth.user.roles || [];
+  const userRoles = (user.value as any)?.roles || [];
   
   return props.requireAllRoles
     ? props.requiredRoles.every(role => userRoles.includes(role))
@@ -53,7 +54,7 @@ const hasRequiredRoles = computed(() => {
 });
 
 onMounted(() => {
-  if (!auth.isLoading && !auth.isAuthenticated) {
+  if (!isLoading.value && !isAuthenticated.value) {
     if (props.redirectTo) {
       window.location.href = props.redirectTo;
       return;
@@ -62,7 +63,7 @@ onMounted(() => {
     props.onUnauthorized?.();
   }
   
-  if (!auth.isLoading && auth.isAuthenticated && !hasRequiredRoles.value) {
+  if (!isLoading.value && isAuthenticated.value && !hasRequiredRoles.value) {
     props.onUnauthorized?.();
   }
 });

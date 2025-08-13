@@ -1,6 +1,6 @@
 {
   "name": "@easyauth/react",
-  "version": "1.0.0",
+  "version": "2.4.0",
   "description": "React hooks and components for EasyAuth Framework",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

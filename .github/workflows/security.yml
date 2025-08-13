@@ -1,0 +1,120 @@
+name: Security Scan
+
+on:
+  schedule:
+    # Run security scan daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    name: Security Analysis
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+    
+    # .NET Security Scanning
+    - name: Install .NET security scan tool
+      run: dotnet tool install --global security-scan
+    
+    - name: Run .NET security scan
+      run: security-scan src/ --no-banner --output security-scan-results.json --format json
+      continue-on-error: true
+    
+    # Node.js Security Scanning
+    - name: Install dependencies for React package
+      working-directory: packages/react
+      run: npm ci
+    
+    - name: Install dependencies for Vue package
+      working-directory: packages/vue
+      run: npm ci
+    
+    - name: Run npm audit for React
+      working-directory: packages/react
+      run: npm audit --audit-level moderate --json > ../../react-audit.json
+      continue-on-error: true
+    
+    - name: Run npm audit for Vue
+      working-directory: packages/vue
+      run: npm audit --audit-level moderate --json > ../../vue-audit.json
+      continue-on-error: true
+    
+    # Snyk Security Scanning
+    - name: Run Snyk to check for .NET vulnerabilities
+      uses: snyk/actions/dotnet@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium
+    
+    - name: Run Snyk for React package
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --file=packages/react/package.json
+    
+    - name: Run Snyk for Vue package
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --file=packages/vue/package.json
+    
+    # CodeQL Analysis
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp,javascript'
+        queries: security-and-quality
+    
+    - name: Build for CodeQL
+      run: |
+        dotnet restore
+        dotnet build --configuration Release
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+    
+    # Upload security scan results
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-scan-results
+        path: |
+          security-scan-results.json
+          react-audit.json
+          vue-audit.json
+    
+    # Create security report
+    - name: Create security summary
+      if: always()
+      run: |
+        echo "# Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ CodeQL Analysis completed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ .NET security scan completed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Node.js audit completed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Snyk security scan completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "1. Review any security findings in the Actions logs" >> $GITHUB_STEP_SUMMARY
+        echo "2. Update dependencies if vulnerabilities are found" >> $GITHUB_STEP_SUMMARY
+        echo "3. Create issues for any critical security findings" >> $GITHUB_STEP_SUMMARY

@@ -2,6 +2,7 @@ using Azure.Identity;
 using EasyAuth.Framework.Core.Configuration;
 using EasyAuth.Framework.Core.Services;
 using EasyAuth.Framework.Core.Providers;
+using EasyAuth.Framework.Core.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Facebook;
@@ -22,10 +23,15 @@ namespace EasyAuth.Framework.Extensions
         /// <summary>
         /// Add EasyAuth Framework to the service collection
         /// </summary>
+        /// <param name="services">Service collection</param>
+        /// <param name="configuration">Configuration instance</param>
+        /// <param name="environment">Host environment</param>
+        /// <param name="enableSecurity">Whether to enable comprehensive security features (default: true)</param>
         public static IServiceCollection AddEasyAuth(
             this IServiceCollection services,
             IConfiguration configuration,
-            IHostEnvironment environment)
+            IHostEnvironment environment,
+            bool enableSecurity = true)
         {
             // Configure options from configuration
             var eauthOptions = new EAuthOptions();
@@ -74,6 +80,12 @@ namespace EasyAuth.Framework.Extensions
             // Add framework services
             AddFrameworkServices(services);
 
+            // Add comprehensive security services if enabled
+            if (enableSecurity)
+            {
+                services.AddEasyAuthSecurity();
+            }
+
             // Add health checks if enabled
             if (eauthOptions.Framework.EnableHealthChecks)
             {
@@ -82,6 +94,26 @@ namespace EasyAuth.Framework.Extensions
             }
 
             return services;
+        }
+
+        /// <summary>
+        /// COMPILE ERROR: This overload is intentionally broken to prevent runtime crashes.
+        /// You MUST include both IConfiguration AND IHostEnvironment parameters.
+        /// Use: AddEasyAuth(configuration, environment) instead.
+        /// </summary>
+        /// <param name="services">Service collection</param>
+        /// <param name="configuration">Configuration instance</param>
+        [System.Obsolete("COMPILE ERROR: Missing required IHostEnvironment parameter! Use AddEasyAuth(configuration, environment) to prevent runtime crashes. See documentation: https://github.com/dbbuilder/easyauth/blob/master/INTEGRATION_GUIDE.md", true)]
+        public static IServiceCollection AddEasyAuth(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            // This method intentionally causes a compile error to prevent the runtime crash
+            // that occurs when IHostEnvironment is missing. The framework requires both parameters.
+            throw new System.NotSupportedException(
+                "INTEGRATION ERROR: AddEasyAuth() requires both IConfiguration AND IHostEnvironment parameters. " +
+                "Use AddEasyAuth(builder.Configuration, builder.Environment) to fix this. " +
+                "See: https://github.com/dbbuilder/easyauth/blob/master/INTEGRATION_GUIDE.md");
         }
 
         /// <summary>

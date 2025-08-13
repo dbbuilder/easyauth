@@ -40,7 +40,23 @@ namespace EasyAuth.Framework.Core.Tests.Providers
                 AppId = "123456789012345",
                 AppSecret = "dummy_app_secret",
                 CallbackPath = "/auth/facebook-signin",
-                Scopes = new[] { "email", "public_profile" }
+                RedirectUri = "https://localhost/auth/facebook-callback",
+                Scopes = new[] { "email", "public_profile" },
+                UseLongLivedTokens = true,
+                UseMockTokensOnFailure = true,
+                DisplayMode = "page",
+                Locale = "en_US",
+                Business = new FacebookBusinessOptions
+                {
+                    EnableBusinessLogin = true,
+                    BusinessId = "123456789012345",
+                    Scopes = new[] { "business_management", "pages_show_list", "pages_read_engagement" }
+                },
+                Instagram = new FacebookInstagramOptions
+                {
+                    EnableInstagramIntegration = true,
+                    Scopes = new[] { "instagram_basic", "instagram_manage_insights" }
+                }
             };
 
             _mockOptions.Setup(x => x.Value).Returns(_facebookConfig);
@@ -64,7 +80,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
 
             // Assert
             result.Should().NotBeNullOrEmpty();
-            result.Should().StartWith("https://www.facebook.com/v18.0/dialog/oauth");
+            result.Should().StartWith("https://www.facebook.com/v19.0/dialog/oauth");
             result.Should().Contain("client_id=123456789012345");
             result.Should().Contain("response_type=code");
             result.Should().Contain("scope=email%2Cpublic_profile");
@@ -179,7 +195,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
 
             // Assert
             result.Should().NotBeNullOrEmpty();
-            result.Should().StartWith("https://www.facebook.com/v18.0/dialog/oauth");
+            result.Should().StartWith("https://www.facebook.com/v19.0/dialog/oauth");
         }
 
         [Theory]
@@ -287,6 +303,487 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             result.Should().NotBeNull();
             result.IsAuthenticated.Should().BeTrue();
             // Email might be empty but user should still be authenticated
+        }
+
+        #endregion
+
+        #region v2.4.0 Enhanced Feature Tests
+
+        [Fact]
+        public async Task GetAuthorizationUrlAsync_ShouldIncludeBusinessParameters_WhenBusinessLoginEnabled()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetAuthorizationUrlAsync();
+
+            // Assert
+            result.Should().Contain("business_id=123456789012345");
+            result.Should().Contain("auth_type=rerequest");
+        }
+
+        [Fact]
+        public async Task GetAuthorizationUrlAsync_ShouldIncludeDisplayMode_WhenConfigured()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetAuthorizationUrlAsync();
+
+            // Assert
+            result.Should().Contain("display=page");
+        }
+
+        [Fact]
+        public async Task GetAuthorizationUrlAsync_ShouldIncludeLocale_WhenConfigured()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetAuthorizationUrlAsync();
+
+            // Assert
+            result.Should().Contain("locale=en_US");
+        }
+
+        [Fact]
+        public async Task GetRequestedScopes_ShouldIncludeBusinessScopes_WhenBusinessLoginEnabled()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetAuthorizationUrlAsync();
+
+            // Assert
+            result.Should().Contain("business_management");
+            result.Should().Contain("pages_show_list");
+            result.Should().Contain("pages_read_engagement");
+        }
+
+        [Fact]
+        public async Task GetRequestedScopes_ShouldIncludeInstagramScopes_WhenInstagramIntegrationEnabled()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetAuthorizationUrlAsync();
+
+            // Assert
+            result.Should().Contain("instagram_basic");
+            result.Should().Contain("instagram_manage_insights");
+        }
+
+        [Fact]
+        public async Task ExchangeCodeForTokenAsync_ShouldExchangeForLongLivedToken_WhenConfigured()
+        {
+            // Arrange
+            _facebookConfig.UseLongLivedTokens = true;
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ExchangeCodeForTokenAsync("test_code", "test_state");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.ExpiresIn.Should().BeGreaterThan(3600); // Long-lived tokens should be longer than 1 hour
+        }
+
+        [Fact]
+        public async Task ExchangeCodeForTokenAsync_ShouldReturnMockToken_WhenServiceUnavailable()
+        {
+            // Arrange
+            _facebookConfig.UseMockTokensOnFailure = true;
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ExchangeCodeForTokenAsync("test_code", "test_state");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.AccessToken.Should().NotBeNullOrEmpty();
+            result.TokenType.Should().Be("Bearer");
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldIncludeBusinessClaims_WhenBusinessInfoAvailable()
+        {
+            // Arrange
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "business_access_token",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Claims.Should().ContainKey("business_id");
+            result.Claims.Should().ContainKey("business_name");
+            result.Claims.Should().ContainKey("business_verified");
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldIncludeInstagramClaims_WhenInstagramAccountsAvailable()
+        {
+            // Arrange
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "instagram_access_token",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Claims.Should().ContainKey("instagram_accounts");
+        }
+
+        [Theory]
+        [InlineData("page")]
+        [InlineData("popup")]
+        [InlineData("touch")]
+        [InlineData("wap")]
+        public async Task ValidateConfigurationAsync_ShouldAcceptValidDisplayModes(string displayMode)
+        {
+            // Arrange
+            _facebookConfig.DisplayMode = displayMode;
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ValidateConfigurationAsync_ShouldRejectInvalidDisplayMode()
+        {
+            // Arrange
+            _facebookConfig.DisplayMode = "invalid_mode";
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ValidateConfigurationAsync_ShouldValidateRedirectUri_Format()
+        {
+            // Arrange
+            _facebookConfig.RedirectUri = "not-a-valid-uri";
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ValidateConfigurationAsync_ShouldValidateBusinessConfiguration_WhenEnabled()
+        {
+            // Arrange
+            _facebookConfig.Business.BusinessId = ""; // Invalid
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            // Should still pass but with warning (BusinessId is optional)
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ValidateConfigurationAsync_ShouldValidateScopes_NotEmpty()
+        {
+            // Arrange
+            _facebookConfig.Scopes = new[] { "", "email" }; // Contains empty scope
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldHandleBusinessAccountData_Correctly()
+        {
+            // Arrange
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "business_token",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Claims.Should().ContainKey("iss");
+            result.Claims["iss"].Should().Be("https://www.facebook.com");
+            result.Claims.Should().ContainKey("aud");
+            result.Claims["aud"].Should().Be("123456789012345");
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldExtractAllBasicClaims_FromFacebookResponse()
+        {
+            // Arrange
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "test_token",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Claims.Should().ContainKey("sub");
+            result.Claims.Should().ContainKey("name");
+            result.Claims.Should().ContainKey("given_name");
+            result.Claims.Should().ContainKey("family_name");
+            result.Claims.Should().ContainKey("email");
+            result.Claims.Should().ContainKey("picture");
+            result.Claims.Should().ContainKey("email_verified");
+        }
+
+        #endregion
+
+        #region Enhanced v2.4.0 Business Login Feature Tests
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldIncludeBusinessAssets_WhenBusinessAssetsEnabled()
+        {
+            // Arrange
+            _facebookConfig.Business.IncludeBusinessAssets = true;
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "business_access_token_with_assets",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Claims.Should().ContainKey("business_pages_count");
+            result.Claims.Should().ContainKey("business_pages");
+            result.Claims.Should().ContainKey("business_accounts_count");
+            result.Claims.Should().ContainKey("business_accounts");
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldIncludeBusinessRoles_WhenBusinessRolesEnabled()
+        {
+            // Arrange
+            _facebookConfig.Business.IncludeBusinessRoles = true;
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "business_access_token_with_roles",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Claims.Should().ContainKey("business_permissions");
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldValidateBusinessRole_WhenPermissionValidationEnabled()
+        {
+            // Arrange
+            _facebookConfig.Business.ValidateBusinessPermissions = true;
+            _facebookConfig.Business.RequiredBusinessRole = "Admin";
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "business_access_token_invalid_role",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(
+                () => provider.GetUserInfoAsync(tokenResponse));
+        }
+
+        [Fact]
+        public async Task ValidateConfigurationAsync_ShouldValidateMaxPagesLimit()
+        {
+            // Arrange
+            _facebookConfig.Business.MaxPagesLimit = 150; // Invalid: exceeds 100
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ValidateConfigurationAsync_ShouldRequireBusinessRole_WhenValidationEnabled()
+        {
+            // Arrange
+            _facebookConfig.Business.ValidateBusinessPermissions = true;
+            _facebookConfig.Business.RequiredBusinessRole = ""; // Missing required role
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(1, true)]
+        [InlineData(25, true)]
+        [InlineData(100, true)]
+        [InlineData(0, false)]
+        [InlineData(-1, false)]
+        [InlineData(101, false)]
+        public async Task ValidateConfigurationAsync_ShouldValidateMaxPagesLimitRange(int maxPages, bool expectedValid)
+        {
+            // Arrange
+            _facebookConfig.Business.MaxPagesLimit = maxPages;
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().Be(expectedValid);
+        }
+
+        [Theory]
+        [InlineData("Admin", true)]
+        [InlineData("Editor", true)]
+        [InlineData("Analyst", true)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public async Task ValidateConfigurationAsync_ShouldValidateRequiredBusinessRole(string? requiredRole, bool expectedValid)
+        {
+            // Arrange
+            _facebookConfig.Business.ValidateBusinessPermissions = true;
+            _facebookConfig.Business.RequiredBusinessRole = requiredRole;
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.ValidateConfigurationAsync();
+
+            // Assert
+            result.Should().Be(expectedValid);
+        }
+
+        [Fact]
+        public async Task GetAuthorizationUrlAsync_ShouldRequestBusinessAssetScopes_WhenBusinessAssetsEnabled()
+        {
+            // Arrange
+            _facebookConfig.Business.IncludeBusinessAssets = true;
+            _facebookConfig.Business.Scopes = new[] { "business_management", "pages_show_list", "ads_read" };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetAuthorizationUrlAsync();
+
+            // Assert
+            result.Should().Contain("business_management");
+            result.Should().Contain("pages_show_list");
+            result.Should().Contain("ads_read");
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldHandleBusinessAssetsGracefully_WhenNotAvailable()
+        {
+            // Arrange
+            _facebookConfig.Business.IncludeBusinessAssets = true;
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "business_access_token_no_assets",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsAuthenticated.Should().BeTrue();
+            // Business asset claims may or may not be present, but should not cause errors
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldIncludeEnhancedBusinessClaims_WithDetailedInfo()
+        {
+            // Arrange
+            _facebookConfig.Business.EnableBusinessLogin = true;
+            _facebookConfig.Business.IncludeBusinessAssets = true;
+            _facebookConfig.Business.IncludeBusinessRoles = true;
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = "enhanced_business_token",
+                TokenType = "Bearer"
+            };
+            var provider = CreateFacebookAuthProvider();
+
+            // Act
+            var result = await provider.GetUserInfoAsync(tokenResponse);
+
+            // Assert
+            result.Claims.Should().ContainKey("business_account_id");
+            result.Claims.Should().ContainKey("business_account_name");
+        }
+
+        [Fact]
+        public async Task ExchangeCodeForTokenAsync_ShouldValidateArguments()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => provider.ExchangeCodeForTokenAsync(null!, "state"));
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => provider.ExchangeCodeForTokenAsync("", "state"));
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => provider.ExchangeCodeForTokenAsync("   ", "state"));
+        }
+
+        [Fact]
+        public async Task GetUserInfoAsync_ShouldValidateTokenResponse()
+        {
+            // Arrange
+            var provider = CreateFacebookAuthProvider();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => provider.GetUserInfoAsync(null!));
         }
 
         #endregion

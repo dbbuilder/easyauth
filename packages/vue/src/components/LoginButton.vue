@@ -41,6 +41,7 @@ const emit = defineEmits<{
 }>();
 
 const auth = useAuth();
+const { isLoading, error } = auth;
 
 const buttonClass = computed(() => {
   const classes = [];
@@ -59,10 +60,10 @@ const buttonClass = computed(() => {
 });
 
 const displayText = computed(() => {
-  if (auth.isLoading) {
+  if (isLoading.value) {
     return props.loadingText;
   }
-  if (auth.error) {
+  if (error.value) {
     return props.errorText;
   }
   return `Login with ${props.provider}`;

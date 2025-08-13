@@ -9,10 +9,23 @@
             Extension methods for configuring EasyAuth Framework services
             </summary>
         </member>
-        <member name="M:EasyAuth.Framework.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Hosting.IHostEnvironment)">
+        <member name="M:EasyAuth.Framework.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Hosting.IHostEnvironment,System.Boolean)">
             <summary>
             Add EasyAuth Framework to the service collection
             </summary>
+            <param name="services">Service collection</param>
+            <param name="configuration">Configuration instance</param>
+            <param name="environment">Host environment</param>
+            <param name="enableSecurity">Whether to enable comprehensive security features (default: true)</param>
+        </member>
+        <member name="M:EasyAuth.Framework.Extensions.ServiceCollectionExtensions.AddEasyAuth(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            COMPILE ERROR: This overload is intentionally broken to prevent runtime crashes.
+            You MUST include both IConfiguration AND IHostEnvironment parameters.
+            Use: AddEasyAuth(configuration, environment) instead.
+            </summary>
+            <param name="services">Service collection</param>
+            <param name="configuration">Configuration instance</param>
         </member>
         <member name="M:EasyAuth.Framework.Extensions.ServiceCollectionExtensions.UseEasyAuth(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>

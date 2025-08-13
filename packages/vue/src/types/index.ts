@@ -83,7 +83,15 @@ export interface AuthState {
 }
 
 // Vue-specific types
-export interface UseAuthReturn extends AuthState {
+export interface UseAuthReturn {
+  // Reactive state
+  isLoading: Ref<boolean>;
+  isAuthenticated: Ref<boolean>;
+  user: Ref<UserInfo | null>;
+  error: Ref<string | null>;
+  tokenExpiry: Ref<Date | null>;
+  sessionId: Ref<string | null>;
+  // Methods
   login: (provider: string, returnUrl?: string) => Promise<LoginResult>;
   logout: () => Promise<LogoutResult>;
   refreshToken: () => Promise<boolean>;

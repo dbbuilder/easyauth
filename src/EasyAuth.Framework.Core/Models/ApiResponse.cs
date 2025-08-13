@@ -315,46 +315,228 @@ public static class ErrorCodes
 }
 
 /// <summary>
-/// User information in consistent API format
+/// User information in consistent API format with comprehensive claims documentation
 /// </summary>
+/// <remarks>
+/// This model provides access to user data from all supported authentication providers.
+/// The `claims` dictionary contains all raw provider-specific data for advanced scenarios.
+/// 
+/// **Available Claims by Provider:**
+/// 
+/// **Apple Sign-In:**
+/// - `sub`: Apple's unique user ID (always available)
+/// - `email`: User's email address (requires email scope)
+/// - `email_verified`: Email verification status ("true"/"false")
+/// - `aud`: Your app's Client ID
+/// - `iss`: Token issuer ("https://appleid.apple.com")
+/// - `iat`, `exp`: Token timestamps
+/// 
+/// **Facebook:**
+/// - `id`: Facebook user ID (always available)
+/// - `email`: User's email (requires email permission)
+/// - `name`, `first_name`, `last_name`: User's name components
+/// - `picture`: Profile picture URL
+/// - `locale`: User's locale (e.g., "en_US")
+/// - `timezone`: Timezone offset from UTC
+/// - `verified`: Account verification status
+/// 
+/// **Azure B2C:**
+/// - `sub`/`oid`: Azure B2C user object ID
+/// - `email`, `emails`: User's email address(es)
+/// - `name`, `given_name`, `family_name`: User's name components
+/// - `extension_*`: Custom attributes (e.g., "extension_department")
+/// - `tfp`: Trust Framework Policy name
+/// - `aud`: Application ID
+/// 
+/// **Usage Examples:**
+/// ```csharp
+/// // Safe claim access
+/// string department = user.Claims.TryGetValue("extension_department", out var dept) ? dept : "Unknown";
+/// 
+/// // Provider-specific handling
+/// if (user.Provider == "Apple" &amp;&amp; user.Claims.ContainsKey("email"))
+/// {
+///     bool isPrivateRelay = user.Claims["email"].Contains("privaterelay.appleid.com");
+/// }
+/// ```
+/// </remarks>
 public class ApiUserInfo
 {
+    /// <summary>
+    /// Unique user identifier from the authentication provider
+    /// </summary>
+    /// <example>"a1b2c3d4-e5f6-7890-abcd-ef1234567890" (Azure B2C), "123456789012345" (Facebook), "001234.567890abcdef.1234" (Apple)</example>
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
 
+    /// <summary>
+    /// User's email address (availability depends on provider permissions)
+    /// </summary>
+    /// <example>"user@example.com" or "abc123@privaterelay.appleid.com" (Apple private relay)</example>
     [JsonPropertyName("email")]
     public string? Email { get; set; }
 
+    /// <summary>
+    /// User's display name or full name
+    /// </summary>
+    /// <example>"John Doe" (Facebook/Azure B2C) or "user" (Apple - derived from email)</example>
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 
+    /// <summary>
+    /// User's first name (not available from Apple)
+    /// </summary>
+    /// <example>"John"</example>
     [JsonPropertyName("firstName")]
     public string? FirstName { get; set; }
 
+    /// <summary>
+    /// User's last name (not available from Apple)
+    /// </summary>
+    /// <example>"Doe"</example>
     [JsonPropertyName("lastName")]
     public string? LastName { get; set; }
 
+    /// <summary>
+    /// URL to user's profile picture (availability depends on provider)
+    /// </summary>
+    /// <example>"https://graph.facebook.com/v18.0/123456789/picture" (Facebook)</example>
     [JsonPropertyName("profilePicture")]
     public string? ProfilePicture { get; set; }
 
+    /// <summary>
+    /// Authentication provider used for this session
+    /// </summary>
+    /// <example>"Apple", "Facebook", "AzureB2C"</example>
     [JsonPropertyName("provider")]
     public string? Provider { get; set; }
 
+    /// <summary>
+    /// Application-specific user roles
+    /// </summary>
+    /// <example>["Admin", "User"]</example>
     [JsonPropertyName("roles")]
     public string[] Roles { get; set; } = Array.Empty<string>();
 
+    /// <summary>
+    /// Application-specific user permissions
+    /// </summary>
+    /// <example>["read:users", "write:posts"]</example>
     [JsonPropertyName("permissions")]
     public string[] Permissions { get; set; } = Array.Empty<string>();
 
+    /// <summary>
+    /// Last successful login timestamp
+    /// </summary>
+    /// <example>"2024-01-15T10:30:00Z"</example>
     [JsonPropertyName("lastLogin")]
     public DateTimeOffset? LastLogin { get; set; }
 
+    /// <summary>
+    /// Whether the user's email/account is verified
+    /// </summary>
     [JsonPropertyName("isVerified")]
     public bool IsVerified { get; set; }
 
+    /// <summary>
+    /// User's locale preference (e.g., "en-US", "fr-FR")
+    /// </summary>
+    /// <example>"en-US"</example>
     [JsonPropertyName("locale")]
     public string? Locale { get; set; }
 
+    /// <summary>
+    /// User's timezone preference
+    /// </summary>
+    /// <example>"America/New_York"</example>
     [JsonPropertyName("timeZone")]
     public string? TimeZone { get; set; }
+
+    /// <summary>
+    /// All raw claims from the authentication provider
+    /// </summary>
+    /// <remarks>
+    /// Contains every claim provided by the authentication provider. Use this for:
+    /// - Provider-specific data not mapped to standard properties
+    /// - Custom attributes from Azure B2C
+    /// - Advanced scenarios requiring raw token data
+    /// 
+    /// **Common Claim Examples:**
+    /// - Apple: `sub`, `email`, `email_verified`, `aud`, `iss`
+    /// - Facebook: `id`, `email`, `name`, `picture`, `locale`, `timezone`
+    /// - Azure B2C: `oid`, `email`, `tfp`, `extension_department`
+    /// 
+    /// **Safe Access Pattern:**
+    /// ```csharp
+    /// string value = claims.TryGetValue("claim_name", out var claim) ? claim : "default";
+    /// ```
+    /// </remarks>
+    /// <example>
+    /// {
+    ///   "sub": "001234.567890abcdef.1234",
+    ///   "email": "user@example.com",
+    ///   "email_verified": "true",
+    ///   "aud": "com.yourapp.service",
+    ///   "iss": "https://appleid.apple.com"
+    /// }
+    /// </example>
+    [JsonPropertyName("claims")]
+    public Dictionary<string, string> Claims { get; set; } = new();
+
+    /// <summary>
+    /// Linked authentication accounts from other providers
+    /// </summary>
+    /// <remarks>
+    /// When account linking is enabled, this contains information about
+    /// other authentication providers the user has connected to their account.
+    /// </remarks>
+    [JsonPropertyName("linkedAccounts")]
+    public LinkedAccount[] LinkedAccounts { get; set; } = Array.Empty<LinkedAccount>();
+}
+
+/// <summary>
+/// Information about a linked authentication account
+/// </summary>
+public class LinkedAccount
+{
+    /// <summary>
+    /// Authentication provider name
+    /// </summary>
+    /// <example>"Facebook"</example>
+    [JsonPropertyName("provider")]
+    public string Provider { get; set; } = string.Empty;
+
+    /// <summary>
+    /// User ID from the linked provider
+    /// </summary>
+    /// <example>"987654321"</example>
+    [JsonPropertyName("providerId")]
+    public string ProviderId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Email associated with the linked account
+    /// </summary>
+    /// <example>"same.user@example.com"</example>
+    [JsonPropertyName("email")]
+    public string? Email { get; set; }
+
+    /// <summary>
+    /// Display name from the linked account
+    /// </summary>
+    /// <example>"John Doe"</example>
+    [JsonPropertyName("displayName")]
+    public string? DisplayName { get; set; }
+
+    /// <summary>
+    /// When this account was linked
+    /// </summary>
+    /// <example>"2024-01-10T08:00:00Z"</example>
+    [JsonPropertyName("linkedAt")]
+    public DateTimeOffset LinkedAt { get; set; }
+
+    /// <summary>
+    /// Whether this is the primary authentication method
+    /// </summary>
+    [JsonPropertyName("isPrimary")]
+    public bool IsPrimary { get; set; }
 }

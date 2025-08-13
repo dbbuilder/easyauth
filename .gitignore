@@ -190,3 +190,9 @@ _site/
 
 # StyleCop
 StyleCopReport.xml
+
+# Test projects (gitignored for issue verification)
+test-project/
+correlation-test/
+middleware-test/
+security-test/

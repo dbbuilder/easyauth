@@ -1,0 +1,226 @@
+name: Package Publishing
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to publish'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - dotnet
+        - react
+        - vue
+      dry_run:
+        description: 'Dry run (test without publishing)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '18.x'
+
+jobs:
+  publish-dotnet:
+    if: github.event.inputs.package == 'all' || github.event.inputs.package == 'dotnet' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    name: Publish .NET Packages
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test --configuration Release --no-build
+    
+    - name: Pack EasyAuth.Framework.Core
+      run: dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj --configuration Release --output ./nupkgs --include-symbols
+    
+    - name: Pack EasyAuth.Framework.Extensions
+      run: dotnet pack src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj --configuration Release --output ./nupkgs --include-symbols
+    
+    - name: List packages
+      run: ls -la ./nupkgs/
+    
+    - name: Validate packages
+      run: |
+        for pkg in ./nupkgs/*.nupkg; do
+          echo "Validating $pkg"
+          dotnet nuget verify "$pkg"
+        done
+    
+    - name: Publish to NuGet (Dry Run)
+      if: github.event.inputs.dry_run == 'true'
+      run: |
+        echo "DRY RUN: Would publish the following packages:"
+        ls -la ./nupkgs/*.nupkg
+        echo "To NuGet.org with API key: ${{ secrets.NUGET_API_KEY != '' && '***' || 'NOT SET' }}"
+    
+    - name: Publish to NuGet
+      if: github.event.inputs.dry_run != 'true'
+      run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    
+    - name: Upload packages as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dotnet-packages
+        path: ./nupkgs/*.nupkg
+
+  publish-react:
+    if: github.event.inputs.package == 'all' || github.event.inputs.package == 'react' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    name: Publish React Package
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        registry-url: 'https://registry.npmjs.org'
+    
+    - name: Install dependencies
+      working-directory: packages/react
+      run: npm ci
+    
+    - name: Run tests
+      working-directory: packages/react
+      run: npm run test:coverage
+    
+    - name: Lint
+      working-directory: packages/react
+      run: npm run lint
+    
+    - name: Type check
+      working-directory: packages/react
+      run: npm run typecheck
+    
+    - name: Build
+      working-directory: packages/react
+      run: npm run build
+    
+    - name: Validate package
+      working-directory: packages/react
+      run: npm pack --dry-run
+    
+    - name: Publish to npm (Dry Run)
+      if: github.event.inputs.dry_run == 'true'
+      working-directory: packages/react
+      run: |
+        echo "DRY RUN: Would publish @easyauth/react package"
+        npm pack --dry-run
+        echo "To npm with token: ${{ secrets.NPM_TOKEN != '' && '***' || 'NOT SET' }}"
+    
+    - name: Publish to npm
+      if: github.event.inputs.dry_run != 'true'
+      working-directory: packages/react
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-vue:
+    if: github.event.inputs.package == 'all' || github.event.inputs.package == 'vue' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    name: Publish Vue Package
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        registry-url: 'https://registry.npmjs.org'
+    
+    - name: Install dependencies
+      working-directory: packages/vue
+      run: npm ci
+    
+    - name: Run tests
+      working-directory: packages/vue
+      run: npm run test:coverage
+    
+    - name: Lint
+      working-directory: packages/vue
+      run: npm run lint
+    
+    - name: Type check
+      working-directory: packages/vue
+      run: npm run typecheck
+    
+    - name: Build
+      working-directory: packages/vue
+      run: npm run build
+    
+    - name: Validate package
+      working-directory: packages/vue
+      run: npm pack --dry-run
+    
+    - name: Publish to npm (Dry Run)
+      if: github.event.inputs.dry_run == 'true'
+      working-directory: packages/vue
+      run: |
+        echo "DRY RUN: Would publish @easyauth/vue package"
+        npm pack --dry-run
+        echo "To npm with token: ${{ secrets.NPM_TOKEN != '' && '***' || 'NOT SET' }}"
+    
+    - name: Publish to npm
+      if: github.event.inputs.dry_run != 'true'
+      working-directory: packages/vue
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  notify-success:
+    needs: [publish-dotnet, publish-react, publish-vue]
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    name: Notify Publishing Results
+    
+    steps:
+    - name: Create success summary
+      if: needs.publish-dotnet.result == 'success' && needs.publish-react.result == 'success' && needs.publish-vue.result == 'success'
+      run: |
+        echo "# 🎉 Package Publishing Successful!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "All EasyAuth packages have been successfully published:" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ .NET packages to NuGet.org" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ React package to npm" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Vue package to npm" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "1. Update documentation with new version numbers" >> $GITHUB_STEP_SUMMARY
+        echo "2. Announce release in community channels" >> $GITHUB_STEP_SUMMARY
+        echo "3. Monitor package download metrics" >> $GITHUB_STEP_SUMMARY
+    
+    - name: Create failure summary
+      if: needs.publish-dotnet.result == 'failure' || needs.publish-react.result == 'failure' || needs.publish-vue.result == 'failure'
+      run: |
+        echo "# ❌ Package Publishing Failed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Some packages failed to publish:" >> $GITHUB_STEP_SUMMARY
+        echo "- .NET: ${{ needs.publish-dotnet.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- React: ${{ needs.publish-react.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Vue: ${{ needs.publish-vue.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Troubleshooting" >> $GITHUB_STEP_SUMMARY
+        echo "1. Check the individual job logs for error details" >> $GITHUB_STEP_SUMMARY
+        echo "2. Verify API keys are correctly configured" >> $GITHUB_STEP_SUMMARY
+        echo "3. Ensure package versions are correctly incremented" >> $GITHUB_STEP_SUMMARY
+        echo "4. Re-run failed jobs after fixing issues" >> $GITHUB_STEP_SUMMARY

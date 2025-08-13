@@ -1,4 +1,4 @@
-import { ref, reactive, onMounted, watch, inject, provide } from 'vue';
+import { reactive, computed, watch, inject, provide } from 'vue';
 import type { 
   UseAuthReturn, 
   AuthState, 
@@ -193,8 +193,16 @@ export function createEasyAuth(authConfig: Partial<EasyAuthConfig> = {}) {
     }
   });
 
+  // Convert reactive state to refs for Vue composition API
   const authReturn: UseAuthReturn = {
-    ...globalAuthState,
+    // Reactive state as refs
+    isLoading: computed(() => globalAuthState.isLoading),
+    isAuthenticated: computed(() => globalAuthState.isAuthenticated),
+    user: computed(() => globalAuthState.user),
+    error: computed(() => globalAuthState.error),
+    tokenExpiry: computed(() => globalAuthState.tokenExpiry),
+    sessionId: computed(() => globalAuthState.sessionId),
+    // Methods
     ...authMethods,
   };
 

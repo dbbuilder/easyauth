@@ -1,0 +1,228 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '18.x'
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+jobs:
+  # Backend testing and analysis
+  backend-test:
+    runs-on: ubuntu-latest
+    name: Backend Tests & Analysis
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Setup Java (for SonarCloud)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Test
+      run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+    
+    - name: Install SonarCloud scanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    
+    - name: Run SonarCloud analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet sonarscanner begin /k:"dbbuilder_easyauth" /o:"dbbuilder" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+        dotnet build --configuration Release
+        dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+  # Frontend package testing
+  frontend-test:
+    runs-on: ubuntu-latest
+    name: Frontend Package Tests
+    strategy:
+      matrix:
+        package: [react, vue]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: packages/${{ matrix.package }}
+      run: npm ci
+    
+    - name: Run tests
+      working-directory: packages/${{ matrix.package }}
+      run: npm run test:coverage
+    
+    - name: Lint
+      working-directory: packages/${{ matrix.package }}
+      run: npm run lint
+    
+    - name: Type check
+      working-directory: packages/${{ matrix.package }}
+      run: npm run typecheck
+    
+    - name: Build
+      working-directory: packages/${{ matrix.package }}
+      run: npm run build
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: packages/${{ matrix.package }}/coverage/lcov.info
+        flags: ${{ matrix.package }}
+        name: ${{ matrix.package }}-coverage
+
+  # Security scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/dotnet@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    
+    - name: Run npm audit for React package
+      working-directory: packages/react
+      run: npm audit --audit-level moderate
+    
+    - name: Run npm audit for Vue package  
+      working-directory: packages/vue
+      run: npm audit --audit-level moderate
+
+  # Package publishing (only on main branch and tags)
+  publish:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    needs: [backend-test, frontend-test, security-scan]
+    runs-on: ubuntu-latest
+    name: Publish Packages
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        registry-url: 'https://registry.npmjs.org'
+    
+    # Build .NET packages
+    - name: Build .NET packages
+      run: |
+        dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj --configuration Release --output ./nupkgs
+        dotnet pack src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj --configuration Release --output ./nupkgs
+    
+    # Publish .NET packages to NuGet (on tags only)
+    - name: Publish to NuGet
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    
+    # Build and publish React package
+    - name: Build React package
+      working-directory: packages/react
+      run: |
+        npm ci
+        npm run build
+    
+    - name: Publish React package
+      if: startsWith(github.ref, 'refs/tags/v')
+      working-directory: packages/react
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    
+    # Build and publish Vue package
+    - name: Build Vue package
+      working-directory: packages/vue
+      run: |
+        npm ci
+        npm run build
+    
+    - name: Publish Vue package
+      if: startsWith(github.ref, 'refs/tags/v')
+      working-directory: packages/vue
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Create GitHub release (on tags only)
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [publish]
+    runs-on: ubuntu-latest
+    name: Create Release
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: EasyAuth Framework ${{ github.ref_name }}
+        body: |
+          ## Changes
+          
+          See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+          
+          ## Published Packages
+          
+          ### .NET Packages
+          - `EasyAuth.Framework.Core` - Core authentication framework
+          - `EasyAuth.Framework.Extensions` - Additional extensions and utilities
+          
+          ### Frontend Packages  
+          - `@easyauth/react` - React hooks and components
+          - `@easyauth/vue` - Vue 3 composables and components
+          
+          ## Installation
+          
+          ```bash
+          # .NET
+          dotnet add package EasyAuth.Framework.Core
+          
+          # React
+          npm install @easyauth/react
+          
+          # Vue
+          npm install @easyauth/vue
+          ```
+        draft: false
+        prerelease: ${{ contains(github.ref_name, '-') }}
