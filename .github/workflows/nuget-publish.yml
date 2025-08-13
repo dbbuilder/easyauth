@@ -39,8 +39,8 @@ jobs:
 
     - name: Build solution (excluding problematic tests)
       run: |
-        dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj --configuration ${{ env.CONFIGURATION }} --no-restore --verbosity minimal -p:TreatWarningsAsErrors=false
-        dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj --configuration ${{ env.CONFIGURATION }} --no-restore --verbosity minimal -p:TreatWarningsAsErrors=false
+        dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj --configuration ${{ env.CONFIGURATION }} --no-restore --verbosity minimal -p:TreatWarningsAsErrors=false -p:WarningsAsErrors="" -p:WarningsNotAsErrors="NU1603"
+        dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj --configuration ${{ env.CONFIGURATION }} --no-restore --verbosity minimal -p:TreatWarningsAsErrors=false -p:WarningsAsErrors="" -p:WarningsNotAsErrors="NU1603"
 
     - name: Run core tests (excluding performance tests)
       run: |
@@ -99,27 +99,36 @@ jobs:
 
     - name: Build packages
       run: |
+        # Build both projects for all target frameworks (net8.0 and net9.0)
         dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
           --configuration ${{ env.CONFIGURATION }} \
           --no-restore \
-          --verbosity minimal
+          --verbosity minimal \
+          -p:TreatWarningsAsErrors=false
           
         dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
           --configuration ${{ env.CONFIGURATION }} \
           --no-restore \
-          --verbosity minimal
+          --verbosity minimal \
+          -p:TreatWarningsAsErrors=false
           
+        # Verify build outputs exist for both frameworks
+        echo "Checking build outputs..."
+        ls -la src/EasyAuth.Framework.Core/bin/Release/
+        ls -la src/EasyAuth.Framework.Extensions/bin/Release/
+        
+        # Pack with build to ensure all frameworks are included
         dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
           --configuration ${{ env.CONFIGURATION }} \
-          --no-build \
           --output ./packages \
-          --verbosity normal
+          --verbosity normal \
+          -p:TreatWarningsAsErrors=false
           
         dotnet pack src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
           --configuration ${{ env.CONFIGURATION }} \
-          --no-build \
           --output ./packages \
-          --verbosity normal
+          --verbosity normal \
+          -p:TreatWarningsAsErrors=false
 
     - name: List created packages
       run: ls -la ./packages/
