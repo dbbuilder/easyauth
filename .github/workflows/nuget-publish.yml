@@ -99,15 +99,25 @@ jobs:
 
     - name: Build packages
       run: |
-        dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
+        dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
           --configuration ${{ env.CONFIGURATION }} \
           --no-restore \
+          --verbosity minimal
+          
+        dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
+          --configuration ${{ env.CONFIGURATION }} \
+          --no-restore \
+          --verbosity minimal
+          
+        dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
+          --configuration ${{ env.CONFIGURATION }} \
+          --no-build \
           --output ./packages \
           --verbosity normal
           
         dotnet pack src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
           --configuration ${{ env.CONFIGURATION }} \
-          --no-restore \
+          --no-build \
           --output ./packages \
           --verbosity normal
 
