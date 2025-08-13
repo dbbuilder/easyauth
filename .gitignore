@@ -191,6 +191,25 @@ _site/
 # StyleCop
 StyleCopReport.xml
 
+# Generated XML documentation files (should not be committed)
+src/**/.xml
+*.xml.tmp
+
+# Placeholder and demo files (cleanup)
+**/wwwroot/custom.css
+**/wwwroot/custom.js
+**/demo-*
+**/placeholder-*
+
+# OAuth CLI temporary files
+oauth-setup-temp/
+temp-oauth-config/
+
+# User secrets and configuration files
+appsettings.local.json
+appsettings.secrets.json
+*.secret
+
 # Test projects (gitignored for issue verification)
 test-project/
 correlation-test/
