@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Hosting;
 
 namespace EasyAuth.Framework.Core.Configuration;
 
@@ -145,8 +145,10 @@ public class EAuthCorsConfiguration
                    uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
                    uri.Host.Equals("::1", StringComparison.OrdinalIgnoreCase) ||
                    uri.Host.Equals("0.0.0.0", StringComparison.OrdinalIgnoreCase) ||
+
                    // Support common dev server hostnames
                    uri.Host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase) ||
+
                    // Support any localhost port (for flexibility)
                    (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) && uri.Port >= 1024);
         }
@@ -177,6 +179,7 @@ public class EAuthCorsConfiguration
                 "172.16.", "172.17.", "172.18.", "172.19.", "172.20.", 
                 "172.21.", "172.22.", "172.23.", "172.24.", "172.25.", 
                 "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
+
                 // Development TLDs and patterns
                 ".local",
                 ".localhost",
