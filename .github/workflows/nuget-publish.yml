@@ -99,33 +99,61 @@ jobs:
 
     - name: Build packages
       run: |
-        # Build both projects for all target frameworks (net8.0 and net9.0)
+        # Build both projects for all target frameworks explicitly
+        echo "Building for .NET 8.0..."
         dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
           --configuration ${{ env.CONFIGURATION }} \
+          --framework net8.0 \
           --no-restore \
           --verbosity minimal \
           -p:TreatWarningsAsErrors=false
           
+        echo "Building for .NET 9.0..."
+        dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
+          --configuration ${{ env.CONFIGURATION }} \
+          --framework net9.0 \
+          --no-restore \
+          --verbosity minimal \
+          -p:TreatWarningsAsErrors=false
+          
+        echo "Building Extensions for .NET 8.0..."
         dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
           --configuration ${{ env.CONFIGURATION }} \
+          --framework net8.0 \
+          --no-restore \
+          --verbosity minimal \
+          -p:TreatWarningsAsErrors=false
+          
+        echo "Building Extensions for .NET 9.0..."
+        dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
+          --configuration ${{ env.CONFIGURATION }} \
+          --framework net9.0 \
           --no-restore \
           --verbosity minimal \
           -p:TreatWarningsAsErrors=false
           
         # Verify build outputs exist for both frameworks
-        echo "Checking build outputs..."
+        echo "Checking build outputs after explicit framework builds..."
         ls -la src/EasyAuth.Framework.Core/bin/Release/
         ls -la src/EasyAuth.Framework.Extensions/bin/Release/
+        echo "Checking .NET 8.0 outputs..."
+        ls -la src/EasyAuth.Framework.Core/bin/Release/net8.0/ || echo "net8.0 dir not found"
+        echo "Checking .NET 9.0 outputs..."
+        ls -la src/EasyAuth.Framework.Core/bin/Release/net9.0/ || echo "net9.0 dir not found"
         
-        # Pack with build to ensure all frameworks are included
+        # Pack - this should now find both framework DLLs
+        echo "Packing Core project..."
         dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
           --configuration ${{ env.CONFIGURATION }} \
+          --no-build \
           --output ./packages \
           --verbosity normal \
           -p:TreatWarningsAsErrors=false
           
+        echo "Packing Extensions project..."
         dotnet pack src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
           --configuration ${{ env.CONFIGURATION }} \
+          --no-build \
           --output ./packages \
           --verbosity normal \
           -p:TreatWarningsAsErrors=false
