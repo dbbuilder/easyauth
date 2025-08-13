@@ -46,11 +46,11 @@
     <TrimMode>link</TrimMode>
     
     <!-- Versioning -->
-    <Version>2.4.4</Version>
+    <Version>2.4.5</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <PackageReleaseNotes><![CDATA[v2.4.4 Workflow Optimization & Production Readiness: Consolidated GitHub Actions from 9 overlapping workflows to 3 optimized workflows (main.yml, security-scheduled.yml, pr-validation.yml) achieving 70-80% cost reduction. Enhanced CORS configuration with dynamic production domain support and unified approach. Fixed critical /api/EAuth path handling for production deployments. Added comprehensive workflow consolidation documentation and smart change detection for faster CI/CD feedback.]]></PackageReleaseNotes>
+    <PackageReleaseNotes><![CDATA[v2.4.5 Workflow Simplification & Reliability: Simplified GitHub Actions to single reliable release workflow after consolidation issues. Enhanced CORS configuration with dynamic production domain support. Fixed critical /api/EAuth path handling for production deployments. Maintained dual .NET 8/9 targeting with simplified build process. Focused on core functionality and reliability over complex features.]]></PackageReleaseNotes>
     
     <!-- Multi-targeting configuration for .NET 8 and .NET 9 support -->
     <EasyAuthTargetFrameworks>net8.0</EasyAuthTargetFrameworks>
