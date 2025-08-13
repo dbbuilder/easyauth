@@ -15,12 +15,12 @@ namespace EasyAuth.Framework.Core.Configuration;
 public class EAuthCorsConfiguration
 {
     private readonly ILogger<EAuthCorsConfiguration> _logger;
-    private readonly EAuthCorsOptions _options;
+    private readonly CorsOptions _corsOptions;
 
-    public EAuthCorsConfiguration(ILogger<EAuthCorsConfiguration> logger, IOptions<EAuthCorsOptions> options)
+    public EAuthCorsConfiguration(ILogger<EAuthCorsConfiguration> logger, IOptions<EAuthOptions> options)
     {
         _logger = logger;
-        _options = options.Value;
+        _corsOptions = options.Value.Cors;
     }
 
     /// <summary>
@@ -57,11 +57,22 @@ public class EAuthCorsConfiguration
             // Secure policy for production with specific origins
             options.AddPolicy("EasyAuthProduction", policy =>
             {
+                var allowedOrigins = GetAllAllowedOrigins();
+                _logger.LogInformation("EasyAuth CORS Production Policy: {Count} origins configured", allowedOrigins.Count);
+                foreach (var origin in allowedOrigins.Take(5)) // Log first 5 for debugging
+                {
+                    _logger.LogDebug("Allowed origin: {Origin}", origin);
+                }
+                
                 policy
-                    .WithOrigins(_options.AllowedOrigins.ToArray())
-                    .WithMethods(_options.AllowedMethods.ToArray())
-                    .WithHeaders(_options.AllowedHeaders.ToArray())
-                    .AllowCredentials();
+                    .WithOrigins(allowedOrigins.ToArray())
+                    .WithMethods(_corsOptions.AllowedMethods)
+                    .WithHeaders(_corsOptions.AllowedHeaders);
+                
+                if (_corsOptions.AllowCredentials)
+                {
+                    policy.AllowCredentials();
+                }
             });
 
             // Auto-detection policy that learns from requests
@@ -80,7 +91,7 @@ public class EAuthCorsConfiguration
         
         string policyName = environment.Equals("Development", StringComparison.OrdinalIgnoreCase) 
             ? "EasyAuthDevelopment" 
-            : _options.EnableAutoDetection 
+            : _corsOptions.EnableAutoDetection 
                 ? "EasyAuthAuto" 
                 : "EasyAuthProduction";
 
@@ -91,7 +102,7 @@ public class EAuthCorsConfiguration
 
     private void ConfigureAutoDetectionPolicy(CorsPolicyBuilder policy)
     {
-        if (_options.EnableAutoDetection)
+        if (_corsOptions.EnableAutoDetection)
         {
             // Smart CORS policy that adapts to incoming requests
             policy.SetIsOriginAllowed(origin =>
@@ -103,18 +114,20 @@ public class EAuthCorsConfiguration
                     return true;
                 }
 
-                // Check against known safe origins
-                if (_options.AllowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                // Check against known safe origins (including configured and default dev origins)
+                var allowedOrigins = GetAllAllowedOrigins();
+                if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
                 {
                     _logger.LogDebug("Auto-allowing configured origin: {Origin}", origin);
                     return true;
                 }
 
                 // Auto-learn new origins in development
-                if (IsDevOrigin(origin) && _options.AutoLearnOrigins)
+                if (IsDevOrigin(origin) && _corsOptions.AutoLearnOrigins)
                 {
                     _logger.LogInformation("Auto-learning new development origin: {Origin}", origin);
-                    _options.AllowedOrigins.Add(origin);
+                    // Note: Auto-learning is logged but not persisted in this version
+                    // Future enhancement could add runtime origin learning
                     return true;
                 }
 
@@ -124,13 +137,86 @@ public class EAuthCorsConfiguration
         }
         else
         {
-            policy.WithOrigins(_options.AllowedOrigins.ToArray());
+            var allowedOrigins = GetAllAllowedOrigins();
+            policy.WithOrigins(allowedOrigins.ToArray());
         }
 
         policy
-            .WithMethods(_options.AllowedMethods.ToArray())
-            .WithHeaders(_options.AllowedHeaders.ToArray())
-            .AllowCredentials();
+            .WithMethods(_corsOptions.AllowedMethods)
+            .WithHeaders(_corsOptions.AllowedHeaders)
+            .SetPreflightMaxAge(TimeSpan.FromSeconds(_corsOptions.PreflightMaxAge));
+            
+        if (_corsOptions.AllowCredentials)
+        {
+            policy.AllowCredentials();
+        }
+    }
+
+    /// <summary>
+    /// Gets all allowed origins including configured production origins and default development origins
+    /// </summary>
+    private List<string> GetAllAllowedOrigins()
+    {
+        var allOrigins = new List<string>(_corsOptions.AllowedOrigins);
+        
+        // Add default development origins if enabled and not already present
+        if (_corsOptions.IncludeDefaultDevOrigins)
+        {
+            var defaultDevOrigins = GetDefaultDevelopmentOrigins();
+            foreach (var origin in defaultDevOrigins)
+            {
+                if (!allOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                {
+                    allOrigins.Add(origin);
+                }
+            }
+        }
+        
+        return allOrigins;
+    }
+
+    /// <summary>
+    /// Gets default development origins (localhost servers)
+    /// </summary>
+    private static List<string> GetDefaultDevelopmentOrigins()
+    {
+        return new List<string>
+        {
+            // React development servers
+            "https://localhost:3000", "http://localhost:3000",
+            "https://127.0.0.1:3000", "http://127.0.0.1:3000",
+            
+            // Vite development servers (Vue, React, etc)
+            "https://localhost:5173", "http://localhost:5173",
+            "https://127.0.0.1:5173", "http://127.0.0.1:5173",
+            
+            // Vue CLI development servers
+            "https://localhost:8080", "http://localhost:8080",
+            "https://127.0.0.1:8080", "http://127.0.0.1:8080",
+            
+            // Angular development servers
+            "https://localhost:4200", "http://localhost:4200",
+            "https://127.0.0.1:4200", "http://127.0.0.1:4200",
+            
+            // Next.js development servers
+            "https://localhost:3001", "http://localhost:3001",
+            "https://127.0.0.1:3001", "http://127.0.0.1:3001",
+            
+            // Svelte development servers
+            "https://localhost:5000", "http://localhost:5000",
+            "https://127.0.0.1:5000", "http://127.0.0.1:5000",
+            
+            // Nuxt.js development servers
+            "https://localhost:3002", "http://localhost:3002",
+            "https://127.0.0.1:3002", "http://127.0.0.1:3002",
+            
+            // Common development ports
+            "https://localhost:8000", "http://localhost:8000",
+            "https://localhost:8001", "http://localhost:8001",
+            "https://localhost:8888", "http://localhost:8888",
+            "https://localhost:9000", "http://localhost:9000",
+            "https://localhost:9001", "http://localhost:9001"
+        };
     }
 
     private static bool IsLocalhostOrigin(string origin)
@@ -248,45 +334,73 @@ public class EAuthCorsConfiguration
 public class EAuthCorsOptions
 {
     /// <summary>
-    /// Explicitly allowed origins
+    /// Explicitly allowed origins - configure via appsettings.json EasyAuth:Cors:AllowedOrigins
     /// </summary>
-    public List<string> AllowedOrigins { get; set; } = new()
+    public List<string> AllowedOrigins { get; set; } = new();
+
+    /// <summary>
+    /// Gets all origins including configured production origins and default development origins
+    /// </summary>
+    public List<string> GetAllAllowedOrigins()
     {
-        // React development servers
-        "https://localhost:3000", "http://localhost:3000",
-        "https://127.0.0.1:3000", "http://127.0.0.1:3000",
+        var allOrigins = new List<string>(AllowedOrigins);
         
-        // Vite development servers (Vue, React, etc)
-        "https://localhost:5173", "http://localhost:5173",
-        "https://127.0.0.1:5173", "http://127.0.0.1:5173",
+        // Add default development origins if not already present
+        var defaultDevOrigins = GetDefaultDevelopmentOrigins();
+        foreach (var origin in defaultDevOrigins)
+        {
+            if (!allOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+            {
+                allOrigins.Add(origin);
+            }
+        }
         
-        // Vue CLI development servers
-        "https://localhost:8080", "http://localhost:8080",
-        "https://127.0.0.1:8080", "http://127.0.0.1:8080",
-        
-        // Angular development servers
-        "https://localhost:4200", "http://localhost:4200",
-        "https://127.0.0.1:4200", "http://127.0.0.1:4200",
-        
-        // Next.js development servers
-        "https://localhost:3001", "http://localhost:3001",
-        "https://127.0.0.1:3001", "http://127.0.0.1:3001",
-        
-        // Svelte development servers
-        "https://localhost:5000", "http://localhost:5000",
-        "https://127.0.0.1:5000", "http://127.0.0.1:5000",
-        
-        // Nuxt.js development servers
-        "https://localhost:3002", "http://localhost:3002",
-        "https://127.0.0.1:3002", "http://127.0.0.1:3002",
-        
-        // Common development ports
-        "https://localhost:8000", "http://localhost:8000",
-        "https://localhost:8001", "http://localhost:8001",
-        "https://localhost:8888", "http://localhost:8888",
-        "https://localhost:9000", "http://localhost:9000",
-        "https://localhost:9001", "http://localhost:9001"
-    };
+        return allOrigins;
+    }
+
+    /// <summary>
+    /// Gets default development origins (localhost servers)
+    /// </summary>
+    private static List<string> GetDefaultDevelopmentOrigins()
+    {
+        return new List<string>
+        {
+            // React development servers
+            "https://localhost:3000", "http://localhost:3000",
+            "https://127.0.0.1:3000", "http://127.0.0.1:3000",
+            
+            // Vite development servers (Vue, React, etc)
+            "https://localhost:5173", "http://localhost:5173",
+            "https://127.0.0.1:5173", "http://127.0.0.1:5173",
+            
+            // Vue CLI development servers
+            "https://localhost:8080", "http://localhost:8080",
+            "https://127.0.0.1:8080", "http://127.0.0.1:8080",
+            
+            // Angular development servers
+            "https://localhost:4200", "http://localhost:4200",
+            "https://127.0.0.1:4200", "http://127.0.0.1:4200",
+            
+            // Next.js development servers
+            "https://localhost:3001", "http://localhost:3001",
+            "https://127.0.0.1:3001", "http://127.0.0.1:3001",
+            
+            // Svelte development servers
+            "https://localhost:5000", "http://localhost:5000",
+            "https://127.0.0.1:5000", "http://127.0.0.1:5000",
+            
+            // Nuxt.js development servers
+            "https://localhost:3002", "http://localhost:3002",
+            "https://127.0.0.1:3002", "http://127.0.0.1:3002",
+            
+            // Common development ports
+            "https://localhost:8000", "http://localhost:8000",
+            "https://localhost:8001", "http://localhost:8001",
+            "https://localhost:8888", "http://localhost:8888",
+            "https://localhost:9000", "http://localhost:9000",
+            "https://localhost:9001", "http://localhost:9001"
+        };
+    }
 
     /// <summary>
     /// Allowed HTTP methods
@@ -417,8 +531,10 @@ public class EAuthCorsDetectionMiddleware
     private static bool IsEAuthRequest(HttpContext context)
     {
         var path = context.Request.Path.Value;
-        return path?.StartsWith("/api/auth", StringComparison.OrdinalIgnoreCase) == true ||
-               path?.StartsWith("/easyauth", StringComparison.OrdinalIgnoreCase) == true;
+        return path?.StartsWith("/api/EAuth", StringComparison.OrdinalIgnoreCase) == true ||
+               path?.StartsWith("/api/auth", StringComparison.OrdinalIgnoreCase) == true ||
+               path?.StartsWith("/easyauth", StringComparison.OrdinalIgnoreCase) == true ||
+               path?.StartsWith("/eauth", StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private static bool IsDevOrigin(string origin)

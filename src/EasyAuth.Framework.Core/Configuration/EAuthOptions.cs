@@ -702,9 +702,11 @@ namespace EasyAuth.Framework.Core.Configuration
     public class CorsOptions
     {
         /// <summary>
-        /// List of allowed origin URLs for CORS requests
+        /// List of allowed origin URLs for CORS requests (production domains)
+        /// Example: ["https://www.yourapp.com", "https://app.yourapp.com"]
+        /// Development origins (localhost) are automatically included
         /// </summary>
-        public string[] AllowedOrigins { get; set; } = { "http://localhost:3000", "http://localhost:5173" };
+        public string[] AllowedOrigins { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Whether to allow credentials (cookies, authorization headers) in CORS requests
@@ -719,6 +721,39 @@ namespace EasyAuth.Framework.Core.Configuration
         /// <summary>
         /// List of allowed headers for CORS requests
         /// </summary>
-        public string[] AllowedHeaders { get; set; } = { "*" };
+        public string[] AllowedHeaders { get; set; } = { 
+            "Authorization", 
+            "Content-Type", 
+            "Accept", 
+            "X-Requested-With",
+            "X-API-Key",
+            "X-App-Version"
+        };
+
+        /// <summary>
+        /// Enable automatic origin detection and learning (recommended for development)
+        /// </summary>
+        public bool EnableAutoDetection { get; set; } = true;
+
+        /// <summary>
+        /// Automatically learn and remember new development origins (localhost only)
+        /// Set to false in production for security
+        /// </summary>
+        public bool AutoLearnOrigins { get; set; } = true;
+
+        /// <summary>
+        /// Maximum age for preflight cache in seconds (default: 24 hours)
+        /// </summary>
+        public int PreflightMaxAge { get; set; } = 86400;
+
+        /// <summary>
+        /// Include default development origins (localhost servers for React, Vue, Angular, etc.)
+        /// </summary>
+        public bool IncludeDefaultDevOrigins { get; set; } = true;
+
+        /// <summary>
+        /// Custom CORS policy name (optional, uses EasyAuth defaults if not set)
+        /// </summary>
+        public string? CustomPolicyName { get; set; }
     }
 }
