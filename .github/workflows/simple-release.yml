@@ -1,0 +1,97 @@
+name: 🚀 Simple Release
+
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION_8: '8.0.x'
+  DOTNET_VERSION_9: '9.0.x'
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          ${{ env.DOTNET_VERSION_8 }}
+          ${{ env.DOTNET_VERSION_9 }}
+
+    - name: Determine Version
+      id: version
+      run: |
+        if [[ "${{ github.ref_type }}" == "tag" ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION=$(grep '<Version>' Directory.Build.props | sed 's/.*<Version>\(.*\)<\/Version>.*/\1/')
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # Build for both frameworks
+    - name: Build .NET 8.0
+      run: |
+        dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
+          --configuration Release --no-restore --framework net8.0 -p:TreatWarningsAsErrors=false
+        dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
+          --configuration Release --no-restore --framework net8.0 -p:TreatWarningsAsErrors=false
+
+    - name: Build .NET 9.0
+      run: |
+        dotnet build src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
+          --configuration Release --no-restore --framework net9.0 -p:TreatWarningsAsErrors=false
+        dotnet build src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
+          --configuration Release --no-restore --framework net9.0 -p:TreatWarningsAsErrors=false
+
+    # Create packages
+    - name: Pack NuGet packages
+      run: |
+        dotnet pack src/EasyAuth.Framework.Core/EasyAuth.Framework.Core.csproj \
+          --configuration Release --no-build --output ./packages -p:TreatWarningsAsErrors=false
+        dotnet pack src/EasyAuth.Framework.Extensions/EasyAuth.Framework.Extensions.csproj \
+          --configuration Release --no-build --output ./packages -p:TreatWarningsAsErrors=false
+
+    # Publish to NuGet
+    - name: Publish to NuGet
+      run: |
+        dotnet nuget push ./packages/EasyAuth.Framework.Core.*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+        dotnet nuget push ./packages/EasyAuth.Framework.Extensions.*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+
+    # Create GitHub release
+    - name: Create GitHub Release
+      if: github.ref_type == 'tag'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./packages/*.nupkg
+        generate_release_notes: true
+        make_latest: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Summary
+      run: |
+        echo "✅ EasyAuth Framework v${{ steps.version.outputs.version }} released successfully!"
+        echo "📦 Packages published to NuGet.org"
+        if [[ "${{ github.ref_type }}" == "tag" ]]; then
+          echo "🔗 GitHub Release: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}"
+        fi
