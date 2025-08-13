@@ -436,7 +436,7 @@ namespace EasyAuth.Framework.Core.Providers
         /// Generates Apple client secret JWT for token exchange
         /// Uses ES256 algorithm with Apple's private key
         /// </summary>
-        private async Task<string> GenerateClientSecretAsync()
+        private Task<string> GenerateClientSecretAsync()
         {
             try
             {
@@ -482,7 +482,7 @@ namespace EasyAuth.Framework.Core.Providers
                 };
 
                 var token = handler.CreateToken(tokenDescriptor);
-                return handler.WriteToken(token);
+                return Task.FromResult(handler.WriteToken(token));
             }
             catch (Exception ex)
             {
@@ -494,7 +494,7 @@ namespace EasyAuth.Framework.Core.Providers
         /// <summary>
         /// Validates Apple ID token signature and claims
         /// </summary>
-        private async Task ValidateIdTokenAsync(string idToken)
+        private Task ValidateIdTokenAsync(string idToken)
         {
             try
             {
@@ -527,6 +527,7 @@ namespace EasyAuth.Framework.Core.Providers
                 }
                 
                 _logger.LogDebug("Apple ID token validation successful");
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {

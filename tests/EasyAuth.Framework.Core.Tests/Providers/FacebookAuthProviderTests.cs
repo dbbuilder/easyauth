@@ -64,6 +64,11 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             // Setup configuration service to return valid app secret
             _mockConfigurationService.Setup(x => x.GetRequiredSecretValue("Facebook:AppSecret", "FACEBOOK_APP_SECRET"))
                 .Returns("dummy_app_secret_from_config");
+                
+            // Setup HttpClient mock
+            var httpClient = new HttpClient();
+            _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
         }
 
         #region TDD RED Phase - Tests that should fail initially
@@ -71,7 +76,20 @@ namespace EasyAuth.Framework.Core.Tests.Providers
         [Fact]
         public async Task GetAuthorizationUrlAsync_ShouldReturnValidUrl_WithRequiredParameters()
         {
-            // Arrange
+            // Arrange - use basic config without business/Instagram features for this test
+            var basicConfig = new FacebookOptions
+            {
+                Enabled = true,
+                AppId = "123456789012345",
+                AppSecret = "dummy_app_secret",
+                CallbackPath = "/auth/facebook-signin",
+                RedirectUri = "https://localhost/auth/facebook-callback",
+                Scopes = new[] { "email", "public_profile" },
+                DisplayMode = "page",
+                Locale = "en_US"
+            };
+            _mockOptions.Setup(x => x.Value).Returns(basicConfig);
+            
             var returnUrl = "https://myapp.com/dashboard";
             var provider = CreateFacebookAuthProvider();
 
@@ -83,7 +101,7 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             result.Should().StartWith("https://www.facebook.com/v19.0/dialog/oauth");
             result.Should().Contain("client_id=123456789012345");
             result.Should().Contain("response_type=code");
-            result.Should().Contain("scope=email%2Cpublic_profile");
+            result.Should().Contain("scope=email%20public_profile");
             result.Should().Contain("redirect_uri=");
             result.Should().Contain("state=");
         }

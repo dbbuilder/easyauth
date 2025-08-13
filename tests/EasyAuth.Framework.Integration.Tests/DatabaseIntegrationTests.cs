@@ -49,7 +49,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task GetDatabaseVersion_ReturnsVersion()
     {
         // Arrange
@@ -72,7 +72,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task ApplyMigrations_CompletesSuccessfully()
     {
         // Arrange
@@ -95,7 +95,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task ValidateSession_WithInvalidSessionId_ReturnsInvalidSession()
     {
         // Arrange
@@ -127,7 +127,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task InvalidateSession_WithInvalidSessionId_HandlesGracefully()
     {
         // Arrange
@@ -153,7 +153,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task CleanupExpiredData_CompletesSuccessfully()
     {
         // Arrange
@@ -176,7 +176,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task DatabaseService_CompleteWorkflow_ValidatesIntegration()
     {
         try

@@ -22,22 +22,67 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
 
     protected BaseIntegrationTest()
     {
-        // Setup SQL Server test container with faster startup configuration
-        DatabaseContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-            .WithPassword("Test123!")
-            .WithEnvironment("ACCEPT_EULA", "Y")
-            .WithEnvironment("MSSQL_PID", "Express") // Use Express edition for faster startup
-            .WithPortBinding(0, 1433)
-            .Build();
+        // Only initialize database container if Docker is available
+        if (IsDockerAvailable())
+        {
+            // Setup SQL Server test container with faster startup configuration
+            DatabaseContainer = new MsSqlBuilder()
+                .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+                .WithPassword("Test123!")
+                .WithEnvironment("ACCEPT_EULA", "Y")
+                .WithEnvironment("MSSQL_PID", "Express") // Use Express edition for faster startup
+                .WithPortBinding(0, 1433)
+                .Build();
+        }
+        else
+        {
+            DatabaseContainer = null!; // Will be checked in tests
+        }
+    }
+    
+    /// <summary>
+    /// Check if Docker is available and running
+    /// </summary>
+    private static bool IsDockerAvailable()
+    {
+        try
+        {
+            using var process = new System.Diagnostics.Process();
+            process.StartInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "docker",
+                Arguments = "info",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+            
+            process.Start();
+            process.WaitForExit(5000); // 5 second timeout
+            
+            return process.ExitCode == 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private IConfiguration BuildTestConfiguration()
     {
         var configBuilder = new ConfigurationBuilder();
-        configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+        var configValues = new Dictionary<string, string?>();
+        
+        // Only add connection string if Docker is available
+        if (!string.IsNullOrEmpty(ConnectionString))
         {
-            ["EasyAuth:ConnectionString"] = ConnectionString,
+            configValues["EasyAuth:ConnectionString"] = ConnectionString;
+        }
+        
+        // Add other configuration values
+        var additionalConfig = new Dictionary<string, string?>
+        {
             ["EasyAuth:Framework:EnableHealthChecks"] = "true",
             ["EasyAuth:Providers:Google:Enabled"] = "true",
             ["EasyAuth:Providers:Google:ClientId"] = "test-client-id",
@@ -53,20 +98,32 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
             ["EasyAuth:Providers:AzureB2C:ClientId"] = "test-b2c-client",
             ["EasyAuth:Providers:AzureB2C:TenantId"] = "test-tenant.onmicrosoft.com",
             ["EasyAuth:Providers:AzureB2C:SignUpSignInPolicyId"] = "B2C_1_signupsignin"
-        });
+        };
+        
+        // Merge all configuration values
+        foreach (var kvp in additionalConfig)
+        {
+            configValues[kvp.Key] = kvp.Value;
+        }
+        
+        configBuilder.AddInMemoryCollection(configValues);
         return configBuilder.Build();
     }
 
     public async Task InitializeAsync()
     {
-        // Start database container with extended timeout
-        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
-        await DatabaseContainer.StartAsync(cts.Token);
+        // Only start database container if Docker is available
+        if (DatabaseContainer != null)
+        {
+            // Start database container with extended timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+            await DatabaseContainer.StartAsync(cts.Token);
 
-        // Get connection string
-        ConnectionString = DatabaseContainer.GetConnectionString();
+            // Get connection string
+            ConnectionString = DatabaseContainer.GetConnectionString();
+        }
 
-        // Build service provider with EasyAuth configuration now that connection string is available
+        // Build service provider with EasyAuth configuration
         var services = new ServiceCollection();
         var configuration = BuildTestConfiguration();
 
@@ -85,7 +142,10 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     public async Task DisposeAsync()
     {
         ServiceProvider?.Dispose();
-        await DatabaseContainer.DisposeAsync();
+        if (DatabaseContainer != null)
+        {
+            await DatabaseContainer.DisposeAsync();
+        }
     }
 
     /// <summary>
@@ -93,6 +153,12 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     /// </summary>
     private async Task InitializeDatabaseAsync()
     {
+        // Skip database initialization if Docker is not available
+        if (string.IsNullOrEmpty(ConnectionString) || DatabaseContainer == null)
+        {
+            return;
+        }
+        
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync();
 
@@ -203,6 +269,12 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     /// </summary>
     protected async Task CleanupTestDataAsync()
     {
+        // Skip cleanup if Docker is not available
+        if (string.IsNullOrEmpty(ConnectionString) || DatabaseContainer == null)
+        {
+            return;
+        }
+        
         await using var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync();
 

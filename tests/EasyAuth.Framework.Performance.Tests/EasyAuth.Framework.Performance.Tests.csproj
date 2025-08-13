@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <!-- Performance-specific packages are defined in Directory.Build.props -->
-  <!-- No additional project-specific packages needed -->
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EasyAuth.Framework.Core\EasyAuth.Framework.Core.csproj" />

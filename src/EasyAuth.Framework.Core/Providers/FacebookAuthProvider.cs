@@ -814,15 +814,15 @@ namespace EasyAuth.Framework.Core.Providers
         /// <summary>
         /// Attempts to parse Facebook error response
         /// </summary>
-        private async Task<FacebookErrorResponse?> TryParseErrorResponse(string content)
+        private Task<FacebookErrorResponse?> TryParseErrorResponse(string content)
         {
             try
             {
-                return JsonSerializer.Deserialize<FacebookErrorResponse>(content);
+                return Task.FromResult(JsonSerializer.Deserialize<FacebookErrorResponse>(content));
             }
             catch
             {
-                return null;
+                return Task.FromResult<FacebookErrorResponse?>(null);
             }
         }
 

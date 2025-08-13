@@ -161,7 +161,7 @@ public class RateLimitingMiddleware
         return await CheckSlidingWindowLimit(key, limit, window, "Authentication rate limit");
     }
 
-    private async Task<RateLimitResult> CheckSlidingWindowLimit(
+    private Task<RateLimitResult> CheckSlidingWindowLimit(
         string key, int limit, TimeSpan window, string reason)
     {
         var now = DateTimeOffset.UtcNow;
@@ -174,14 +174,14 @@ public class RateLimitingMiddleware
         {
             var oldestRequest = requests.Min();
             var retryAfter = (oldestRequest + window) - now;
-            return RateLimitResult.Denied(reason, retryAfter);
+            return Task.FromResult(RateLimitResult.Denied(reason, retryAfter));
         }
 
         // Add current request
         requests.Add(now);
         _cache.Set(key, requests, window);
 
-        return RateLimitResult.Allowed();
+        return Task.FromResult(RateLimitResult.Allowed());
     }
 
     private bool IsAuthEndpoint(string endpoint)

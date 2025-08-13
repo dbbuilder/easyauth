@@ -26,7 +26,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
 
     #region Database Connectivity Tests
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task DatabaseService_ConnectivityCheck_EstablishesConnection()
     {
         try
@@ -59,7 +59,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task DatabaseSchema_TablesExist_ValidatesStructure()
     {
         try
@@ -105,7 +105,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
 
     #region Session Management Tests
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task SessionManagement_CreateAndValidate_WorksEndToEnd()
     {
         try
@@ -166,7 +166,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task SessionManagement_ExpiredSessions_AreInvalidated()
     {
         try
@@ -218,7 +218,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task SessionManagement_ConcurrentSessions_HandledCorrectly()
     {
         try
@@ -286,7 +286,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
 
     #region User Account Management Tests
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task UserAccountManagement_MultipleProviders_LinksCorrectly()
     {
         try
@@ -350,7 +350,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
 
     #region Audit Logging Tests
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task AuditLogging_UserActions_RecordsCorrectly()
     {
         try
@@ -421,7 +421,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
 
     #region Performance and Cleanup Tests
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task DatabaseOperations_BulkInsert_PerformsEfficiently()
     {
         try
@@ -472,7 +472,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
         }
     }
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task DatabaseCleanup_ExpiredData_RemovesCorrectly()
     {
         try
@@ -520,7 +520,7 @@ public class DatabaseSessionIntegrationTests : BaseIntegrationTest
 
     #region Database Security Tests
 
-    [Fact]
+    [DockerRequiredFact]
     public async Task DatabaseSecurity_ParameterizedQueries_PreventSQLInjection()
     {
         try

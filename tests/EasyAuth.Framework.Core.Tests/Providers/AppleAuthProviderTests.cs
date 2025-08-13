@@ -82,6 +82,11 @@ namespace EasyAuth.Framework.Core.Tests.Providers
             _mockConfigurationService
                 .Setup(x => x.GetRequiredSecretValue("Apple:JwtSecret", "APPLE_JWT_SECRET"))
                 .Returns("test-jwt-secret-for-unit-tests-only-never-use-in-production");
+                
+            // Setup HttpClient mock
+            var httpClient = new HttpClient();
+            _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
+                .Returns(httpClient);
         }
 
         #region TDD RED Phase - Tests that should fail initially

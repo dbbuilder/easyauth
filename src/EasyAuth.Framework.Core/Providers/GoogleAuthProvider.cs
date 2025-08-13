@@ -86,7 +86,7 @@ namespace EasyAuth.Framework.Core.Providers
         /// Builds Google OAuth login URL with scopes, state, and custom parameters
         /// Uses consent prompt and offline access for refresh token capability
         /// </summary>
-        public async Task<string> GetLoginUrlAsync(string? returnUrl = null, Dictionary<string, string>? parameters = null)
+        public Task<string> GetLoginUrlAsync(string? returnUrl = null, Dictionary<string, string>? parameters = null)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace EasyAuth.Framework.Core.Providers
                 var authUrl = $"https://accounts.google.com/o/oauth2/v2/auth?{queryString}";
 
                 _logger.LogInformation("Generated Google OAuth URL successfully");
-                return authUrl;
+                return Task.FromResult(authUrl);
             }
             catch (Exception ex)
             {

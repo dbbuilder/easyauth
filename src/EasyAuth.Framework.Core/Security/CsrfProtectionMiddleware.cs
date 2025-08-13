@@ -104,7 +104,7 @@ public class CsrfProtectionMiddleware
         return true;
     }
 
-    private async Task SetCsrfTokenAsync(HttpContext context)
+    private Task SetCsrfTokenAsync(HttpContext context)
     {
         try
         {
@@ -128,6 +128,8 @@ public class CsrfProtectionMiddleware
         {
             _logger.LogError(ex, "Failed to set CSRF token");
         }
+        
+        return Task.CompletedTask;
     }
 
     private async Task<bool> ValidateCsrfTokenAsync(HttpContext context)

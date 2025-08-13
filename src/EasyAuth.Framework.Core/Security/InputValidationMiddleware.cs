@@ -164,7 +164,7 @@ public class InputValidationMiddleware
             
             foreach (var field in form)
             {
-                if (field.Value.Any(value => ContainsSuspiciousPattern(value)))
+                if (field.Value.Any(value => value != null && ContainsSuspiciousPattern(value)))
                 {
                     _logger.LogWarning("Suspicious pattern detected in form field {FieldName} from {IP}",
                         field.Key, context.Connection.RemoteIpAddress);
@@ -174,7 +174,7 @@ public class InputValidationMiddleware
                 }
 
                 // Check field length
-                if (field.Value.Any(value => value.Length > _options.MaxFieldLength))
+                if (field.Value.Any(value => value?.Length > _options.MaxFieldLength))
                 {
                     _logger.LogWarning("Form field too long {FieldName} from {IP}",
                         field.Key, context.Connection.RemoteIpAddress);
