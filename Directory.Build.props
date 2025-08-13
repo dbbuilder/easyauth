@@ -46,11 +46,11 @@
     <TrimMode>link</TrimMode>
     
     <!-- Versioning -->
-    <Version>2.4.3</Version>
+    <Version>2.4.4</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <PackageReleaseNotes><![CDATA[v2.4.3 Controller Consolidation & Swagger Enhancement: Resolved controller conflicts between StandardApiController and EAuthController. StandardApiController deprecated and moved to /api/legacy with IgnoreApi attribute. Enhanced EAuthController with comprehensive Swagger documentation and critical API path warnings. Fixed missing MapEasyAuth() method with proper controller mapping, endpoint logging, and Swagger visibility. Created extensive documentation for MapEasyAuth() integration, dependency version conflicts, and OAuth setup CLI with Azure B2C Graph API provisioning. All OAuth endpoints now properly visible in Swagger under /api/EAuth/ paths exclusively.]]></PackageReleaseNotes>
+    <PackageReleaseNotes><![CDATA[v2.4.4 Workflow Optimization & Production Readiness: Consolidated GitHub Actions from 9 overlapping workflows to 3 optimized workflows (main.yml, security-scheduled.yml, pr-validation.yml) achieving 70-80% cost reduction. Enhanced CORS configuration with dynamic production domain support and unified approach. Fixed critical /api/EAuth path handling for production deployments. Added comprehensive workflow consolidation documentation and smart change detection for faster CI/CD feedback.]]></PackageReleaseNotes>
     
     <!-- Multi-targeting configuration for .NET 8 and .NET 9 support -->
     <EasyAuthTargetFrameworks>net8.0</EasyAuthTargetFrameworks>
