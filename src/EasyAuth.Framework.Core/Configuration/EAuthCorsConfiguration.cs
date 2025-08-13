@@ -35,7 +35,7 @@ public class EAuthCorsConfiguration
             options.AddPolicy("EasyAuthDevelopment", policy =>
             {
                 var autoDetectedOrigins = EasyAuthDefaults.GetAllDevelopmentOrigins();
-                var configuredOrigins = _options.AllowedOrigins.ToList();
+                var configuredOrigins = _corsOptions.AllowedOrigins.ToList();
                 var allOrigins = autoDetectedOrigins.Concat(configuredOrigins).Distinct().ToList();
 
                 _logger.LogInformation("Auto-detected {Count} development origins: {Origins}", 
