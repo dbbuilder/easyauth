@@ -17,7 +17,8 @@ on:
         default: false
 
 env:
-  DOTNET_VERSION: '8.0.x'
+  DOTNET_VERSION_8: '8.0.x'
+  DOTNET_VERSION_9: '9.0.x'
   SOLUTION_FILE: 'EasyAuth.Framework.sln'
 
 jobs:
@@ -77,7 +78,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: |
+          ${{ env.DOTNET_VERSION_8 }}
+          ${{ env.DOTNET_VERSION_9 }}
         
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -225,7 +228,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: |
+          ${{ env.DOTNET_VERSION_8 }}
+          ${{ env.DOTNET_VERSION_9 }}
         
     - name: Publish to NuGet
       run: |
